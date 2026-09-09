@@ -34,6 +34,9 @@ footer { font-size: 9px; }
 #target-info { font-size: 9px; }
 #toast p { font-size: 14px; }
 #boss-info .eyebrow { font-size: 10px; }
+#impact-flash { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at center, rgba(255, 248, 214, .42), rgba(255, 183, 104, .08) 22%, transparent 58%); mix-blend-mode: screen; opacity: 0; transition: opacity .04s; }
+#hitmarker { transition: opacity .06s, transform .06s; }
+#hitmarker.heavy { color: #ffe3a8; transform: translate(-50%, -50%) scale(1.18); }
 .locale-toggle,
 .locale-toggle button { font-size: 10px; }
 

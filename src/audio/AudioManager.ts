@@ -1,3 +1,6 @@
+type AudioPosition = { x: number; y: number; z: number };
+type AudioListenerState = { position: AudioPosition; forward: AudioPosition; up: AudioPosition; boosting: boolean };
+
 export class AudioManager {
   private context?: AudioContext;
   private master?: GainNode;
@@ -7,8 +10,14 @@ export class AudioManager {
   private noiseBuffer?: AudioBuffer;
   private engine?: OscillatorNode;
   private engineGain?: GainNode;
+  private ambient?: OscillatorNode;
+  private ambientGain?: GainNode;
   private beat = 0;
   private beatTimer = 0;
+  private radarTimer = 0;
+  private musicDuck = 1;
+  private musicDuckHold = 0;
+  private appliedMusicGain = 0;
   private muted = false;
   private volume = { master: 0.7, music: 0.4, sfx: 0.75 };
   start() {
@@ -24,62 +33,111 @@ export class AudioManager {
       const noise = this.noiseBuffer.getChannelData(0);
       for (let i = 0; i < noise.length; i++) noise[i] = Math.random() * 2 - 1;
       this.engine = ctx.createOscillator(); this.engine.type = 'sawtooth'; this.engine.frequency.value = 38;
-      this.engineGain = ctx.createGain(); this.engineGain.gain.value = 0.014;
+      this.engineGain = ctx.createGain(); this.engineGain.gain.value = 0.012;
       const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 150;
       this.engine.connect(filter); filter.connect(this.engineGain); this.engineGain.connect(this.sfx); this.engine.start();
+      this.ambient = ctx.createOscillator(); this.ambient.type = 'triangle'; this.ambient.frequency.value = 62;
+      this.ambientGain = ctx.createGain(); this.ambientGain.gain.value = 0.0025;
+      const ambientFilter = ctx.createBiquadFilter(); ambientFilter.type = 'lowpass'; ambientFilter.frequency.value = 220;
+      this.ambient.connect(ambientFilter); ambientFilter.connect(this.ambientGain); this.ambientGain.connect(this.sfx); this.ambient.start();
+      this.appliedMusicGain = this.volume.music;
     }
     void this.context.resume();
   }
   setVolume(bus: 'master' | 'music' | 'sfx', value: number) {
-    this.volume[bus] = value; const node = this[bus]; if (node && !(bus === 'master' && this.muted)) node.gain.value = value;
+    this.volume[bus] = value; const node = this[bus];
+    if (node && !(bus === 'master' && this.muted)) node.gain.value = bus === 'music' ? value * this.musicDuck : value;
+    if (bus === 'music') this.appliedMusicGain = value * this.musicDuck;
   }
   setMuted(muted: boolean) { this.muted = muted; if (this.master) this.master.gain.value = muted ? 0 : this.volume.master; }
-  private tone(frequency: number, end: number, duration: number, volume: number, type: OscillatorType, music = false) {
+  private createPanner(position: AudioPosition) {
+    const panner = this.context!.createPanner();
+    panner.panningModel = 'HRTF'; panner.distanceModel = 'inverse'; panner.refDistance = 120; panner.maxDistance = 4000; panner.rolloffFactor = 0.45;
+    panner.setPosition(position.x, position.y, position.z);
+    return panner;
+  }
+  private randomPitch(amount = 0.04) { return 1 + (Math.random() * 2 - 1) * amount; }
+  private duckMusic(amount: number) { this.musicDuck = Math.min(this.musicDuck, amount); this.musicDuckHold = Math.max(this.musicDuckHold, 0.22); }
+  private tone(frequency: number, end: number, duration: number, volume: number, type: OscillatorType, music = false, position?: AudioPosition) {
     const ctx = this.context; const bus = music ? this.music : this.sfx; if (!ctx || !bus) return;
     const oscillator = ctx.createOscillator(), gain = ctx.createGain();
     oscillator.type = type; oscillator.frequency.setValueAtTime(frequency, ctx.currentTime); oscillator.frequency.exponentialRampToValueAtTime(Math.max(10, end), ctx.currentTime + duration);
     const mixBoost = music ? 1.2 : 1.5;
     gain.gain.setValueAtTime(volume * mixBoost, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
-    oscillator.connect(gain); gain.connect(bus); oscillator.start(); oscillator.stop(ctx.currentTime + duration);
-    oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
+    oscillator.connect(gain); const panner = position ? this.createPanner(position) : undefined;
+    if (panner) { gain.connect(panner); panner.connect(bus); } else gain.connect(bus);
+    oscillator.start(); oscillator.stop(ctx.currentTime + duration);
+    oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); panner?.disconnect(); };
   }
-  private noise(duration: number, volume: number, cutoff: number, music = false) {
+  private noise(duration: number, volume: number, cutoff: number, music = false, position?: AudioPosition) {
     const ctx = this.context; const bus = music ? this.music : this.sfx; if (!ctx || !bus || !this.noiseBuffer) return;
     const source = ctx.createBufferSource(); source.buffer = this.noiseBuffer;
     const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.setValueAtTime(cutoff, ctx.currentTime);
     const gain = ctx.createGain(); const mixBoost = music ? 1.2 : 1.5;
     gain.gain.setValueAtTime(volume * mixBoost, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
-    source.connect(filter); filter.connect(gain); gain.connect(bus); source.start(); source.stop(ctx.currentTime + duration);
-    source.onended = () => { source.disconnect(); filter.disconnect(); gain.disconnect(); };
+    source.connect(filter); filter.connect(gain); const panner = position ? this.createPanner(position) : undefined;
+    if (panner) { gain.connect(panner); panner.connect(bus); } else gain.connect(bus);
+    source.start(); source.stop(ctx.currentTime + duration);
+    source.onended = () => { source.disconnect(); filter.disconnect(); gain.disconnect(); panner?.disconnect(); };
   }
-  laser() {
-    this.tone(1180, 260, 0.09, 0.045, 'sawtooth');
-    this.tone(1850, 650, 0.045, 0.025, 'triangle');
-    this.noise(0.045, 0.018, 5200);
+  laser(position?: AudioPosition) {
+    const pitch = this.randomPitch(0.035);
+    this.tone(1180 * pitch, 260 * pitch, 0.09, 0.045, 'sawtooth', false, position);
+    this.tone(1850 * pitch, 650 * pitch, 0.045, 0.025, 'triangle', false, position);
+    this.noise(0.045, 0.018, 5200 * pitch, false, position);
   }
-  plasma() {
-    this.tone(180, 35, 0.4, 0.14, 'sawtooth');
-    this.tone(75, 25, 0.32, 0.08, 'triangle');
-    this.noise(0.18, 0.045, 900);
+  plasma(position?: AudioPosition) {
+    const pitch = this.randomPitch(0.06); this.duckMusic(0.72);
+    this.tone(180 * pitch, 35 * pitch, 0.4, 0.14, 'sawtooth', false, position);
+    this.tone(75 * pitch, 25 * pitch, 0.32, 0.08, 'triangle', false, position);
+    this.noise(0.18, 0.045, 900 * pitch, false, position);
   }
-  burst() {
-    this.tone(430, 25, 0.9, 0.20, 'triangle');
-    this.tone(900, 120, 0.22, 0.08, 'sawtooth');
-    this.noise(0.28, 0.07, 2600);
+  burst(position?: AudioPosition) {
+    const pitch = this.randomPitch(0.05); this.duckMusic(0.55);
+    this.tone(430 * pitch, 25 * pitch, 0.9, 0.20, 'triangle', false, position);
+    this.tone(900 * pitch, 120 * pitch, 0.22, 0.08, 'sawtooth', false, position);
+    this.noise(0.28, 0.07, 2600 * pitch, false, position);
   }
-  hit() { this.tone(1250, 700, 0.06, 0.06, 'triangle'); this.noise(0.035, 0.015, 6000); }
-  explosion() {
-    this.tone(55, 14, 0.95, 0.30, 'sawtooth');
-    this.tone(135, 20, 0.45, 0.12, 'triangle');
-    this.noise(0.78, 0.16, 950);
-    this.noise(0.20, 0.08, 3800);
+  hit(position?: AudioPosition, heavy = false) {
+    const pitch = this.randomPitch(0.08); this.duckMusic(heavy ? 0.48 : 0.78);
+    this.tone(1250 * pitch, 700 * pitch, 0.06, heavy ? 0.075 : 0.06, 'triangle', false, position);
+    this.noise(0.035, heavy ? 0.022 : 0.015, 6000 * pitch, false, position);
   }
-  lock() { this.tone(740, 1480, 0.18, 0.08, 'sine'); }
-  alert() { this.tone(520, 390, 0.65, 0.10, 'triangle'); }
+  explosion(position?: AudioPosition, size = 1) {
+    const pitch = this.randomPitch(0.045); this.duckMusic(size >= 2 ? 0.3 : 0.48);
+    this.tone(55 * pitch, 14 * pitch, 0.95, 0.30, 'sawtooth', false, position);
+    this.tone(135 * pitch, 20 * pitch, 0.45, 0.12, 'triangle', false, position);
+    this.noise(0.78, 0.16, 950 * pitch, false, position);
+    this.noise(0.20, 0.08, 3800 * pitch, false, position);
+  }
+  damage(position?: AudioPosition) {
+    this.duckMusic(0.45);
+    this.tone(170, 90, 0.32, 0.12, 'sawtooth', false, position);
+    this.tone(620, 420, 0.22, 0.06, 'square', false, position);
+  }
+  lock() { this.tone(740 * this.randomPitch(0.03), 1480, 0.18, 0.08, 'sine'); }
+  alert() { this.duckMusic(0.7); this.tone(520, 390, 0.65, 0.10, 'triangle'); }
   pause() { void this.context?.suspend(); }
-  update(dt: number, speed: number, stage: number) {
+  update(dt: number, speed: number, stage: number, listener?: AudioListenerState, contacts = 0, radarPosition?: AudioPosition) {
     if (!this.context) return;
+    const ctx = this.context;
+    if (listener) {
+      const audioListener = ctx.listener;
+      audioListener.setPosition(listener.position.x, listener.position.y, listener.position.z);
+      audioListener.setOrientation(listener.forward.x, listener.forward.y, listener.forward.z, listener.up.x, listener.up.y, listener.up.z);
+    }
+    if (this.musicDuckHold > 0) this.musicDuckHold -= dt;
+    else this.musicDuck += (1 - this.musicDuck) * (1 - Math.exp(-dt * 3.2));
+    const targetMusicGain = this.volume.music * this.musicDuck;
+    if (this.music && Math.abs(targetMusicGain - this.appliedMusicGain) > 0.004) {
+      this.music.gain.setTargetAtTime(targetMusicGain, ctx.currentTime, 0.04); this.appliedMusicGain = targetMusicGain;
+    }
     this.engine?.frequency.setTargetAtTime(30 + speed * 0.23, this.context.currentTime, 0.2);
+    this.engineGain?.gain.setTargetAtTime(0.012 + Math.min(speed, 240) * 0.000035 + (listener?.boosting ? 0.008 : 0), ctx.currentTime, 0.16);
+    this.ambient?.frequency.setTargetAtTime(58 + speed * 0.09, ctx.currentTime, 0.3);
+    this.ambientGain?.gain.setTargetAtTime(0.0025 + Math.min(speed, 240) * 0.000006 + (listener?.boosting ? 0.003 : 0), ctx.currentTime, 0.25);
+    this.radarTimer -= dt;
+    if (contacts > 0 && this.radarTimer <= 0) { this.radarTimer = stage >= 4 ? 0.62 : 0.95; this.tone(760, 1280, 0.055, 0.018, 'sine', false, radarPosition); }
     this.beatTimer -= dt;
     if (this.beatTimer > 0) return;
     this.beatTimer = stage >= 5 ? 0.34 : stage >= 2 ? 0.48 : 0.8;

@@ -67,11 +67,15 @@ export class Game {
     this.input.onPause = () => { if (this.state === 'playing') this.pause(); else if (this.state === 'pause') this.resume(); };
     this.enemies.onDestroyed = (enemy) => {
       this.effects.explosion(enemy.position, enemy.kind === 'assault' ? 2 : 1.2);
-      this.audio.explosion(); this.progression.recordKill(enemy.kind);
+      this.audio.explosion(enemy.position, enemy.kind === 'assault' ? 2 : 1.2); this.hud.hit(true); this.progression.recordKill(enemy.kind);
       // A small shield reward keeps sustained combat viable without regenerating hull.
       this.player.health.shield = Math.min(CONFIG.player.shield, this.player.health.shield + 7);
     };
-    this.projectiles.onHit = (_target, position, kind) => { this.hud.hit(); this.audio.hit(); this.effects.explosion(position, kind === 'laser' ? 0.25 : 1.2); };
+    this.projectiles.onHit = (_target, position, kind) => {
+      const heavy = kind !== 'laser';
+      this.hud.hit(heavy); this.audio.hit(position, heavy); this.effects.explosion(position, kind === 'laser' ? 0.25 : 1.2);
+      this.effects.shake = Math.max(this.effects.shake, heavy ? 0.16 : 0.055);
+    };
     this.projectiles.onPlayerHit = damage => this.damage(damage);
     this.hud.show('menu');
     engine.runRenderLoop(() => this.frame());
@@ -109,8 +113,8 @@ export class Game {
   }
   private damage(amount: number) {
     if (this.player.dodge > 0 || this.state !== 'playing') return;
-    this.player.health.hit(amount); this.hud.damage(); this.effects.shake = 0.5;
-    if (this.player.health.hull <= 0) { this.effects.explosion(this.player.position, 4); this.audio.explosion(); this.finish(false); }
+    this.player.health.hit(amount); this.hud.damage(); this.audio.damage(this.player.position); this.effects.shake = 0.5;
+    if (this.player.health.hull <= 0) { this.effects.explosion(this.player.position, 4); this.audio.explosion(this.player.position, 4); this.finish(false); }
   }
   private get targets(): Target[] { return [...this.enemies.enemies.filter(e => e.health > 0), ...(this.boss?.targets ?? [])]; }
   private chooseTarget(cycle: boolean) {
@@ -138,9 +142,9 @@ export class Game {
       const origin = this.player.position.add(this.player.right.scale(side * 2.75)).add(forward.scale(3));
       this.projectiles.fire(origin, aim.subtract(origin).normalize(), kind, damage, speed + this.player.speed * 0.3);
     }
-    if (kind === 'laser') { this.laserCooldown = CONFIG.weapons.laserInterval; this.audio.laser(); this.effects.shake = Math.max(this.effects.shake, 0.025); }
-    if (kind === 'plasma') { this.plasmaCooldown = CONFIG.weapons.plasmaInterval; this.audio.plasma(); this.effects.shake = 0.13; }
-    if (kind === 'burst') { this.burstCooldown = CONFIG.weapons.burstInterval; this.audio.burst(); this.effects.shake = 0.25; }
+    if (kind === 'laser') { this.laserCooldown = CONFIG.weapons.laserInterval; this.audio.laser(this.player.position); this.effects.shake = Math.max(this.effects.shake, 0.025); }
+    if (kind === 'plasma') { this.plasmaCooldown = CONFIG.weapons.plasmaInterval; this.audio.plasma(this.player.position); this.effects.shake = 0.13; }
+    if (kind === 'burst') { this.burstCooldown = CONFIG.weapons.burstInterval; this.audio.burst(this.player.position); this.effects.shake = 0.25; }
   }
   private chaseCamera(dt: number) {
     const desired = this.player.position.subtract(this.player.forward.scale(this.player.boosting ? 30 : 24)).add(this.player.up.scale(7));
@@ -181,7 +185,9 @@ export class Game {
       this.player.throttle = CONFIG.player.minSpeed; this.player.velocity.scaleInPlace(-0.25);
     }
     this.world.update(dt, this.player.position); this.effects.update(dt); this.chaseCamera(dt);
-    this.audio.update(dt, this.player.speed, this.progression.stage);
+    this.audio.update(dt, this.player.speed, this.progression.stage, {
+      position: this.player.position, forward: this.player.forward, up: this.player.up, boosting: this.player.boosting,
+    }, targets.length, this.selected?.position);
     this.hud.aim(this.input.mouseX, this.input.mouseY);
     this.hud.update(dt, this.player, this.progression, this.targets, this.selected, this.scene, this.plasmaCooldown, this.burstCooldown, this.boss?.objective);
     this.debugTimer -= dt;
