@@ -1,8 +1,10 @@
 export class AudioManager {
   private context?: AudioContext;
   private master?: GainNode;
+  private compressor?: DynamicsCompressorNode;
   private sfx?: GainNode;
   private music?: GainNode;
+  private noiseBuffer?: AudioBuffer;
   private engine?: OscillatorNode;
   private engineGain?: GainNode;
   private beat = 0;
@@ -12,9 +14,15 @@ export class AudioManager {
   start() {
     if (!this.context) {
       const ctx = this.context = new AudioContext();
-      this.master = ctx.createGain(); this.master.gain.value = this.volume.master; this.master.connect(ctx.destination);
+      this.master = ctx.createGain(); this.master.gain.value = this.volume.master;
+      this.compressor = ctx.createDynamicsCompressor();
+      this.compressor.threshold.value = -20; this.compressor.knee.value = 18; this.compressor.ratio.value = 5; this.compressor.attack.value = 0.003; this.compressor.release.value = 0.24;
+      this.master.connect(this.compressor); this.compressor.connect(ctx.destination);
       this.sfx = ctx.createGain(); this.sfx.gain.value = this.volume.sfx; this.sfx.connect(this.master);
       this.music = ctx.createGain(); this.music.gain.value = this.volume.music; this.music.connect(this.master);
+      this.noiseBuffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * 1.5), ctx.sampleRate);
+      const noise = this.noiseBuffer.getChannelData(0);
+      for (let i = 0; i < noise.length; i++) noise[i] = Math.random() * 2 - 1;
       this.engine = ctx.createOscillator(); this.engine.type = 'sawtooth'; this.engine.frequency.value = 38;
       this.engineGain = ctx.createGain(); this.engineGain.gain.value = 0.014;
       const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 150;
@@ -35,11 +43,37 @@ export class AudioManager {
     oscillator.connect(gain); gain.connect(bus); oscillator.start(); oscillator.stop(ctx.currentTime + duration);
     oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
   }
-  laser() { this.tone(920, 190, 0.10, 0.04, 'sawtooth'); }
-  plasma() { this.tone(180, 35, 0.4, 0.12, 'sawtooth'); }
-  burst() { this.tone(430, 25, 0.9, 0.18, 'triangle'); }
-  hit() { this.tone(1250, 700, 0.06, 0.05, 'triangle'); }
-  explosion() { this.tone(65, 15, 0.8, 0.25, 'sawtooth'); this.tone(120, 20, 0.35, 0.09, 'triangle'); }
+  private noise(duration: number, volume: number, cutoff: number, music = false) {
+    const ctx = this.context; const bus = music ? this.music : this.sfx; if (!ctx || !bus || !this.noiseBuffer) return;
+    const source = ctx.createBufferSource(); source.buffer = this.noiseBuffer;
+    const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.setValueAtTime(cutoff, ctx.currentTime);
+    const gain = ctx.createGain(); const mixBoost = music ? 1.2 : 1.5;
+    gain.gain.setValueAtTime(volume * mixBoost, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+    source.connect(filter); filter.connect(gain); gain.connect(bus); source.start(); source.stop(ctx.currentTime + duration);
+    source.onended = () => { source.disconnect(); filter.disconnect(); gain.disconnect(); };
+  }
+  laser() {
+    this.tone(1180, 260, 0.09, 0.045, 'sawtooth');
+    this.tone(1850, 650, 0.045, 0.025, 'triangle');
+    this.noise(0.045, 0.018, 5200);
+  }
+  plasma() {
+    this.tone(180, 35, 0.4, 0.14, 'sawtooth');
+    this.tone(75, 25, 0.32, 0.08, 'triangle');
+    this.noise(0.18, 0.045, 900);
+  }
+  burst() {
+    this.tone(430, 25, 0.9, 0.20, 'triangle');
+    this.tone(900, 120, 0.22, 0.08, 'sawtooth');
+    this.noise(0.28, 0.07, 2600);
+  }
+  hit() { this.tone(1250, 700, 0.06, 0.06, 'triangle'); this.noise(0.035, 0.015, 6000); }
+  explosion() {
+    this.tone(55, 14, 0.95, 0.30, 'sawtooth');
+    this.tone(135, 20, 0.45, 0.12, 'triangle');
+    this.noise(0.78, 0.16, 950);
+    this.noise(0.20, 0.08, 3800);
+  }
   lock() { this.tone(740, 1480, 0.18, 0.08, 'sine'); }
   alert() { this.tone(520, 390, 0.65, 0.10, 'triangle'); }
   pause() { void this.context?.suspend(); }
