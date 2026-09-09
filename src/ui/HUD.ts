@@ -19,6 +19,7 @@ export class HUD {
   private toastMessage = '';
   private hitTime = 0;
   private impactTime = 0;
+  private threatTime = 0;
   private damageTime = 0;
   private countdownValue = '3';
   private currentScreen: Screen = 'menu';
@@ -36,7 +37,7 @@ export class HUD {
     this.root.querySelectorAll<HTMLInputElement>('[data-audio]').forEach(input => audioValues.set(input.dataset.audio!, input.value));
     const audioPreferences = getAudioPreferences();
     this.root.innerHTML = `
-      <div class="vignette"></div><div id="impact-flash"></div><div id="damage-flash"></div>
+      <div class="vignette"></div><div id="impact-flash"></div><div id="threat-flash"></div><div id="damage-flash"></div>
       <header class="topbar"><a class="wordmark" href="/" aria-label="${t('brand.start')}"><span class="brand-icon">∨</span> VÉU <span class="brand-sub">${t('brand.sub')}</span></a><div class="build"><span class="status-dot"></span> ${t('systems.online')} <span class="divider">/</span> <span id="backend">${this.backend}</span></div><div class="locale-toggle" aria-label="${t('locale.select')}">${this.localeButtons()}</div></header>
       <section id="menu" class="screen menu">
         <div class="eyebrow"><span class="line"></span> ${t('menu.chapter')}</div><h1>${t('menu.title')}</h1><p class="lead">${t('menu.lead')}</p>
@@ -102,6 +103,7 @@ export class HUD {
   countdown(value: string) { this.countdownValue = value; this.elements.countdown.textContent = value; }
   toast(message: string) { this.toastMessage = message; this.elements['toast-text'].textContent = message; this.toastTime = 6; }
   hit(heavy = false) { this.hitTime = heavy ? 0.2 : 0.13; this.impactTime = Math.max(this.impactTime, heavy ? 0.2 : 0.1); this.elements.hitmarker.classList.toggle('heavy', heavy); }
+  threat() { this.threatTime = Math.max(this.threatTime, 0.24); }
   damage() { this.damageTime = 0.35; }
 
   result(won: boolean, progression: ProgressionManager) {
@@ -129,8 +131,8 @@ export class HUD {
     this.root.querySelectorAll<HTMLElement>('[data-stage]').forEach(el => el.classList.toggle('active', Number(el.dataset.stage) <= progression.stage));
     e['boss-info'].classList.toggle('hidden', !bossObjective); text('boss-objective', bossObjective ?? '');
     text('target-info', selected ? `${selected.name.toUpperCase()}  /  ${Math.round(Vector3.Distance(player.position, selected.position))} m` : `${t('hud.no-target')} · ${t('hud.lock')}`);
-    this.toastTime -= dt; this.hitTime -= dt; this.impactTime -= dt; this.damageTime -= dt;
-    e.toast.classList.toggle('visible', this.toastTime > 0); e.hitmarker.style.opacity = this.hitTime > 0 ? '1' : '0'; e['impact-flash'].style.opacity = this.impactTime > 0 ? `${Math.min(0.3, this.impactTime * 1.8)}` : '0'; e['damage-flash'].style.opacity = this.damageTime > 0 ? '1' : '0';
+    this.toastTime -= dt; this.hitTime -= dt; this.impactTime -= dt; this.threatTime -= dt; this.damageTime -= dt;
+    e.toast.classList.toggle('visible', this.toastTime > 0); e.hitmarker.style.opacity = this.hitTime > 0 ? '1' : '0'; e['impact-flash'].style.opacity = this.impactTime > 0 ? `${Math.min(0.3, this.impactTime * 1.8)}` : '0'; e['threat-flash'].style.opacity = this.threatTime > 0 ? `${Math.min(0.55, this.threatTime * 2.2)}` : '0'; e['damage-flash'].style.opacity = this.damageTime > 0 ? '1' : '0';
     this.drawRadar(player, targets); text('contacts', t('hud.contacts', { count: targets.length })); this.drawMarkers(scene, player, targets, selected);
   }
 

@@ -71,6 +71,8 @@ export class Game {
       // A small shield reward keeps sustained combat viable without regenerating hull.
       this.player.health.shield = Math.min(CONFIG.player.shield, this.player.health.shield + 7);
     };
+    this.enemies.onTelegraph = enemy => { this.audio.enemyCharge(enemy.position, enemy.kind); this.hud.threat(); };
+    this.enemies.onFire = enemy => this.audio.enemyFire(enemy.position, enemy.kind);
     this.projectiles.onHit = (_target, position, kind) => {
       const heavy = kind !== 'laser';
       this.hud.hit(heavy); this.audio.hit(position, heavy); this.effects.explosion(position, kind === 'laser' ? 0.25 : 1.2);

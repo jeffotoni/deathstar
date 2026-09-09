@@ -27,6 +27,8 @@ test('enemy +Z nose faces its target, approaches, and can fire during attack', (
     const enemy = new Enemy('scout', assets, new Vector3(0, 0, 400), new Vector3(0, 0, -1));
     enemy.age = 3; enemy.cooldown = 0; manager.enemies.push(enemy);
     const initialDistance = Vector3.Distance(enemy.position, player.position);
+    manager.update(1 / 60, player);
+    assert.equal(shots.count, 0, 'enemy telegraph must precede the shot');
     for (let i = 0; i < 60; i++) {
       enemy.root.computeWorldMatrix(true);
       manager.update(1 / 60, player);

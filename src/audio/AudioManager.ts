@@ -1,3 +1,5 @@
+import { CONFIG } from '../config';
+
 type AudioPosition = { x: number; y: number; z: number };
 type AudioListenerState = { position: AudioPosition; forward: AudioPosition; up: AudioPosition; boosting: boolean };
 export type AudioPreferences = { master: number; music: number; sfx: number; muted: boolean };
@@ -143,6 +145,16 @@ export class AudioManager {
     this.duckMusic(0.45);
     this.tone(170, 90, 0.32, 0.12, 'sawtooth', false, position);
     this.tone(620, 420, 0.22, 0.06, 'square', false, position);
+  }
+  enemyCharge(position: AudioPosition, kind: 'scout' | 'assault' | 'elite') {
+    const base = kind === 'elite' ? 620 : kind === 'assault' ? 460 : 360;
+    this.tone(base, base * 1.8, CONFIG.enemies.fireCharge, 0.06, 'sine', false, position);
+    this.noise(CONFIG.enemies.fireCharge, 0.02, kind === 'elite' ? 2600 : 1800, false, position);
+  }
+  enemyFire(position: AudioPosition, kind: 'scout' | 'assault' | 'elite') {
+    const pitch = kind === 'elite' ? 1.12 : kind === 'assault' ? 0.96 : 1;
+    this.tone(1550 * pitch, 520 * pitch, 0.08, 0.035, 'sawtooth', false, position);
+    this.noise(0.045, 0.018, 4200, false, position);
   }
   bossArrival(position?: AudioPosition) {
     this.duckMusic(0.3);
