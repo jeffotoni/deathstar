@@ -1,4 +1,5 @@
 import './style.css';
+import './readability.css';
 import { createEngine } from './core/Engine';
 import { Game } from './core/Game';
 import { t } from './localization/i18n';

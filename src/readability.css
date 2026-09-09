@@ -1,0 +1,51 @@
+/* Readability pass: keep the cinematic layout while making small HUD text easier to read. */
+.eyebrow { font-size: 11px; }
+.build { font-size: 10px; }
+.brand-sub { font-size: 10px; }
+.lead { font-size: 16px; }
+.mission-meta { font-size: 9px; }
+.test-option { font-size: 11px; }
+.tiny-label { font-size: 9px; }
+.menu-foot strong { font-size: 12px; }
+.menu-foot > span:last-child { font-size: 11px; }
+.coordinate { font-size: 12px; }
+.coordinate span { font-size: 9px; }
+.orbital-label { font-size: 9px; }
+.pilot-note { font-size: 10px; }
+footer { font-size: 9px; }
+.centered p { font-size: 14px; }
+.audio-settings label { font-size: 9px; }
+.text-button { font-size: 10px; }
+.mission-block .eyebrow { font-size: 9px; }
+.mission-block h3 { font-size: 23px; }
+.mission-block p { font-size: 11px; }
+.panel-heading strong { font-size: 11px; }
+.panel-heading div span { font-size: 8px; }
+.meter-row label { font-size: 8px; }
+.meter-row b { font-size: 10px; }
+.unit { font-size: 11px; }
+.flight-caption { font-size: 7px; }
+.weapon { font-size: 9px; }
+.radar-panel > span { font-size: 8px; }
+.control-strip { font-size: 9px; }
+.control-strip kbd { font-size: 8px; min-width: 26px; padding: 5px 6px; }
+.target-marker span { font-size: 10px; }
+#target-arrow span { font-size: 8px; }
+#target-info { font-size: 9px; }
+#toast p { font-size: 14px; }
+#boss-info .eyebrow { font-size: 10px; }
+.locale-toggle,
+.locale-toggle button { font-size: 10px; }
+
+@media (max-width: 760px) {
+  .build { font-size: 8px; }
+  .brand-sub { font-size: 9px; }
+  .lead { font-size: 14px; }
+  .mission-meta { font-size: 8px; }
+  .tiny-label { font-size: 8px; }
+  .control-strip { font-size: 8px; }
+  .control-strip kbd { font-size: 7px; }
+  .weapon { font-size: 7px; }
+  .mission-block p { font-size: 10px; }
+  #target-info { font-size: 8px; }
+}
