@@ -115,6 +115,32 @@ export class AudioManager {
     this.tone(170, 90, 0.32, 0.12, 'sawtooth', false, position);
     this.tone(620, 420, 0.22, 0.06, 'square', false, position);
   }
+  bossArrival(position?: AudioPosition) {
+    this.duckMusic(0.3);
+    this.tone(42, 110, 1.8, 0.18, 'sawtooth', false, position);
+    this.tone(88, 28, 1.25, 0.12, 'sine', false, position);
+    this.noise(1.4, 0.07, 700, false, position);
+  }
+  bossPhase(position: AudioPosition, phase: number) {
+    const base = [180, 240, 130, 82][Math.min(3, phase)];
+    this.duckMusic(0.52);
+    this.tone(base, base * 2.1, 0.55, 0.13, 'square', false, position);
+    this.tone(base * 0.5, base * 0.24, 0.9, 0.09, 'sawtooth', false, position);
+    this.noise(0.32, 0.045, 1800, false, position);
+  }
+  bossSubsystem(position: AudioPosition, phase: number) {
+    const tones = [[280, 70, 0.36], [620, 110, 0.48], [105, 26, 0.72], [150, 18, 1.05]][Math.min(3, phase)];
+    this.duckMusic(phase === 3 ? 0.28 : 0.58);
+    this.tone(tones[0], tones[1], tones[2], phase === 3 ? 0.16 : 0.11, phase === 0 ? 'square' : 'sawtooth', false, position);
+    this.noise(Math.min(0.6, tones[2]), phase === 3 ? 0.11 : 0.055, phase === 0 ? 3200 : 1300, false, position);
+  }
+  bossFinale(position: AudioPosition, intensity: number, final = false) {
+    const pitch = this.randomPitch(0.04); const size = Math.min(8, Math.max(1, intensity));
+    this.duckMusic(final ? 0.18 : 0.38);
+    this.tone(48 * pitch, 14 * pitch, final ? 1.35 : 0.5, (final ? 0.32 : 0.12) * Math.min(1.5, size / 4), 'sawtooth', false, position);
+    this.tone(120 * pitch, 28 * pitch, final ? 0.75 : 0.3, (final ? 0.14 : 0.06) * Math.min(1.5, size / 4), 'triangle', false, position);
+    this.noise(final ? 1.15 : 0.38, (final ? 0.18 : 0.07) * Math.min(1.5, size / 4), final ? 780 : 1100, false, position);
+  }
   lock() { this.tone(740 * this.randomPitch(0.03), 1480, 0.18, 0.08, 'sine'); }
   alert() { this.duckMusic(0.7); this.tone(520, 390, 0.65, 0.10, 'triangle'); }
   pause() { void this.context?.suspend(); }

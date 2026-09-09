@@ -106,7 +106,10 @@ export class Game {
     else if (stage === 4) { this.hud.toast(t('toast.veil')); }
     else if (stage === 5) {
       this.boss = new CapitalShip(this.assets, this.player);
-      this.boss.onPhase = message => { this.hud.toast(message); this.audio.alert(); this.selected = this.boss?.targets[0]; };
+      this.audio.bossArrival(this.boss.root.position);
+      this.boss.onSubsystemDestroyed = (position, phase) => this.audio.bossSubsystem(position, phase);
+      this.boss.onFinale = (position, intensity, final) => this.audio.bossFinale(position, intensity, final);
+      this.boss.onPhase = message => { this.hud.toast(message); this.audio.alert(); this.audio.bossPhase(this.boss!.root.position, this.boss!.phase); this.selected = this.boss?.targets[0]; };
       this.selected = this.boss.targets[0];
       this.hud.toast(t('toast.obelisk'));
     } else this.hud.toast(stageTitle(stage).toUpperCase());

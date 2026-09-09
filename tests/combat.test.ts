@@ -95,6 +95,10 @@ test('capital ship gates subsystems and completes only after destruction sequenc
   const engine = new NullEngine(); const scene = new Scene(engine); const assets = new AssetManager(scene);
   const player = new PlayerShip(assets); const boss = new CapitalShip(assets, player);
   const shots = new ProjectileManager(assets); const effects = new Effects(assets);
+  let destroyed = 0; const phases: number[] = []; let finaleBursts = 0; let finalExplosion = 0;
+  boss.onSubsystemDestroyed = () => destroyed++;
+  boss.onPhase = () => phases.push(boss.phase);
+  boss.onFinale = (_position, _intensity, final) => { finaleBursts++; if (final) finalExplosion++; };
   assert.equal(boss.targets.length, 2); assert.ok(boss.targets.every(t => t.phase === 0));
   for (let phase = 0; phase < 4; phase++) {
     assert.equal(boss.phase, phase);
@@ -102,7 +106,9 @@ test('capital ship gates subsystems and completes only after destruction sequenc
     boss.update(1 / 60, player, shots, effects);
   }
   assert.equal(boss.phase, 4); assert.equal(boss.complete, false);
+  assert.equal(destroyed, 7); assert.deepEqual(phases, [1, 2, 3, 4]);
   for (let i = 0; i < 430; i++) boss.update(1 / 60, player, shots, effects);
   assert.equal(boss.complete, true);
+  assert.ok(finaleBursts > 1); assert.equal(finalExplosion, 1);
   engine.dispose();
 });

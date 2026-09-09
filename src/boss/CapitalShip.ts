@@ -21,7 +21,10 @@ export class CapitalShip {
   complete = false;
   private fireTimer = 2;
   private explosionTimer = 0;
+  private finaleSoundTimer = 0;
   onPhase: (message: string) => void = () => {};
+  onSubsystemDestroyed: (position: Vector3, phase: number) => void = () => {};
+  onFinale: (position: Vector3, intensity: number, final: boolean) => void = () => {};
   constructor(assets: AssetManager, player: PlayerShip) {
     this.root = new TransformNode('Obelisco capital ship', assets.scene);
     this.root.position.copyFrom(player.position.add(player.forward.scale(750)));
@@ -54,12 +57,20 @@ export class CapitalShip {
   get targets() { return this.parts.filter(p => p.phase === this.phase && p.health > 0); }
   get objective() { return bossObjective(this.phase); }
   update(dt: number, player: PlayerShip, projectiles: ProjectileManager, effects: Effects) {
-    for (const p of this.parts) if (p.health <= 0 && p.node.isEnabled()) { effects.explosion(p.position, 4); p.node.setEnabled(false); }
+    if (this.complete) return;
+    for (const p of this.parts) if (p.health <= 0 && p.node.isEnabled()) {
+      const position = p.position.clone(); effects.explosion(position, 4); p.node.setEnabled(false); this.onSubsystemDestroyed(position, p.phase);
+    }
     if (this.phase < 4 && this.targets.length === 0) { this.phase++; this.onPhase(this.objective); }
     if (this.phase === 4) {
-      this.deathTime += dt; this.explosionTimer -= dt; this.root.rotation.z += dt * this.deathTime * 0.008;
-      if (this.explosionTimer <= 0) { effects.explosion(this.root.position.add(new Vector3((Math.random() - 0.5) * 220, Math.random() * 40, (Math.random() - 0.5) * 260)), 4 + this.deathTime); this.explosionTimer = 0.35; }
-      if (this.deathTime > 7) { effects.explosion(this.root.position, 25); this.root.setEnabled(false); this.complete = true; }
+      this.deathTime += dt; this.explosionTimer -= dt; this.finaleSoundTimer -= dt; this.root.rotation.z += dt * this.deathTime * 0.008;
+      if (this.explosionTimer <= 0) {
+        const position = this.root.position.add(new Vector3((Math.random() - 0.5) * 220, Math.random() * 40, (Math.random() - 0.5) * 260));
+        const intensity = 4 + this.deathTime; effects.explosion(position, intensity);
+        if (this.finaleSoundTimer <= 0) { this.onFinale(position, intensity, false); this.finaleSoundTimer = 0.7; }
+        this.explosionTimer = 0.35;
+      }
+      if (this.deathTime > 7) { effects.explosion(this.root.position, 25); this.onFinale(this.root.position.clone(), 25, true); this.root.setEnabled(false); this.complete = true; }
       return;
     }
     this.fireTimer -= dt;
