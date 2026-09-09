@@ -3,6 +3,7 @@ import { CONFIG, STAGES } from '../config';
 import { PlayerShip } from '../player/PlayerShip';
 import { ProgressionManager } from '../progression/ProgressionManager';
 import { Target } from '../weapons/ProjectileManager';
+import { getAudioPreferences } from '../audio/AudioManager';
 import { formatScore, getLocale, setLocale, stageObjective, stageTitle, t, type Locale } from '../localization/i18n';
 
 export type Screen = 'menu' | 'intro' | 'playing' | 'pause' | 'victory' | 'defeat';
@@ -33,6 +34,7 @@ export class HUD {
   private render() {
     const audioValues = new Map<string, string>();
     this.root.querySelectorAll<HTMLInputElement>('[data-audio]').forEach(input => audioValues.set(input.dataset.audio!, input.value));
+    const audioPreferences = getAudioPreferences();
     this.root.innerHTML = `
       <div class="vignette"></div><div id="impact-flash"></div><div id="damage-flash"></div>
       <header class="topbar"><a class="wordmark" href="/" aria-label="${t('brand.start')}"><span class="brand-icon">∨</span> VÉU <span class="brand-sub">${t('brand.sub')}</span></a><div class="build"><span class="status-dot"></span> ${t('systems.online')} <span class="divider">/</span> <span id="backend">${this.backend}</span></div><div class="locale-toggle" aria-label="${t('locale.select')}">${this.localeButtons()}</div></header>
@@ -58,7 +60,7 @@ export class HUD {
         <div class="control-strip"><span><kbd>MOUSE</kbd> ${t('hud.direction')}</span><span><kbd>W S</kbd> ${t('hud.throttle')}</span><span><kbd>A D</kbd> ${t('hud.roll')}</span><span><kbd>Q E</kbd> ${t('hud.lateral')}</span><span><kbd>ESPAÇO</kbd> ${t('hud.dodge')}</span><span><kbd>F / TAB</kbd> ${t('hud.lock-target')}</span><span><kbd>ESC</kbd> ${t('hud.pause')}</span></div>
         <div id="target-info">${t('hud.no-target')} <span>· ${t('hud.lock')}</span></div><pre id="debug" class="hidden"></pre>
       </section>
-      <section id="pause" class="screen centered hidden"><div class="eyebrow">${t('pause.eyebrow')}</div><h2>${t('pause.title')}</h2><p>${t('pause.text')}</p><button id="resume" class="primary">${t('pause.resume')} <span>↗</span></button><div class="locale-toggle pause-locale" aria-label="${t('locale.select')}">${this.localeButtons()}</div><div class="audio-settings">${(['master', 'music', 'sfx'] as const).map((bus, i) => `<label>${t(`audio.${bus}`)}<input data-audio="${bus}" type="range" min="0" max="1" step="0.01" value="${[0.7, 0.4, 0.75][i]}"></label>`).join('')}</div><button id="restart-pause" class="text-button">${t('pause.restart')}</button></section>
+      <section id="pause" class="screen centered hidden"><div class="eyebrow">${t('pause.eyebrow')}</div><h2>${t('pause.title')}</h2><p>${t('pause.text')}</p><button id="resume" class="primary">${t('pause.resume')} <span>↗</span></button><div class="locale-toggle pause-locale" aria-label="${t('locale.select')}">${this.localeButtons()}</div><div class="audio-settings">${(['master', 'music', 'sfx'] as const).map(bus => `<label>${t(`audio.${bus}`)}<input data-audio="${bus}" type="range" min="0" max="1" step="0.01" value="${audioValues.get(bus) ?? audioPreferences[bus]}"></label>`).join('')}</div><button id="restart-pause" class="text-button">${t('pause.restart')}</button></section>
       <section id="result" class="screen centered hidden"><div id="result-label" class="eyebrow"></div><h2 id="result-title"></h2><p id="result-text"></p><div id="result-stats"></div><button id="restart" class="primary">${t('result.restart')} <span>↗</span></button></section>
       <footer id="menu-footer"><span>${t('menu.footer-story')}</span><span>${t('menu.footer-prototype')} <b>0.1</b></span></footer>`;
 

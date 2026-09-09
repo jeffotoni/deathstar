@@ -1,5 +1,33 @@
 type AudioPosition = { x: number; y: number; z: number };
 type AudioListenerState = { position: AudioPosition; forward: AudioPosition; up: AudioPosition; boosting: boolean };
+export type AudioPreferences = { master: number; music: number; sfx: number; muted: boolean };
+
+const AUDIO_STORAGE_KEY = 'veu-audio-settings';
+const DEFAULT_AUDIO_PREFERENCES: AudioPreferences = { master: 0.7, music: 0.4, sfx: 0.75, muted: false };
+
+function clampVolume(value: unknown, fallback: number) {
+  return typeof value === 'number' && Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : fallback;
+}
+
+export function getAudioPreferences(): AudioPreferences {
+  try {
+    if (typeof localStorage === 'undefined') return { ...DEFAULT_AUDIO_PREFERENCES };
+    const raw = localStorage.getItem(AUDIO_STORAGE_KEY); if (!raw) return { ...DEFAULT_AUDIO_PREFERENCES };
+    const stored = JSON.parse(raw) as Partial<AudioPreferences>;
+    return {
+      master: clampVolume(stored.master, DEFAULT_AUDIO_PREFERENCES.master),
+      music: clampVolume(stored.music, DEFAULT_AUDIO_PREFERENCES.music),
+      sfx: clampVolume(stored.sfx, DEFAULT_AUDIO_PREFERENCES.sfx),
+      muted: typeof stored.muted === 'boolean' ? stored.muted : DEFAULT_AUDIO_PREFERENCES.muted,
+    };
+  } catch { return { ...DEFAULT_AUDIO_PREFERENCES }; }
+}
+
+function saveAudioPreferences(preferences: AudioPreferences) {
+  try {
+    if (typeof localStorage !== 'undefined') localStorage.setItem(AUDIO_STORAGE_KEY, JSON.stringify({ version: 1, ...preferences }));
+  } catch { /* Storage can be unavailable in privacy mode. */ }
+}
 
 export class AudioManager {
   private context?: AudioContext;
@@ -18,12 +46,12 @@ export class AudioManager {
   private musicDuck = 1;
   private musicDuckHold = 0;
   private appliedMusicGain = 0;
-  private muted = false;
-  private volume = { master: 0.7, music: 0.4, sfx: 0.75 };
+  private volume = getAudioPreferences();
+  private muted = this.volume.muted;
   start() {
     if (!this.context) {
       const ctx = this.context = new AudioContext();
-      this.master = ctx.createGain(); this.master.gain.value = this.volume.master;
+      this.master = ctx.createGain(); this.master.gain.value = this.muted ? 0 : this.volume.master;
       this.compressor = ctx.createDynamicsCompressor();
       this.compressor.threshold.value = -20; this.compressor.knee.value = 18; this.compressor.ratio.value = 5; this.compressor.attack.value = 0.003; this.compressor.release.value = 0.24;
       this.master.connect(this.compressor); this.compressor.connect(ctx.destination);
@@ -45,11 +73,12 @@ export class AudioManager {
     void this.context.resume();
   }
   setVolume(bus: 'master' | 'music' | 'sfx', value: number) {
-    this.volume[bus] = value; const node = this[bus];
-    if (node && !(bus === 'master' && this.muted)) node.gain.value = bus === 'music' ? value * this.musicDuck : value;
-    if (bus === 'music') this.appliedMusicGain = value * this.musicDuck;
+    this.volume[bus] = clampVolume(value, this.volume[bus]); const node = this[bus];
+    if (node && !(bus === 'master' && this.muted)) node.gain.value = bus === 'music' ? this.volume[bus] * this.musicDuck : this.volume[bus];
+    if (bus === 'music') this.appliedMusicGain = this.volume.music * this.musicDuck;
+    saveAudioPreferences(this.volume);
   }
-  setMuted(muted: boolean) { this.muted = muted; if (this.master) this.master.gain.value = muted ? 0 : this.volume.master; }
+  setMuted(muted: boolean) { this.muted = muted; this.volume.muted = muted; if (this.master) this.master.gain.value = muted ? 0 : this.volume.master; saveAudioPreferences(this.volume); }
   private createPanner(position: AudioPosition) {
     const panner = this.context!.createPanner();
     panner.panningModel = 'HRTF'; panner.distanceModel = 'inverse'; panner.refDistance = 120; panner.maxDistance = 4000; panner.rolloffFactor = 0.45;

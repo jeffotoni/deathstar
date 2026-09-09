@@ -8,10 +8,12 @@ const browser = await chromium.launch({
 });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 const errors = [];
+let initialAudioStorage;
 page.on('pageerror', error => errors.push(error.message));
 page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
 try {
   await page.goto('http://127.0.0.1:5173/?renderer=webgl&debug', { waitUntil: 'networkidle' });
+  initialAudioStorage = await page.evaluate(() => localStorage.getItem('veu-audio-settings'));
   await page.getByRole('button', { name: 'START MISSION' }).waitFor({ timeout: 60000 });
   await page.locator('.topbar .locale-toggle').getByRole('button', { name: 'PT-BR' }).click();
   assert.match(await page.locator('#start').textContent(), /INICIAR MISSÃO/, 'Portuguese locale switches in the menu');
@@ -76,7 +78,14 @@ try {
   assert.equal(await page.locator('#mission-time').textContent(), clock, 'pause freezes mission');
   await page.getByRole('button', { name: 'CONTINUE FLIGHT' }).click();
   await page.locator('#hud').waitFor({ state: 'visible' });
+  await page.keyboard.press('KeyM');
+  await page.waitForFunction(() => { const raw = localStorage.getItem('veu-audio-settings'); return raw !== null && JSON.parse(raw).muted === true; });
+  assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('veu-audio-settings')).muted), true, 'mute preference persists');
   await page.keyboard.press('Escape');
+  const sfxSlider = page.locator('#pause input[data-audio="sfx"]');
+  await sfxSlider.fill('0.42');
+  await page.waitForFunction(() => { const raw = localStorage.getItem('veu-audio-settings'); return raw !== null && JSON.parse(raw).sfx === 0.42; });
+  assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('veu-audio-settings')).sfx), 0.42, 'audio volume preference persists');
   await page.getByRole('button', { name: 'RESTART MISSION' }).click();
   await page.locator('#intro').waitFor({ state: 'visible' });
   await page.locator('#hud').waitFor({ state: 'visible', timeout: 20000 });
@@ -88,4 +97,12 @@ try {
   await page.screenshot({ path: '/private/tmp/veu-failure.png' });
   console.log('BROWSER ERRORS', errors);
   throw error;
-} finally { await browser.close(); }
+} finally {
+  if (initialAudioStorage !== undefined) {
+    await page.evaluate(value => {
+      if (value === null) localStorage.removeItem('veu-audio-settings');
+      else localStorage.setItem('veu-audio-settings', value);
+    }, initialAudioStorage);
+  }
+  await browser.close();
+}
