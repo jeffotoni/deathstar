@@ -23,16 +23,16 @@ export class AssetManager {
   ship(kind: 'player' | 'scout' | 'assault' | 'elite') {
     const root = new TransformNode(kind, this.scene);
     const player = kind === 'player';
-    const hull = this.material(player ? 'ivory alloy' : 'hostile alloy', player ? '#a9b9c9' : '#55454c');
+    const hull = this.material(player ? 'ivory alloy' : 'hostile alloy', player ? '#c3d9e7' : '#765463');
     const dark = this.material('carbon', '#182533');
-    const trim = this.material(player ? 'teal trim' : 'hostile trim', player ? '#52dbdc' : '#ee7355', 0.6);
-    const engine = this.material(player ? 'ion drive' : 'hostile drive', player ? '#73eaff' : '#ff7145', 3);
+    const trim = this.material(player ? 'teal trim' : 'hostile trim', player ? '#69f4ee' : '#ff8d66', 0.9);
+    const engine = this.material(player ? 'ion drive' : 'hostile drive', player ? '#73eaff' : '#ff7145', 4);
     const body = MeshBuilder.CreateCylinder('tapered fuselage', { height: 5.8, diameterTop: 0.16, diameterBottom: 1.6, tessellation: 6 }, this.scene);
     body.rotation.x = Math.PI / 2; body.parent = root; body.material = hull; body.isPickable = false;
     this.box('keel', root, [0.9, 0.75, 3.2], [0, -0.25, -0.9], dark);
     const cockpit = MeshBuilder.CreateSphere('canopy', { diameter: 1, segments: 12 }, this.scene);
     cockpit.parent = root; cockpit.position.set(0, 0.53, 0.8); cockpit.scaling.set(0.75, 0.64, 2.1);
-    cockpit.material = this.material('canopy glass', '#174556', 0.45); cockpit.isPickable = false;
+    cockpit.material = this.material('canopy glass', '#256b78', 0.7); cockpit.isPickable = false;
     for (const side of [-1, 1]) {
       const wing = this.box('swept wing', root, [3, 0.16, 1.8], [side * 1.75, -0.13, -0.6], hull);
       wing.rotation.y = side * 0.35; wing.rotation.z = side * -0.11;

@@ -42,6 +42,8 @@ export class Game {
 
   constructor(private engine: AbstractEngine, canvas: HTMLCanvasElement, backend: string) {
     this.scene = new Scene(engine);
+    this.scene.imageProcessingConfiguration.exposure = 1.08;
+    this.scene.imageProcessingConfiguration.contrast = 1.1;
     this.scene.skipPointerMovePicking = true;
     this.camera = new FreeCamera('chase camera', new Vector3(0, 7, -25), this.scene);
     this.camera.minZ = 0.4; this.camera.maxZ = 24000; this.camera.fov = 0.92;
@@ -49,7 +51,7 @@ export class Game {
     const ambient = new HemisphericLight('starlight', new Vector3(0.2, 1, -0.3), this.scene);
     ambient.intensity = 0.65; ambient.diffuse = new Color3(0.66, 0.8, 0.96); ambient.groundColor = new Color3(0.13, 0.17, 0.26);
     const sun = new DirectionalLight('Náris sun', new Vector3(-0.8, -0.35, 0.6), this.scene); sun.intensity = 2.2; sun.diffuse = new Color3(1, 0.84, 0.7);
-    const glow = new GlowLayer('energy bloom', this.scene, { mainTextureRatio: 0.35, blurKernelSize: 32 }); glow.intensity = 0.6;
+    const glow = new GlowLayer('energy bloom', this.scene, { mainTextureRatio: 0.45, blurKernelSize: 32 }); glow.intensity = 0.8;
     this.assets = new AssetManager(this.scene);
     this.player = new PlayerShip(this.assets);
     this.world = new SpaceEnvironment(this.scene, this.assets);
@@ -122,7 +124,7 @@ export class Game {
     let target = this.selected;
     const forward = this.player.forward;
     const cosine = kind === 'laser' ? 0.977 : kind === 'plasma' ? 0.96 : 0.5;
-    const eligible = (t: Target) => t.health > 0 && Vector3.Distance(t.position, this.player.position) < 1350 && Vector3.Dot(t.position.subtract(this.player.position).normalize(), forward) > cosine;
+    const eligible = (t: Target) => t.health > 0 && Vector3.Distance(t.position, this.player.position) < CONFIG.weapons.targetRange && Vector3.Dot(t.position.subtract(this.player.position).normalize(), forward) > cosine;
     if (!target || !eligible(target)) target = this.targets.filter(eligible).sort((a, b) => Vector3.DistanceSquared(a.position, this.player.position) - Vector3.DistanceSquared(b.position, this.player.position))[0];
     const speed = kind === 'laser' ? CONFIG.weapons.laserSpeed : kind === 'plasma' ? CONFIG.weapons.plasmaSpeed : 430;
     const damage = kind === 'laser' ? CONFIG.weapons.laserDamage : kind === 'plasma' ? CONFIG.weapons.plasmaDamage : CONFIG.weapons.burstDamage;

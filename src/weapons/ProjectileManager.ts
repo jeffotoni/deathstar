@@ -16,10 +16,10 @@ export class ProjectileManager {
   onPlayerHit: (damage: number) => void = () => {};
   constructor(assets: AssetManager) {
     this.materials = {
-      laser: assets.material('laser cyan', '#73fbef', 3),
-      plasma: assets.material('plasma violet', '#c394ff', 3),
-      burst: assets.material('burst gold', '#fff0a6', 4),
-      enemy: assets.material('enemy laser', '#ff604e', 2),
+      laser: assets.material('laser cyan', '#b9fff8', 4.5),
+      plasma: assets.material('plasma violet', '#d09dff', 4),
+      burst: assets.material('burst gold', '#fff3b2', 5),
+      enemy: assets.material('enemy laser', '#ff715e', 2.8),
     };
     for (let i = 0; i < CONFIG.maxProjectiles; i++) {
       const mesh = MeshBuilder.CreateSphere('pooled projectile', { diameter: 1, segments: 4 }, assets.scene);
@@ -31,9 +31,9 @@ export class ProjectileManager {
   fire(position: Vector3, direction: Vector3, kind: WeaponKind, damage: number, speed: number) {
     const p = this.pool.find(p => p.life <= 0); if (!p) return;
     p.mesh.position.copyFrom(position); p.previous.copyFrom(position); p.velocity.copyFrom(direction).scaleInPlace(speed);
-    p.kind = kind; p.damage = damage; p.life = kind === 'enemy' ? 5 : 3;
+    p.kind = kind; p.damage = damage; p.life = kind === 'enemy' ? 5 : kind === 'laser' ? CONFIG.weapons.laserLife : 3;
     p.mesh.material = this.materials[kind];
-    p.mesh.scaling.set(kind === 'laser' || kind === 'enemy' ? 0.35 : 2, kind === 'laser' || kind === 'enemy' ? 0.35 : 2, kind === 'burst' ? 8 : kind === 'plasma' ? 4 : 6);
+    p.mesh.scaling.set(kind === 'laser' ? 0.45 : kind === 'enemy' ? 0.35 : 2, kind === 'laser' ? 0.45 : kind === 'enemy' ? 0.35 : 2, kind === 'laser' ? 8 : kind === 'burst' ? 8 : kind === 'plasma' ? 4 : 6);
     p.mesh.lookAt(position.add(direction)); p.mesh.setEnabled(true);
   }
   update(dt: number, targets: Target[], player: Vector3) {
