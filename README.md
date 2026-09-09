@@ -1,4 +1,4 @@
-# VÉU — Echoes of Exile
+# VÉU / Echoes of Exile
 
 [Português (Brasil)](README-PT_BR.md)
 
