@@ -6,10 +6,10 @@ export const CONFIG = {
   debug: new URLSearchParams(location.search).has('debug'),
 };
 export const STAGES = [
-  { at: 0, title: 'Reconhecimento', objective: 'Familiarize-se com a nave. Intercepte os batedores.', count: 3, interval: 19 },
-  { at: 65, title: 'Ecos no cinturão', objective: 'Atravesse o cinturão e elimine as patrulhas.', count: 5, interval: 21 },
-  { at: 145, title: 'Linha de ruptura', objective: 'Desfaça as formações. Canhão de plasma disponível.', count: 7, interval: 24 },
-  { at: 240, title: 'O cerco', objective: 'Resista à ofensiva. Ruptura energética disponível.', count: 9, interval: 24 },
-  { at: 345, title: 'Silêncio no Véu', objective: 'Assinatura colossal detectada. Prepare as armas.', count: 3, interval: 35 },
-  { at: 375, title: 'A última sentinela', objective: 'Destrua os subsistemas da nave capital.', count: 4, interval: 32 },
+  { at: 0, count: 3, interval: 19 },
+  { at: 65, count: 5, interval: 21 },
+  { at: 145, count: 7, interval: 24 },
+  { at: 240, count: 9, interval: 24 },
+  { at: 345, count: 3, interval: 35 },
+  { at: 375, count: 4, interval: 32 },
 ] as const;

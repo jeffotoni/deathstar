@@ -3,6 +3,7 @@ import { AssetManager } from '../core/AssetManager';
 import { CONFIG } from '../config';
 import { ProjectileManager, Target } from '../weapons/ProjectileManager';
 import { PlayerShip } from '../player/PlayerShip';
+import { enemyName } from '../localization/i18n';
 type Kind = 'scout' | 'assault' | 'elite';
 type State = 'PATROL' | 'CHASE' | 'ATTACK' | 'EVADE' | 'REPOSITION';
 
@@ -22,7 +23,6 @@ export class Enemy implements Target {
   radius: number;
   health: number;
   maxHealth: number;
-  name: string;
   cooldown = 2 + Math.random() * 2;
   age = 0;
   state: State = 'PATROL';
@@ -30,8 +30,8 @@ export class Enemy implements Target {
     this.root = assets.ship(kind); this.root.position.copyFrom(position); this.root.rotationQuaternion = flightRotation(facing);
     this.health = this.maxHealth = kind === 'scout' ? 60 : kind === 'assault' ? 150 : 110;
     this.radius = kind === 'assault' ? 6 : 4.5;
-    this.name = kind === 'scout' ? 'Batedor · Agulha' : kind === 'assault' ? 'Assalto · Bastião' : 'Elite · Espectro';
   }
+  get name() { return enemyName(this.kind); }
   get position() { return this.root.position; }
   hit(damage: number) { this.health = Math.max(0, this.health - damage); this.state = 'EVADE'; }
 }

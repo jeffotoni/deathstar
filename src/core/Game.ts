@@ -11,6 +11,7 @@ import { AudioManager } from '../audio/AudioManager';
 import { ProgressionManager } from '../progression/ProgressionManager';
 import { CapitalShip } from '../boss/CapitalShip';
 import { HUD, Screen } from '../ui/HUD';
+import { stageTitle, t } from '../localization/i18n';
 
 export class Game {
   private scene: Scene;
@@ -85,7 +86,7 @@ export class Game {
   }
   private launch() {
     this.state = 'playing'; this.hud.show('playing'); this.input.setEnabled(true);
-    this.hud.toast('Mova o mouse para pilotar. Botão esquerdo dispara. W acelera.');
+    this.hud.toast(t('toast.launch'));
   }
   private pause() { this.state = 'pause'; this.input.setEnabled(false); this.hud.show('pause'); this.audio.pause(); }
   private resume() { this.state = 'playing'; this.hud.show('playing'); this.input.setEnabled(true); this.audio.start(); }
@@ -94,15 +95,15 @@ export class Game {
   }
   private enterStage(stage: number) {
     this.audio.alert();
-    if (stage === 2) this.hud.toast('CANHÃO DE PLASMA ONLINE · Botão direito · Dano em área');
-    else if (stage === 3) this.hud.toast('RUPTURA ENERGÉTICA ONLINE · R · Torpedo de alto impacto');
-    else if (stage === 4) { this.hud.toast('Assinatura colossal detectada. Algo está atravessando o Véu.'); }
+    if (stage === 2) this.hud.toast(t('toast.plasma'));
+    else if (stage === 3) this.hud.toast(t('toast.burst'));
+    else if (stage === 4) { this.hud.toast(t('toast.veil')); }
     else if (stage === 5) {
       this.boss = new CapitalShip(this.assets, this.player);
       this.boss.onPhase = message => { this.hud.toast(message); this.audio.alert(); this.selected = this.boss?.targets[0]; };
       this.selected = this.boss.targets[0];
-      this.hud.toast('OBELISCO EM ÓRBITA · Destrua primeiro as torres de defesa');
-    } else this.hud.toast(STAGES[stage].title.toUpperCase());
+      this.hud.toast(t('toast.obelisk'));
+    } else this.hud.toast(stageTitle(stage).toUpperCase());
   }
   private damage(amount: number) {
     if (this.player.dodge > 0 || this.state !== 'playing') return;
@@ -201,7 +202,7 @@ export class Game {
       this.world.update(dt, Vector3.Zero());
     } else if (this.state === 'intro') {
       this.introTime += dt;
-      this.hud.countdown(this.introTime < 4 ? '…' : this.introTime < 7 ? `${Math.ceil(7 - this.introTime)}` : 'LANÇAR');
+      this.hud.countdown(this.introTime < 4 ? '…' : this.introTime < 7 ? `${Math.ceil(7 - this.introTime)}` : t('intro.launch'));
       this.chaseCamera(dt);
       if (this.introTime > 7.6) this.launch();
     } else if (this.state === 'playing') {

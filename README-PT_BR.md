@@ -28,6 +28,10 @@ Abra `http://127.0.0.1:5173` e clique em **Iniciar missão**. O áudio começa a
 
 A opção **Voo de teste** avança o tempo da missão em 4×, mantendo movimento, armas, dano e cooldowns normais.
 
+### Idiomas
+
+O jogo começa em inglês. Use o seletor **EN / PT-BR** no menu ou na tela de pausa para alterar o idioma da interface; a escolha é salva no navegador para a próxima sessão. Nomes próprios como VÉU, Andorinha, Náris e Obelisco permanecem parte do universo original.
+
 ### Publicar com GitHub Pages
 
 O repositório inclui `.github/workflows/deploy.yml`. No GitHub, vá em `Settings → Pages`, selecione `GitHub Actions` como fonte e salve. Cada push para a `main` compila o app Vite e publica `dist/` em [https://jeffotoni.github.io/deathstar/](https://jeffotoni.github.io/deathstar/). O workflow solicita apenas as permissões de leitura, escrita do Pages e identidade de deploy necessárias para o GitHub Pages.

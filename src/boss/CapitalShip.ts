@@ -3,10 +3,13 @@ import { AssetManager } from '../core/AssetManager';
 import { PlayerShip } from '../player/PlayerShip';
 import { ProjectileManager, Target } from '../weapons/ProjectileManager';
 import { Effects } from '../effects/Effects';
+import { bossObjective, bossSubsystemName } from '../localization/i18n';
+type SubsystemKind = 'turret' | 'shield' | 'engine' | 'reactor';
 export class Subsystem implements Target {
   health: number;
   radius = 15;
-  constructor(public id: number, public name: string, public node: TransformNode, public phase: number, public maxHealth: number) { this.health = maxHealth; }
+  constructor(public id: number, private kind: SubsystemKind, public node: TransformNode, public phase: number, public maxHealth: number) { this.health = maxHealth; }
+  get name() { return bossSubsystemName(this.kind); }
   get position() { return this.node.getAbsolutePosition(); }
   hit(damage: number) { this.health = Math.max(0, this.health - damage); }
 }
@@ -35,21 +38,21 @@ export class CapitalShip {
       const turret = new TransformNode('defense turret', assets.scene); turret.parent = this.root; turret.position.set(side * 83, 44, -100);
       assets.box('turret base', turret, [24, 17, 24], [0, 0, 0], glow);
       assets.box('turret barrel', turret, [7, 7, 38], [0, 7, -15], hull);
-      this.parts.push(new Subsystem(10000 + this.parts.length, 'Torre de defesa', turret, 0, 300));
+      this.parts.push(new Subsystem(10000 + this.parts.length, 'turret', turret, 0, 300));
       const shield = new TransformNode('shield generator', assets.scene); shield.parent = this.root; shield.position.set(side * 107, 40, 50);
       assets.box('shield chamber', shield, [23, 28, 26], [0, 0, 0], assets.material('shield violet', '#ae8bfd', 2));
-      this.parts.push(new Subsystem(10000 + this.parts.length, 'Gerador de escudo', shield, 1, 400));
+      this.parts.push(new Subsystem(10000 + this.parts.length, 'shield', shield, 1, 400));
       const engine = new TransformNode('capital engine', assets.scene); engine.parent = this.root; engine.position.set(side * 104, -5, -183);
       assets.box('engine core', engine, [27, 30, 12], [0, 0, 0], assets.material('capital drive', '#63dfea', 2.5));
-      this.parts.push(new Subsystem(10000 + this.parts.length, 'Motor de íons', engine, 2, 370));
+      this.parts.push(new Subsystem(10000 + this.parts.length, 'engine', engine, 2, 370));
     }
     const core = new TransformNode('reactor', assets.scene); core.parent = this.root; core.position.set(0, 33, -110);
     assets.box('reactor core', core, [30, 24, 35], [0, 0, 0], glow);
-    this.parts.push(new Subsystem(10010, 'Reator principal', core, 3, 800));
+    this.parts.push(new Subsystem(10010, 'reactor', core, 3, 800));
     this.root.computeWorldMatrix(true);
   }
   get targets() { return this.parts.filter(p => p.phase === this.phase && p.health > 0); }
-  get objective() { return ['Destrua as duas torres de defesa', 'Desative os geradores de escudo', 'Destrua os motores de íons', 'Exponha e destrua o reator', 'Afaste-se. Reação em cadeia!'][this.phase]; }
+  get objective() { return bossObjective(this.phase); }
   update(dt: number, player: PlayerShip, projectiles: ProjectileManager, effects: Effects) {
     for (const p of this.parts) if (p.health <= 0 && p.node.isEnabled()) { effects.explosion(p.position, 4); p.node.setEnabled(false); }
     if (this.phase < 4 && this.targets.length === 0) { this.phase++; this.onPhase(this.objective); }
