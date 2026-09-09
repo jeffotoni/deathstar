@@ -2,6 +2,8 @@
 
 [Português (Brasil)](README-PT_BR.md)
 
+![VÉU gameplay screenshot](deathstar.jpeg)
+
 VÉU is a desktop 3D space combat prototype built with Babylon.js, TypeScript, and Vite. Ships, environment, universe, and audio are original and procedural.
 
 ## Story

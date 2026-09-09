@@ -2,6 +2,8 @@
 
 [English](README.md)
 
+![Captura de tela do gameplay de VÉU](deathstar.jpeg)
+
 VÉU é um protótipo de combate espacial 3D para desktop, feito com Babylon.js, TypeScript e Vite. As naves, o cenário, o universo e o áudio são originais e gerados proceduralmente.
 
 ## História
