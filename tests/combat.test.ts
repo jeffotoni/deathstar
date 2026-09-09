@@ -36,6 +36,20 @@ test('enemy +Z nose faces its target, approaches, and can fire during attack', (
   } finally { engine.dispose(); }
 });
 
+test('rear enemies recover toward the combat volume without firing from behind', () => {
+  const engine = new NullEngine(); const scene = new Scene(engine); const assets = new AssetManager(scene);
+  try {
+    const shots = new ProjectileManager(assets); const manager = new EnemyManager(assets, shots); const player = new PlayerShip(assets);
+    const enemy = new Enemy('scout', assets, new Vector3(0, 0, -280), Vector3.Forward());
+    enemy.age = 3; enemy.cooldown = 0; manager.enemies.push(enemy);
+    const initialForwardDistance = Vector3.Dot(enemy.position.subtract(player.position), player.forward);
+    for (let i = 0; i < 60; i++) manager.update(1 / 60, player);
+    const finalForwardDistance = Vector3.Dot(enemy.position.subtract(player.position), player.forward);
+    assert.ok(finalForwardDistance > initialForwardDistance, 'rear enemies must move back toward the readable combat volume');
+    assert.equal(shots.count, 0, 'rear enemies must not fire while recovering');
+  } finally { engine.dispose(); }
+});
+
 test('damage consumes shields first, spills into hull, and respects regeneration delay', () => {
   const health = new PlayerHealth();
   health.hit(140); assert.equal(health.shield, 0); assert.equal(health.hull, 80);

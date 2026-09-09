@@ -26,10 +26,15 @@ export class Enemy implements Target {
   cooldown = 2 + Math.random() * 2;
   age = 0;
   state: State = 'PATROL';
+  readonly maneuverPhase = this.id * 1.37;
+  readonly maneuverSide = (this.id % 5 - 2) * 110;
+  readonly maneuverHeight = (this.id % 3 - 1) * 75;
+  readonly combatRange: number;
   constructor(public kind: Kind, assets: AssetManager, position: Vector3, facing: Vector3) {
     this.root = assets.ship(kind); this.root.position.copyFrom(position); this.root.rotationQuaternion = flightRotation(facing);
     this.health = this.maxHealth = kind === 'scout' ? 60 : kind === 'assault' ? 150 : 110;
     this.radius = kind === 'assault' ? 6 : 4.5;
+    this.combatRange = kind === 'elite' ? 430 : kind === 'assault' ? 370 : 320;
   }
   get name() { return enemyName(this.kind); }
   get position() { return this.root.position; }
@@ -56,25 +61,41 @@ export class EnemyManager {
       e.age += dt; e.cooldown -= dt;
       const distance = Vector3.Distance(e.position, player.position);
       if (distance > 2400) { e.root.dispose(); this.enemies.splice(i, 1); continue; }
-      let goal = player.position.add(player.velocity.scale(Math.min(0.7, distance / 500)));
-      if (distance < 90 || (e.state === 'EVADE' && Math.sin(e.age * 1.5) > 0)) {
+      // Keep the encounter readable: enemies orbit a moving combat volume in
+      // front of the player instead of diving through the player and attacking
+      // from behind. The changing offsets preserve 360-degree movement while
+      // giving the player a reliable space in which to see the maneuvers.
+      const maneuverTime = e.age * 0.55 + e.maneuverPhase;
+      const combatPoint = player.position
+        .add(player.forward.scale(e.combatRange + Math.sin(maneuverTime * 0.73) * 55))
+        .add(player.right.scale(e.maneuverSide + Math.sin(maneuverTime) * 140))
+        .add(player.up.scale(e.maneuverHeight + Math.cos(maneuverTime * 0.81) * 90))
+        .add(player.velocity.scale(0.55));
+      const relative = e.position.subtract(player.position);
+      const forwardDistance = Vector3.Dot(relative, player.forward);
+      const tooClose = distance < 150;
+      const behindPlayer = forwardDistance < -50;
+      let goal = distance > e.combatRange && !behindPlayer
+        ? player.position.add(player.forward.scale(e.combatRange)).add(player.velocity.scale(0.55))
+        : combatPoint;
+      if (tooClose || behindPlayer || (e.state === 'EVADE' && Math.sin(e.age * 1.5) > 0)) {
         e.state = 'REPOSITION';
-        goal = e.position.add(e.root.getDirection(Vector3.Forward()).scale(170)).add(player.right.scale(Math.sin(e.id) * 80));
+        goal = combatPoint;
       } else if (e.age < 2) { e.state = 'PATROL'; }
       else {
-        e.state = distance < 480 ? 'ATTACK' : 'CHASE';
-        if (e.kind === 'elite') goal.addInPlace(player.forward.scale(-100));
-        goal.addInPlace(player.right.scale(Math.sin(e.age * 0.6 + e.id) * 45));
-        goal.addInPlace(player.up.scale(Math.cos(e.age * 0.5 + e.id) * 28));
+        e.state = distance < 760 ? 'ATTACK' : 'CHASE';
       }
-      const dir = goal.subtract(e.position).normalize();
-      const rotation = flightRotation(dir);
+      const motionDirection = goal.subtract(e.position).normalize();
+      const aimPoint = player.position.add(player.velocity.scale(Math.min(0.7, distance / 500)));
+      const facingDirection = e.state === 'ATTACK' ? aimPoint.subtract(e.position).normalize() : motionDirection;
+      const rotation = flightRotation(facingDirection);
       e.root.rotationQuaternion = Quaternion.Slerp(e.root.rotationQuaternion!, rotation, 1 - Math.exp(-dt * (e.kind === 'elite' ? 1.7 : 1.05)));
       const speed = e.kind === 'scout' ? 75 : e.kind === 'assault' ? 58 : 94;
-      e.position.addInPlace(e.root.getDirection(Vector3.Forward()).scale(speed * dt));
+      e.position.addInPlace(motionDirection.scale(speed * dt));
       if (e.state === 'ATTACK' && e.cooldown <= 0) {
         const aim = player.position.add(player.velocity.scale(distance / 265 * 0.65)).subtract(e.position).normalize();
-        if (Vector3.Dot(e.root.getDirection(Vector3.Forward()), aim) > 0.7) {
+        const inFrontHemisphere = Vector3.Dot(relative.normalize(), player.forward) > -0.1;
+        if (inFrontHemisphere && Vector3.Dot(e.root.getDirection(Vector3.Forward()), aim) > 0.7) {
           this.projectiles.fire(e.position, aim, 'enemy', e.kind === 'assault' ? 15 : 9, 265);
           e.cooldown = (e.kind === 'elite' ? 1.5 : 2.6) + Math.random();
         }
