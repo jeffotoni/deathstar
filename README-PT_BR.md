@@ -8,9 +8,9 @@ VÉU é um protótipo de combate espacial 3D para desktop, feito com Babylon.js,
 
 ## História
 
-Mil anos antes da era dos impérios estelares conhecidos, a Ordem do Limiar apagou suas próprias rotas e desapareceu além dos sistemas mapeados. Kael, seu último navegador exilado, segue um sinal fraco até o cinturão de Náris, onde uma força militar sem nome guarda a única passagem de volta para casa.
+Mil anos antes da era dos impérios estelares conhecidos, a Ordem do Limiar apagou suas próprias rotas e desapareceu além dos sistemas mapeados. Darian, seu último navegador exilado, segue um sinal fraco até o cinturão de Náris, onde uma força militar sem nome guarda a única passagem de volta para casa.
 
-Ele chega na Andorinha, um interceptador raro e extremamente ágil. O que começa como um voo de reconhecimento tranquilo se transforma em uma batalha contra esquadrões de caças e contra o Obelisco, uma nave capital colossal que emerge do Véu. Para sobreviver, Kael precisa dominar a nave, desbloquear suas armas e desmontar o Obelisco subsistema por subsistema.
+No início da missão, Darian escolhe entre a nave Cometa Arthur, uma exploradora colorida construída em blocos, e a nave Raio Gael, o modelo original da missão. O que começa como um voo de reconhecimento tranquilo se transforma em uma batalha contra esquadrões de caças e contra o Obelisco, uma nave capital colossal que emerge do Véu. Para sobreviver, Darian precisa dominar a nave, desbloquear suas armas e desmontar o Obelisco subsistema por subsistema.
 
 VÉU é um universo de space opera original. O jogo não utiliza naves, personagens, logos, músicas ou efeitos sonoros protegidos de franquias existentes.
 
@@ -30,7 +30,7 @@ A opção **Voo de teste** avança o tempo da missão em 4×, mantendo movimento
 
 ### Idiomas
 
-O jogo começa em inglês. Use o seletor **EN / PT-BR** no menu ou na tela de pausa para alterar o idioma da interface; a escolha é salva no navegador para a próxima sessão. Nomes próprios como VÉU, Andorinha, Náris e Obelisco permanecem parte do universo original.
+O jogo começa em inglês. Use o seletor **EN / PT-BR** no menu ou na tela de pausa para alterar o idioma da interface; a escolha é salva no navegador para a próxima sessão. Nomes próprios como VÉU, Cometa Arthur, Raio Gael, Náris e Obelisco permanecem parte do universo original.
 
 ### Publicar com GitHub Pages
 

@@ -1,6 +1,6 @@
 import { Matrix, Scene, Vector3 } from '@babylonjs/core';
 import { CONFIG, STAGES } from '../config';
-import { PlayerShip } from '../player/PlayerShip';
+import { PlayerShip, type PlayerShipVariant } from '../player/PlayerShip';
 import { ProgressionManager } from '../progression/ProgressionManager';
 import { Target } from '../weapons/ProjectileManager';
 import { getAudioPreferences } from '../audio/AudioManager';
@@ -13,6 +13,7 @@ export class HUD {
   onStart: (fast: boolean) => void = () => {};
   onResume = () => {};
   onRestart = () => {};
+  onShipSelect: (variant: PlayerShipVariant) => void = () => {};
   onVolume: (bus: 'master' | 'music' | 'sfx', value: number) => void = () => {};
   private elements: Record<string, HTMLElement> = {};
   private radar!: CanvasRenderingContext2D;
@@ -29,6 +30,7 @@ export class HUD {
   private stageElements: HTMLElement[] = [];
   private markerViews: MarkerView[] = [];
   private shieldVisible = false;
+  private selectedShip: PlayerShipVariant = 'lego';
   debug = CONFIG.debug;
 
   constructor(private backend: string) {
@@ -45,8 +47,14 @@ export class HUD {
       <header class="topbar"><a class="wordmark" href="/" aria-label="${t('brand.start')}"><span class="brand-icon">∨</span> VÉU <span class="brand-sub">${t('brand.sub')}</span></a><div class="build"><span class="status-dot"></span> ${t('systems.online')} <span class="divider">/</span> <span id="backend">${this.backend}</span></div><div class="locale-toggle" aria-label="${t('locale.select')}">${this.localeButtons()}</div></header>
       <section id="menu" class="screen menu">
         <div class="eyebrow"><span class="line"></span> ${t('menu.chapter')}</div><h1>${t('menu.title')}</h1><p class="lead">${t('menu.lead')}</p>
-        <button id="start" class="primary">${t('menu.start')} <span>↗</span></button><div class="mission-meta"><span>${t('menu.mission')}</span><span>${t('menu.open-space')}</span><span>${t('menu.duration')}</span></div>
-        <label class="test-option"><input id="fast" type="checkbox"> ${t('menu.test-flight')}</label><div class="menu-foot"><span class="tiny-label">${t('menu.your-ship')}</span><strong>ANDORINHA / V.07</strong><span>${t('menu.ship-role')}</span></div>
+        <div class="ship-picker"><div class="ship-picker-heading"><span class="tiny-label">${t('menu.choose-ship')}</span><span id="selected-ship-label">${t('menu.ship-selected')}</span></div><div class="ship-options">
+          <button type="button" class="ship-option ${this.selectedShip === 'lego' ? 'active' : ''}" data-ship="lego" aria-pressed="${this.selectedShip === 'lego'}"><strong>${t('menu.lego-name')}</strong><span>${t('menu.lego-role')}</span><small>${t('menu.stat-speed')}: 115 · ${t('menu.stat-shield')}: 120 · ${t('menu.stat-hull')}: 100</small></button>
+          <button type="button" class="ship-option ${this.selectedShip === 'classic' ? 'active' : ''}" data-ship="classic" aria-pressed="${this.selectedShip === 'classic'}"><strong>${t('menu.classic-name')}</strong><span>${t('menu.classic-role')}</span><small>${t('menu.stat-speed')}: 115 · ${t('menu.stat-shield')}: 120 · ${t('menu.stat-hull')}: 100</small></button>
+        </div></div>
+        <div class="mission-meta"><span>${t('menu.mission')}</span><span>${t('menu.open-space')}</span><span>${t('menu.duration')}</span></div>
+        <label class="test-option"><input id="fast" type="checkbox"> ${t('menu.test-flight')}</label>
+        <button id="start" class="primary">${t('menu.start')} <span>↗</span></button>
+        <div class="menu-foot"><span class="tiny-label">${t('menu.your-ship')}</span><strong id="selected-ship-name">${t(this.selectedShip === 'lego' ? 'menu.lego-name' : 'menu.classic-name')}</strong><span id="selected-ship-role">${t(this.selectedShip === 'lego' ? 'menu.lego-role' : 'menu.classic-role')}</span></div>
       </section>
       <aside id="menu-aside"><div class="coordinate">${t('menu.sector')}<br><span>${t('menu.orbit')}</span></div><div class="orbital-label"><span class="status-dot"></span> ${t('menu.unknown-signal')}<span class="orbital-line"></span></div><div class="pilot-note">${t('menu.pilot-note')}</div></aside>
       <section id="intro" class="screen centered hidden"><div class="eyebrow">${t('intro.recovered')}</div><h2>${t('intro.title')}</h2><p>${t('intro.text')}</p><div id="countdown">${this.countdownValue}</div><span class="tiny-label">${t('intro.launch-sequence')}</span></section>
@@ -57,7 +65,7 @@ export class HUD {
         <div id="crosshair"><span></span><i></i><b></b></div><div id="aim-cursor"></div><div id="hitmarker">×</div><div id="markers"></div><div id="target-arrow" class="hidden">△<span>${t('hud.target')}</span></div>
         <div id="toast"><span class="tiny-label">${t('hud.communication')}</span><p id="toast-text"></p></div>
         <div class="bottom-hud">
-          <div class="ship-status"><div class="panel-heading"><span class="ship-symbol">⋀</span><div><strong>ANDORINHA</strong><span>${t('hud.ship-status')}</span></div></div><div class="meter-row"><label>${t('hud.shield')}</label><div class="meter"><i id="shield-bar"></i></div><b id="shield-value">120</b></div><div class="meter-row hull"><label>${t('hud.hull')}</label><div class="meter"><i id="hull-bar"></i></div><b id="hull-value">100</b></div><div class="shield-toggle"><kbd>V</kbd><span id="shield-visibility">${t(this.shieldVisible ? 'hud.shield-visible' : 'hud.shield-hidden')}</span></div></div>
+          <div class="ship-status"><div class="panel-heading"><span class="ship-symbol">⋀</span><div><strong id="hud-ship-name">${t(this.selectedShip === 'lego' ? 'menu.lego-name' : 'menu.classic-name')}</strong><span>${t('hud.ship-status')}</span></div></div><div class="meter-row"><label>${t('hud.shield')}</label><div class="meter"><i id="shield-bar"></i></div><b id="shield-value">120</b></div><div class="meter-row hull"><label>${t('hud.hull')}</label><div class="meter"><i id="hull-bar"></i></div><b id="hull-value">100</b></div><div class="shield-toggle"><kbd>V</kbd><span id="shield-visibility">${t(this.shieldVisible ? 'hud.shield-visible' : 'hud.shield-hidden')}</span></div></div>
           <div class="flight-status"><div><span class="tiny-label">${t('hud.speed')}</span><strong id="speed">062</strong><span class="unit">m/s</span></div><div class="boost-track"><i id="boost-bar"></i></div><div class="flight-caption"><span>${t('hud.boost')}</span><span id="dodge-status">${t('hud.dodge-ready')}</span></div></div>
           <div class="weapons"><span class="tiny-label">${t('hud.weapons')}</span><div class="weapon active"><kbd>LMB</kbd><span>${t('hud.laser')}</span><i>●</i></div><div id="plasma-weapon" class="weapon locked"><kbd>RMB</kbd><span>${t('hud.plasma')}</span><i id="plasma-status">◇</i></div><div id="burst-weapon" class="weapon locked"><kbd>R</kbd><span>${t('hud.burst')}</span><i id="burst-status">◇</i></div></div>
           <div class="radar-panel"><canvas id="radar" width="140" height="140" aria-label="${t('hud.contacts')}"></canvas><span id="contacts">${t('hud.contacts', { count: 0 })}</span></div>
@@ -77,6 +85,9 @@ export class HUD {
     this.elements.start.onclick = () => this.onStart((this.elements.fast as HTMLInputElement).checked);
     this.elements.resume.onclick = () => this.onResume();
     this.elements.restart.onclick = this.elements['restart-pause'].onclick = () => this.onRestart();
+    this.root.querySelectorAll<HTMLButtonElement>('[data-ship]').forEach(button => {
+      button.onclick = () => this.selectShip(button.dataset.ship as PlayerShipVariant);
+    });
     this.root.querySelectorAll<HTMLInputElement>('[data-audio]').forEach(input => {
       const saved = audioValues.get(input.dataset.audio!); if (saved) input.value = saved;
       input.oninput = () => this.onVolume(input.dataset.audio as 'master' | 'music' | 'sfx', Number(input.value));
@@ -90,6 +101,19 @@ export class HUD {
   }
 
   private localeButtons() { return `<button type="button" data-locale="en-US">EN</button><span>/</span><button type="button" data-locale="pt-BR">PT-BR</button>`; }
+
+  private selectShip(variant: PlayerShipVariant) {
+    if (variant === this.selectedShip) return;
+    this.selectedShip = variant;
+    this.root.querySelectorAll<HTMLButtonElement>('[data-ship]').forEach(button => {
+      const active = button.dataset.ship === variant;
+      button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active));
+    });
+    this.elements['selected-ship-name'].textContent = t(variant === 'lego' ? 'menu.lego-name' : 'menu.classic-name');
+    this.elements['selected-ship-role'].textContent = t(variant === 'lego' ? 'menu.lego-role' : 'menu.classic-role');
+    this.elements['selected-ship-label'].textContent = t('menu.ship-selected');
+    this.onShipSelect(variant);
+  }
 
   private changeLocale(locale: Locale) {
     if (locale === getLocale()) return;
@@ -128,6 +152,7 @@ export class HUD {
     const e = this.elements;
     const text = (id: string, value: string) => { if (e[id].textContent !== value) e[id].textContent = value; };
     text('stage-title', stageTitle(progression.stage)); text('objective', stageObjective(progression.stage));
+    text('hud-ship-name', t(player.variant === 'lego' ? 'menu.lego-name' : 'menu.classic-name'));
     text('mission-time', `${Math.floor(progression.elapsed / 60).toString().padStart(2, '0')}:${Math.floor(progression.elapsed % 60).toString().padStart(2, '0')}${progression.fast ? ' · 4×' : ''}`);
     text('kills', progression.kills.toString().padStart(2, '0')); text('score', progression.score.toString().padStart(5, '0'));
     text('speed', Math.round(player.speed).toString().padStart(3, '0')); text('shield-value', Math.ceil(player.health.shield).toString()); text('hull-value', Math.ceil(player.health.hull).toString());

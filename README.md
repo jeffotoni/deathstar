@@ -8,9 +8,9 @@ VÉU is a desktop 3D space combat prototype built with Babylon.js, TypeScript, a
 
 ## Story
 
-One thousand years before the age of the known stellar empires, the Order of the Threshold erased its own routes and disappeared beyond the mapped systems. Kael, its last exiled navigator, follows a faint signal into the Náris Belt, where an unnamed military force is guarding the only passage home.
+One thousand years before the age of the known stellar empires, the Order of the Threshold erased its own routes and disappeared beyond the mapped systems. Darian, its last exiled navigator, follows a faint signal into the Náris Belt, where an unnamed military force is guarding the only passage home.
 
-He arrives in the Andorinha, a rare and highly agile interceptor. What begins as a quiet reconnaissance flight becomes a battle against escalating fighter squadrons and the Obelisk, a colossal capital ship emerging from the Veil. To survive, Kael must master the ship, unlock its weapons, and dismantle the Obelisk subsystem by subsystem.
+At launch, Darian chooses between the Arthur Comet, a colorful block-built explorer, and the Gael Ray, the original mission ship. What begins as a quiet reconnaissance flight becomes a battle against escalating fighter squadrons and the Obelisk, a colossal capital ship emerging from the Veil. To survive, Darian must master the ship, unlock its weapons, and dismantle the Obelisk subsystem by subsystem.
 
 VÉU is an original space-opera universe. It does not use protected ships, characters, logos, music, or sound effects from existing franchises.
 
@@ -30,7 +30,7 @@ The **Test Flight** option advances mission time at 4× speed while keeping move
 
 ### Languages
 
-The game starts in English. Use the **EN / PT-BR** selector in the menu or pause screen to change the interface language; the choice is saved in the browser for the next session. Proper names such as VÉU, Andorinha, Náris, and Obelisk remain part of the original universe.
+The game starts in English. Use the **EN / PT-BR** selector in the menu or pause screen to change the interface language; the choice is saved in the browser for the next session. Proper names such as VÉU, Arthur Comet, Gael Ray, Náris, and Obelisk remain part of the original universe.
 
 ### Deploy with GitHub Pages
 

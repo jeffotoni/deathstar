@@ -42,6 +42,16 @@ footer { font-size: 9px; }
 #hitmarker.heavy { color: #ffe3a8; transform: translate(-50%, -50%) scale(1.18); }
 .locale-toggle,
 .locale-toggle button { font-size: 10px; }
+.ship-picker { max-width: 650px; margin-top: 22px; }
+.ship-picker-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.ship-picker-heading > span:last-child { color: #b9e7d8; font-size: 8px; letter-spacing: 1.6px; }
+.ship-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+.ship-option { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; min-height: 92px; padding: 12px 13px; border: 1px solid #a9d9d52b; background: #071725b8; color: #cfe5e2; text-align: left; transition: border-color .2s, background .2s, box-shadow .2s; }
+.ship-option:hover { border-color: #a7e8dc88; background: #0a2030d9; }
+.ship-option.active { border-color: #a8ebdd; background: linear-gradient(135deg, #0c2c3be6, #123047c7); box-shadow: 0 0 24px #69dcca1c, inset 0 0 0 1px #9eeadd22; }
+.ship-option strong { font-size: 10px; letter-spacing: 1.3px; font-weight: 600; color: #f0faf5; }
+.ship-option span { font-size: 9px; letter-spacing: .5px; color: #9fc3c2; }
+.ship-option small { margin-top: auto; font-size: 7px; letter-spacing: .8px; color: #85aaa9; }
 
 @media (max-width: 760px) {
   .build { font-size: 8px; }
@@ -54,4 +64,6 @@ footer { font-size: 9px; }
   .weapon { font-size: 7px; }
   .mission-block p { font-size: 10px; }
   #target-info { font-size: 8px; }
+  .ship-options { grid-template-columns: 1fr; }
+  .ship-option { min-height: 76px; }
 }

@@ -22,6 +22,14 @@ try {
   assert.match(await page.locator('#start').textContent(), /INICIAR MISSÃO/, 'locale persists after reload');
   await page.locator('.topbar .locale-toggle').getByRole('button', { name: 'EN' }).click();
   await page.getByRole('button', { name: 'START MISSION' }).waitFor({ timeout: 60000 });
+  await page.locator('[data-ship="classic"]').click();
+  assert.ok(await page.locator('[data-ship="classic"]').evaluate(button => button.classList.contains('active')), 'classic ship can be selected');
+  assert.match(await page.locator('#selected-ship-name').textContent(), /GAEL RAY/, 'classic ship details update');
+  await page.locator('[data-ship="lego"]').click();
+  assert.ok(await page.locator('[data-ship="lego"]').evaluate(button => button.classList.contains('active')), 'LEGO ship can be selected');
+  const pickerBox = await page.locator('.ship-picker').boundingBox();
+  const startBox = await page.locator('#start').boundingBox();
+  assert.ok(pickerBox && startBox && pickerBox.y < startBox.y, 'ship selection appears before launch button');
   await page.screenshot({ path: '/private/tmp/veu-menu.png' });
   console.log('MENU', await page.locator('#backend').textContent());
   await page.locator('#fast').check();

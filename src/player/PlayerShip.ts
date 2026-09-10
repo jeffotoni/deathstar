@@ -4,6 +4,8 @@ import { InputManager } from '../core/InputManager';
 import { CONFIG } from '../config';
 import { PlayerHealth } from './PlayerHealth';
 
+export type PlayerShipVariant = 'lego' | 'classic';
+
 export class PlayerShip {
   root: TransformNode;
   visual: TransformNode;
@@ -22,10 +24,10 @@ export class PlayerShip {
   private thrusters: AbstractMesh[] = [];
   private shieldAlpha = 0.008;
   private shieldFlash = 0;
-  constructor(assets: AssetManager) {
+  constructor(assets: AssetManager, public readonly variant: PlayerShipVariant = 'lego') {
     this.root = new TransformNode('player physics', assets.scene);
     this.root.rotationQuaternion = Quaternion.Identity();
-    this.visual = assets.ship('player'); this.visual.parent = this.root;
+    this.visual = assets.ship(variant === 'lego' ? 'player' : 'player-classic'); this.visual.parent = this.root;
     this.thrusters = this.visual.getChildMeshes().filter(mesh => mesh.name === 'thruster');
     this.shield = MeshBuilder.CreateSphere('player shield bubble', { diameter: 7, segments: 24 }, assets.scene);
     this.shield.parent = this.root; this.shield.scaling.set(1.15, 0.8, 1.25);

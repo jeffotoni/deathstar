@@ -2,7 +2,7 @@ import { AbstractEngine, Color3, DirectionalLight, FreeCamera, GlowLayer, Hemisp
 import { CONFIG, STAGES } from '../config';
 import { AssetManager } from './AssetManager';
 import { InputManager } from './InputManager';
-import { PlayerShip } from '../player/PlayerShip';
+import { PlayerShip, type PlayerShipVariant } from '../player/PlayerShip';
 import { SpaceEnvironment } from '../world/SpaceEnvironment';
 import { ProjectileManager, Target, WeaponKind } from '../weapons/ProjectileManager';
 import { EnemyManager } from '../enemies/EnemyManager';
@@ -39,6 +39,7 @@ export class Game {
   private muted = false;
   private visualTime = 0;
   private actualTime = 0;
+  private selectedShip: PlayerShipVariant = 'lego';
 
   constructor(private engine: AbstractEngine, canvas: HTMLCanvasElement, backend: string) {
     this.scene = new Scene(engine);
@@ -53,7 +54,7 @@ export class Game {
     const sun = new DirectionalLight('Náris sun', new Vector3(-0.8, -0.35, 0.6), this.scene); sun.intensity = 2.2; sun.diffuse = new Color3(1, 0.84, 0.7);
     const glow = new GlowLayer('energy bloom', this.scene, { mainTextureRatio: 0.45, blurKernelSize: 32 }); glow.intensity = 0.8;
     this.assets = new AssetManager(this.scene);
-    this.player = new PlayerShip(this.assets);
+    this.player = new PlayerShip(this.assets, this.selectedShip);
     this.world = new SpaceEnvironment(this.scene, this.assets);
     this.projectiles = new ProjectileManager(this.assets);
     this.enemies = new EnemyManager(this.assets, this.projectiles);
@@ -61,6 +62,7 @@ export class Game {
     this.input = new InputManager(canvas);
     this.hud = new HUD(backend);
     this.hud.onStart = (fast) => this.start(fast);
+    this.hud.onShipSelect = variant => this.selectShip(variant);
     this.hud.onResume = () => this.resume();
     this.hud.onRestart = () => this.start(this.progression.fast);
     this.hud.onVolume = (bus, volume) => this.audio.setVolume(bus, volume);
@@ -83,9 +85,14 @@ export class Game {
     engine.runRenderLoop(() => this.frame());
     window.addEventListener('resize', () => engine.resize());
   }
+  private selectShip(variant: PlayerShipVariant) {
+    if (this.state !== 'menu' || variant === this.selectedShip) return;
+    this.selectedShip = variant;
+    this.player.root.dispose(); this.player = new PlayerShip(this.assets, variant);
+  }
   private start(fast: boolean) {
     this.enemies.clear(); this.projectiles.clear(); this.boss?.dispose(); this.boss = undefined; this.selected = undefined;
-    this.player.root.dispose(); this.player = new PlayerShip(this.assets);
+    this.player.root.dispose(); this.player = new PlayerShip(this.assets, this.selectedShip);
     this.progression = new ProgressionManager(); this.progression.fast = fast;
     this.progression.onStage = stage => this.enterStage(stage);
     this.laserCooldown = this.plasmaCooldown = this.burstCooldown = this.collisionCooldown = 0;
