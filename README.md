@@ -1,18 +1,18 @@
-# VÉU / Echoes of Exile
+# STELLAR ABYSS / Echoes of Exile
 
 [Português (Brasil)](README-PT_BR.md)
 
-![VÉU gameplay screenshot](deathstar.jpeg)
+![Stellar Abyss gameplay screenshot](deathstar.jpeg)
 
-VÉU is a desktop 3D space combat prototype built with Babylon.js, TypeScript, and Vite. Ships, environment, universe, and audio are original and procedural.
+Stellar Abyss is a desktop 3D space combat prototype built with Babylon.js, TypeScript, and Vite. Ships, environment, universe, and audio are original and procedural.
 
 ## Story
 
 One thousand years before the age of the known stellar empires, the Order of the Threshold erased its own routes and disappeared beyond the mapped systems. Darian, its last exiled navigator, follows a faint signal into the Náris Belt, where an unnamed military force is guarding the only passage home.
 
-At launch, Darian chooses between the Arthur Comet, a colorful block-built explorer, and the Gael Ray, the original mission ship. What begins as a quiet reconnaissance flight becomes a battle against escalating fighter squadrons and the Obelisk, a colossal capital ship emerging from the Veil. To survive, Darian must master the ship, unlock its weapons, and dismantle the Obelisk subsystem by subsystem.
+At launch, Darian chooses between the Arthur Comet, a colorful block-built explorer, and the Gael Ray, the original mission ship. What begins as a quiet reconnaissance flight becomes a battle against escalating fighter squadrons and the Obelisk, a colossal capital ship emerging from the Stellar Abyss. To survive, Darian must master the ship, unlock its weapons, and dismantle the Obelisk subsystem by subsystem.
 
-VÉU is an original space-opera universe. It does not use protected ships, characters, logos, music, or sound effects from existing franchises.
+Stellar Abyss is an original space-opera universe. It does not use protected ships, characters, logos, music, or sound effects from existing franchises.
 
 ## Run locally
 
@@ -30,7 +30,7 @@ The **Test Flight** option advances mission time at 4× speed while keeping move
 
 ### Languages
 
-The game starts in English. Use the **EN / PT-BR** selector in the menu or pause screen to change the interface language; the choice is saved in the browser for the next session. Proper names such as VÉU, Arthur Comet, Gael Ray, Náris, and Obelisk remain part of the original universe.
+The game starts in English. Use the **EN / PT-BR** selector in the menu or pause screen to change the interface language; the choice is saved in the browser for the next session. Proper names such as Stellar Abyss, Arthur Comet, Gael Ray, Náris, and Obelisk remain part of the original universe.
 
 ### Deploy with GitHub Pages
 
@@ -82,7 +82,7 @@ Return the mouse to the center to fly straight. Pointer lock is not used. The mi
 2. Echoes in the Belt: face larger patrols and assault fighters.
 3. Breakthrough Line: unlock the plasma cannon.
 4. The Siege: face elite fighters and unlock energy rupture.
-5. Silence in the Veil: reinforcements thin out as the capital ship approaches.
+5. Silence in the Stellar Abyss: reinforcements thin out as the capital ship approaches.
 6. Obelisk: destroy defense turrets, shield generators, ion engines, and the reactor. A chain reaction precedes mission completion.
 
 The shield regenerates after five seconds without damage. Destroying a fighter restores seven shield points; hull integrity does not regenerate. Asteroids and the capital ship deal collision damage without instant kills.

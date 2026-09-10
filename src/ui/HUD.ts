@@ -44,7 +44,7 @@ export class HUD {
     const audioPreferences = getAudioPreferences();
     this.root.innerHTML = `
       <div class="vignette"></div><div id="impact-flash"></div><div id="threat-flash"></div><div id="damage-flash"></div>
-      <header class="topbar"><a class="wordmark" href="/" aria-label="${t('brand.start')}"><span class="brand-icon">∨</span> VÉU <span class="brand-sub">${t('brand.sub')}</span></a><div class="build"><span class="status-dot"></span> ${t('systems.online')} <span class="divider">/</span> <span id="backend">${this.backend}</span></div><div class="locale-toggle" aria-label="${t('locale.select')}">${this.localeButtons()}</div></header>
+      <header class="topbar"><a class="wordmark" href="/" aria-label="${t('brand.start')}"><span class="brand-icon">∨</span> ${t('brand.name')} <span class="brand-sub">${t('brand.sub')}</span></a><div class="build"><span class="status-dot"></span> ${t('systems.online')} <span class="divider">/</span> <span id="backend">${this.backend}</span></div><div class="locale-toggle" aria-label="${t('locale.select')}">${this.localeButtons()}</div></header>
       <section id="menu" class="screen menu">
         <div class="eyebrow"><span class="line"></span> ${t('menu.chapter')}</div><h1>${t('menu.title')}</h1><p class="lead">${t('menu.lead')}</p>
         <div class="ship-picker"><div class="ship-picker-heading"><span class="tiny-label">${t('menu.choose-ship')}</span><span id="selected-ship-label">${t('menu.ship-selected')}</span></div><div class="ship-options">

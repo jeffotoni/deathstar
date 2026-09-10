@@ -15,13 +15,16 @@ try {
   await page.goto('http://127.0.0.1:5173/?renderer=webgl&debug', { waitUntil: 'networkidle' });
   initialAudioStorage = await page.evaluate(() => localStorage.getItem('veu-audio-settings'));
   await page.getByRole('button', { name: 'START MISSION' }).waitFor({ timeout: 60000 });
+  assert.match(await page.locator('.wordmark').textContent(), /STELLAR ABYSS/, 'English brand is visible');
   await page.locator('.topbar .locale-toggle').getByRole('button', { name: 'PT-BR' }).click();
   assert.match(await page.locator('#start').textContent(), /INICIAR MISSÃO/, 'Portuguese locale switches in the menu');
+  assert.match(await page.locator('.wordmark').textContent(), /ABISMO ESTELAR/, 'Portuguese brand is visible');
   await page.reload({ waitUntil: 'networkidle' });
   await page.getByRole('button', { name: 'INICIAR MISSÃO' }).waitFor({ timeout: 60000 });
   assert.match(await page.locator('#start').textContent(), /INICIAR MISSÃO/, 'locale persists after reload');
   await page.locator('.topbar .locale-toggle').getByRole('button', { name: 'EN' }).click();
   await page.getByRole('button', { name: 'START MISSION' }).waitFor({ timeout: 60000 });
+  assert.match(await page.locator('.wordmark').textContent(), /STELLAR ABYSS/, 'English brand restores');
   await page.locator('[data-ship="classic"]').click();
   assert.ok(await page.locator('[data-ship="classic"]').evaluate(button => button.classList.contains('active')), 'classic ship can be selected');
   assert.match(await page.locator('#selected-ship-name').textContent(), /GAEL RAY/, 'classic ship details update');

@@ -6,7 +6,7 @@ import { t } from './localization/i18n';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#game')!;
 const ui = document.querySelector<HTMLDivElement>('#ui')!;
-ui.innerHTML = `<div class="centered"><div class="eyebrow">VÉU / ${t('brand.sub')}</div><h2>${t('boot.title')}</h2><p>${t('boot.text')}</p></div>`;
+ui.innerHTML = `<div class="centered"><div class="eyebrow">${t('brand.name')} / ${t('brand.sub')}</div><h2>${t('boot.title')}</h2><p>${t('boot.text')}</p></div>`;
 try {
   const { engine, backend } = await createEngine(canvas);
   new Game(engine, canvas, backend);

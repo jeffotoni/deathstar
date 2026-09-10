@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-VÉU is currently in early prototype development. Security fixes are provided for the current `0.1.x` line and the `main` branch.
+Stellar Abyss is currently in early prototype development. Security fixes are provided for the current `0.1.x` line and the `main` branch.
 
 | Version | Supported |
 | --- | --- |

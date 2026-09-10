@@ -1,18 +1,18 @@
-# VÉU — Ecos do Exílio
+# ABISMO ESTELAR — Ecos do Exílio
 
 [English](README.md)
 
-![Captura de tela do gameplay de VÉU](deathstar.jpeg)
+![Captura de tela do gameplay de Abismo Estelar](deathstar.jpeg)
 
-VÉU é um protótipo de combate espacial 3D para desktop, feito com Babylon.js, TypeScript e Vite. As naves, o cenário, o universo e o áudio são originais e gerados proceduralmente.
+Abismo Estelar é um protótipo de combate espacial 3D para desktop, feito com Babylon.js, TypeScript e Vite. As naves, o cenário, o universo e o áudio são originais e gerados proceduralmente.
 
 ## História
 
 Mil anos antes da era dos impérios estelares conhecidos, a Ordem do Limiar apagou suas próprias rotas e desapareceu além dos sistemas mapeados. Darian, seu último navegador exilado, segue um sinal fraco até o cinturão de Náris, onde uma força militar sem nome guarda a única passagem de volta para casa.
 
-No início da missão, Darian escolhe entre a nave Cometa Arthur, uma exploradora colorida construída em blocos, e a nave Raio Gael, o modelo original da missão. O que começa como um voo de reconhecimento tranquilo se transforma em uma batalha contra esquadrões de caças e contra o Obelisco, uma nave capital colossal que emerge do Véu. Para sobreviver, Darian precisa dominar a nave, desbloquear suas armas e desmontar o Obelisco subsistema por subsistema.
+No início da missão, Darian escolhe entre a nave Cometa Arthur, uma exploradora colorida construída em blocos, e a nave Raio Gael, o modelo original da missão. O que começa como um voo de reconhecimento tranquilo se transforma em uma batalha contra esquadrões de caças e contra o Obelisco, uma nave capital colossal que emerge do Abismo Estelar. Para sobreviver, Darian precisa dominar a nave, desbloquear suas armas e desmontar o Obelisco subsistema por subsistema.
 
-VÉU é um universo de space opera original. O jogo não utiliza naves, personagens, logos, músicas ou efeitos sonoros protegidos de franquias existentes.
+Abismo Estelar é um universo de space opera original. O jogo não utiliza naves, personagens, logos, músicas ou efeitos sonoros protegidos de franquias existentes.
 
 ## Executar localmente
 
@@ -30,7 +30,7 @@ A opção **Voo de teste** avança o tempo da missão em 4×, mantendo movimento
 
 ### Idiomas
 
-O jogo começa em inglês. Use o seletor **EN / PT-BR** no menu ou na tela de pausa para alterar o idioma da interface; a escolha é salva no navegador para a próxima sessão. Nomes próprios como VÉU, Cometa Arthur, Raio Gael, Náris e Obelisco permanecem parte do universo original.
+O jogo começa em inglês. Use o seletor **EN / PT-BR** no menu ou na tela de pausa para alterar o idioma da interface; a escolha é salva no navegador para a próxima sessão. Nomes próprios como Abismo Estelar, Cometa Arthur, Raio Gael, Náris e Obelisco permanecem parte do universo original.
 
 ### Publicar com GitHub Pages
 
@@ -82,7 +82,7 @@ Retorne o mouse ao centro para seguir em frente. O jogo não usa pointer lock. A
 2. Ecos no cinturão: enfrentar patrulhas maiores e caças de assalto.
 3. Linha de ruptura: desbloquear o canhão de plasma.
 4. O cerco: enfrentar caças de elite e desbloquear a ruptura energética.
-5. Silêncio no Véu: os reforços diminuem enquanto a nave capital se aproxima.
+5. Silêncio no Abismo Estelar: os reforços diminuem enquanto a nave capital se aproxima.
 6. Obelisco: destruir torres de defesa, geradores de escudo, motores de íons e o reator. Uma reação em cadeia antecede a conclusão da missão.
 
 O escudo regenera após cinco segundos sem receber dano. Destruir um caça recupera sete pontos de escudo; a integridade não regenera. Asteroides e a nave capital causam dano de colisão sem morte instantânea.
