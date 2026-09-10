@@ -7,6 +7,7 @@ import { getAudioPreferences } from '../audio/AudioManager';
 import { formatScore, getLocale, setLocale, stageObjective, stageTitle, t, type Locale } from '../localization/i18n';
 
 export type Screen = 'menu' | 'intro' | 'playing' | 'pause' | 'victory' | 'defeat';
+type MarkerView = { root: HTMLDivElement; label: HTMLSpanElement };
 
 export class HUD {
   onStart: (fast: boolean) => void = () => {};
@@ -25,6 +26,9 @@ export class HUD {
   private currentScreen: Screen = 'menu';
   private resultData?: { won: boolean; progression: ProgressionManager };
   private root: HTMLElement;
+  private stageElements: HTMLElement[] = [];
+  private markerViews: MarkerView[] = [];
+  private shieldVisible = false;
   debug = CONFIG.debug;
 
   constructor(private backend: string) {
@@ -53,7 +57,7 @@ export class HUD {
         <div id="crosshair"><span></span><i></i><b></b></div><div id="aim-cursor"></div><div id="hitmarker">×</div><div id="markers"></div><div id="target-arrow" class="hidden">△<span>${t('hud.target')}</span></div>
         <div id="toast"><span class="tiny-label">${t('hud.communication')}</span><p id="toast-text"></p></div>
         <div class="bottom-hud">
-          <div class="ship-status"><div class="panel-heading"><span class="ship-symbol">⋀</span><div><strong>ANDORINHA</strong><span>${t('hud.ship-status')}</span></div></div><div class="meter-row"><label>${t('hud.shield')}</label><div class="meter"><i id="shield-bar"></i></div><b id="shield-value">120</b></div><div class="meter-row hull"><label>${t('hud.hull')}</label><div class="meter"><i id="hull-bar"></i></div><b id="hull-value">100</b></div></div>
+          <div class="ship-status"><div class="panel-heading"><span class="ship-symbol">⋀</span><div><strong>ANDORINHA</strong><span>${t('hud.ship-status')}</span></div></div><div class="meter-row"><label>${t('hud.shield')}</label><div class="meter"><i id="shield-bar"></i></div><b id="shield-value">120</b></div><div class="meter-row hull"><label>${t('hud.hull')}</label><div class="meter"><i id="hull-bar"></i></div><b id="hull-value">100</b></div><div class="shield-toggle"><kbd>V</kbd><span id="shield-visibility">${t(this.shieldVisible ? 'hud.shield-visible' : 'hud.shield-hidden')}</span></div></div>
           <div class="flight-status"><div><span class="tiny-label">${t('hud.speed')}</span><strong id="speed">062</strong><span class="unit">m/s</span></div><div class="boost-track"><i id="boost-bar"></i></div><div class="flight-caption"><span>${t('hud.boost')}</span><span id="dodge-status">${t('hud.dodge-ready')}</span></div></div>
           <div class="weapons"><span class="tiny-label">${t('hud.weapons')}</span><div class="weapon active"><kbd>LMB</kbd><span>${t('hud.laser')}</span><i>●</i></div><div id="plasma-weapon" class="weapon locked"><kbd>RMB</kbd><span>${t('hud.plasma')}</span><i id="plasma-status">◇</i></div><div id="burst-weapon" class="weapon locked"><kbd>R</kbd><span>${t('hud.burst')}</span><i id="burst-status">◇</i></div></div>
           <div class="radar-panel"><canvas id="radar" width="140" height="140" aria-label="${t('hud.contacts')}"></canvas><span id="contacts">${t('hud.contacts', { count: 0 })}</span></div>
@@ -67,6 +71,8 @@ export class HUD {
 
     this.elements = {};
     for (const element of this.root.querySelectorAll<HTMLElement>('[id]')) this.elements[element.id] = element;
+    this.stageElements = Array.from(this.root.querySelectorAll<HTMLElement>('[data-stage]'));
+    this.markerViews = [];
     this.radar = (this.elements.radar as HTMLCanvasElement).getContext('2d')!;
     this.elements.start.onclick = () => this.onStart((this.elements.fast as HTMLInputElement).checked);
     this.elements.resume.onclick = () => this.onResume();
@@ -104,6 +110,7 @@ export class HUD {
   toast(message: string) { this.toastMessage = message; this.elements['toast-text'].textContent = message; this.toastTime = 6; }
   hit(heavy = false) { this.hitTime = heavy ? 0.2 : 0.13; this.impactTime = Math.max(this.impactTime, heavy ? 0.2 : 0.1); this.elements.hitmarker.classList.toggle('heavy', heavy); }
   threat() { this.threatTime = Math.max(this.threatTime, 0.24); }
+  shieldVisibility(visible: boolean) { this.shieldVisible = visible; this.elements['shield-visibility'].textContent = t(visible ? 'hud.shield-visible' : 'hud.shield-hidden'); }
   damage() { this.damageTime = 0.35; }
 
   result(won: boolean, progression: ProgressionManager) {
@@ -128,7 +135,7 @@ export class HUD {
     text('dodge-status', player.dodgeCooldown > 0 ? t('hud.dodge-cooldown', { seconds: player.dodgeCooldown.toFixed(1) }) : t('hud.dodge-ready'));
     e['plasma-weapon'].classList.toggle('locked', progression.weaponLevel < 2); e['burst-weapon'].classList.toggle('locked', progression.weaponLevel < 3);
     text('plasma-status', progression.weaponLevel < 2 ? '◇' : plasmaCd > 0 ? plasmaCd.toFixed(1) : '●'); text('burst-status', progression.weaponLevel < 3 ? '◇' : burstCd > 0 ? `${Math.ceil(burstCd)}s` : '●');
-    this.root.querySelectorAll<HTMLElement>('[data-stage]').forEach(el => el.classList.toggle('active', Number(el.dataset.stage) <= progression.stage));
+    for (const el of this.stageElements) el.classList.toggle('active', Number(el.dataset.stage) <= progression.stage);
     e['boss-info'].classList.toggle('hidden', !bossObjective); text('boss-objective', bossObjective ?? '');
     text('target-info', selected ? `${selected.name.toUpperCase()}  /  ${Math.round(Vector3.Distance(player.position, selected.position))} m` : `${t('hud.no-target')} · ${t('hud.lock')}`);
     this.toastTime -= dt; this.hitTime -= dt; this.impactTime -= dt; this.threatTime -= dt; this.damageTime -= dt;
@@ -140,15 +147,25 @@ export class HUD {
   debugInfo(value: string) { this.elements.debug.classList.toggle('hidden', !this.debug); if (this.debug) this.elements.debug.textContent = value; }
 
   private drawMarkers(scene: Scene, player: PlayerShip, targets: Target[], selected?: Target) {
-    const engine = scene.getEngine(), camera = scene.activeCamera!; const width = engine.getRenderWidth(), height = engine.getRenderHeight(); let html = ''; let selectedVisible = false;
+    const engine = scene.getEngine(), camera = scene.activeCamera!; const width = engine.getRenderWidth(), height = engine.getRenderHeight(); let index = 0; let selectedVisible = false;
     for (const target of targets) {
       const delta = target.position.subtract(camera.position); if (Vector3.Dot(delta, camera.getForwardRay().direction) <= 0) continue;
       const point = Vector3.Project(target.position, Matrix.IdentityReadOnly, scene.getTransformMatrix(), camera.viewport.toGlobal(width, height)); const x = point.x / width * 100, y = point.y / height * 100;
       if (x < 2 || x > 98 || y < 8 || y > 88) continue; const active = target.id === selected?.id; if (active) selectedVisible = true;
-      html += `<div class="target-marker ${active ? 'selected' : ''}" style="left:${x}%;top:${y}%"><i></i>${active ? `<span>${Math.round(Vector3.Distance(player.position, target.position))} m</span>` : ''}</div>`;
+      const marker = this.markerViews[index] ?? this.createMarker(); index++;
+      marker.root.classList.toggle('selected', active); marker.root.style.left = `${x}%`; marker.root.style.top = `${y}%`; marker.root.hidden = false;
+      marker.label.textContent = active ? `${Math.round(Vector3.Distance(player.position, target.position))} m` : ''; marker.label.hidden = !active;
     }
-    this.elements.markers.innerHTML = html; const arrow = this.elements['target-arrow']; arrow.classList.toggle('hidden', !selected || selectedVisible);
+    for (; index < this.markerViews.length; index++) this.markerViews[index].root.hidden = true;
+    const arrow = this.elements['target-arrow']; arrow.classList.toggle('hidden', !selected || selectedVisible);
     if (selected && !selectedVisible) { const direction = selected.position.subtract(player.position).normalize(); const x = Vector3.Dot(direction, player.right), y = -Vector3.Dot(direction, player.up); const angle = Math.atan2(y, x); arrow.style.left = `${50 + Math.cos(angle) * 37}%`; arrow.style.top = `${46 + Math.sin(angle) * 30}%`; arrow.style.transform = `rotate(${angle + Math.PI / 2}rad)`; }
+  }
+
+  private createMarker(): MarkerView {
+    const root = document.createElement('div'); root.className = 'target-marker';
+    const icon = document.createElement('i'); root.append(icon);
+    const label = document.createElement('span'); root.append(label);
+    this.elements.markers.append(root); const marker = { root, label }; this.markerViews.push(marker); return marker;
   }
 
   private drawRadar(player: PlayerShip, targets: Target[]) {

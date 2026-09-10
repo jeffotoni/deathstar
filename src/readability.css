@@ -23,6 +23,8 @@ footer { font-size: 9px; }
 .panel-heading div span { font-size: 8px; }
 .meter-row label { font-size: 8px; }
 .meter-row b { font-size: 10px; }
+.shield-toggle { display: flex; align-items: center; gap: 9px; margin-top: 13px; color: #8fa9ad; font-size: 8px; letter-spacing: 1px; }
+.shield-toggle kbd { min-width: 22px; padding: 3px 5px; }
 .unit { font-size: 11px; }
 .flight-caption { font-size: 7px; }
 .weapon { font-size: 9px; }

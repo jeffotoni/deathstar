@@ -27,6 +27,13 @@ try {
   await page.locator('#fast').check();
   await page.getByRole('button', { name: 'START MISSION' }).click();
   await page.locator('#hud').waitFor({ state: 'visible', timeout: 20000 });
+  await page.waitForFunction(() => document.querySelector('#shield-visibility')?.textContent === 'SHIELD HIDDEN');
+  await page.keyboard.press('KeyV');
+  await page.waitForFunction(() => document.querySelector('#shield-visibility')?.textContent === 'SHIELD VISIBLE');
+  await page.waitForTimeout(750); // Allow first-use shield shaders to finish before visual capture.
+  await page.screenshot({ path: '/private/tmp/veu-shield.png' });
+  await page.keyboard.press('KeyV');
+  await page.waitForFunction(() => document.querySelector('#shield-visibility')?.textContent === 'SHIELD HIDDEN');
   await page.mouse.move(720, 450);
   await page.mouse.down();
   await page.waitForTimeout(400);

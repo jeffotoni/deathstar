@@ -13,7 +13,7 @@ export class ProjectileManager {
   private pool: Projectile[] = [];
   private materials;
   onHit: (target: Target, position: Vector3, kind: WeaponKind) => void = () => {};
-  onPlayerHit: (damage: number) => void = () => {};
+  onPlayerHit: (damage: number, position: Vector3, normal: Vector3) => void = () => {};
   constructor(assets: AssetManager) {
     this.materials = {
       laser: assets.material('laser cyan', '#b9fff8', 4.5),
@@ -41,7 +41,7 @@ export class ProjectileManager {
       if (p.life <= 0) continue;
       p.life -= dt; p.previous.copyFrom(p.mesh.position); p.mesh.position.addInPlace(p.velocity.scale(dt));
       if (p.kind === 'enemy') {
-        if (segmentDistanceSquared(p.previous, p.mesh.position, player) < 3.6 ** 2) { this.onPlayerHit(p.damage); p.life = 0; }
+        if (segmentDistanceSquared(p.previous, p.mesh.position, player) < 3.6 ** 2) { this.onPlayerHit(p.damage, player.clone(), p.velocity.normalizeToNew().scaleInPlace(-1)); p.life = 0; }
       } else {
         for (const target of targets) {
           if (target.health <= 0) continue;

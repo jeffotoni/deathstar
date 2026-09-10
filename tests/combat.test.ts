@@ -18,6 +18,9 @@ test('enemy +Z nose faces its target, approaches, and can fire during attack', (
   try {
     const shots = new ProjectileManager(assets); const manager = new EnemyManager(assets, shots);
     const player = new PlayerShip(assets);
+    assert.equal(player.shieldVisible, false, 'shield starts hidden');
+    assert.equal(player.toggleShield(), true, 'V reveals the shield');
+    assert.equal(player.toggleShield(), false, 'V hides the shield again');
     for (const facing of [Vector3.Forward(), new Vector3(0, 0, -1), Vector3.Up(), new Vector3(0, -1, 0), new Vector3(1, 0.4, -0.7).normalize()]) {
       const enemy = new Enemy('scout', assets, new Vector3(0, 0, 400), facing);
       enemy.root.computeWorldMatrix(true);

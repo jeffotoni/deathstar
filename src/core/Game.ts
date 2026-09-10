@@ -78,7 +78,7 @@ export class Game {
       this.hud.hit(heavy); this.audio.hit(position, heavy); this.effects.explosion(position, kind === 'laser' ? 0.25 : 1.2);
       this.effects.shake = Math.max(this.effects.shake, heavy ? 0.16 : 0.055);
     };
-    this.projectiles.onPlayerHit = damage => this.damage(damage);
+    this.projectiles.onPlayerHit = (damage, position, normal) => this.damage(damage, position, normal);
     this.hud.show('menu');
     engine.runRenderLoop(() => this.frame());
     window.addEventListener('resize', () => engine.resize());
@@ -89,7 +89,7 @@ export class Game {
     this.progression = new ProgressionManager(); this.progression.fast = fast;
     this.progression.onStage = stage => this.enterStage(stage);
     this.laserCooldown = this.plasmaCooldown = this.burstCooldown = this.collisionCooldown = 0;
-    this.actualTime = 0; this.introTime = 0; this.state = 'intro'; this.hud.show('intro'); this.input.setEnabled(false); this.audio.start();
+    this.actualTime = 0; this.introTime = 0; this.state = 'intro'; this.hud.shieldVisibility(this.player.shieldVisible); this.hud.show('intro'); this.input.setEnabled(false); this.audio.start();
     this.camera.position.set(0, 7, -25); this.camera.upVector = Vector3.Up(); this.camera.setTarget(new Vector3(0, 0, 100));
   }
   private launch() {
@@ -116,9 +116,9 @@ export class Game {
       this.hud.toast(t('toast.obelisk'));
     } else this.hud.toast(stageTitle(stage).toUpperCase());
   }
-  private damage(amount: number) {
+  private damage(amount: number, impactPosition = this.player.position, impactNormal = this.player.forward.scale(-1)) {
     if (this.player.dodge > 0 || this.state !== 'playing') return;
-    this.player.health.hit(amount); this.hud.damage(); this.audio.damage(this.player.position); this.effects.shake = 0.5;
+    this.player.health.hit(amount); this.player.shieldImpact(); this.effects.shieldImpact(impactPosition, impactNormal); this.hud.damage(); this.audio.damage(this.player.position); this.effects.shake = 0.5;
     if (this.player.health.hull <= 0) { this.effects.explosion(this.player.position, 4); this.audio.explosion(this.player.position, 4); this.finish(false); }
   }
   private get targets(): Target[] { return [...this.enemies.enemies.filter(e => e.health > 0), ...(this.boss?.targets ?? [])]; }
@@ -165,6 +165,7 @@ export class Game {
     this.progression.update(dt);
     if (this.input.consume('KeyF')) this.chooseTarget(false);
     if (this.input.consume('Tab')) this.chooseTarget(true);
+    if (this.input.consume('KeyV')) this.hud.shieldVisibility(this.player.toggleShield());
     if (this.input.consume('F3')) this.hud.debug = !this.hud.debug;
     if (this.input.consume('KeyM')) { this.muted = !this.muted; this.audio.setMuted(this.muted); }
     const targets = this.targets;
@@ -181,11 +182,11 @@ export class Game {
     }
     this.enemies.update(dt, this.player);
     this.boss?.update(dt, this.player, this.projectiles, this.effects);
-    this.projectiles.update(dt, this.targets, this.player.position);
+    this.projectiles.update(dt, targets, this.player.position);
     const rockNormal = this.world.collide(this.player.position);
     const bossCollision = this.boss?.collides(this.player.position);
     if ((rockNormal || bossCollision) && this.collisionCooldown <= 0) {
-      this.damage(18 + this.player.speed * 0.1); this.collisionCooldown = 1.5;
+      this.damage(18 + this.player.speed * 0.1, this.player.position, rockNormal ?? this.player.forward.scale(-1)); this.collisionCooldown = 1.5;
       this.player.position.addInPlace((rockNormal ?? this.player.forward.scale(-1)).scale(20));
       this.player.throttle = CONFIG.player.minSpeed; this.player.velocity.scaleInPlace(-0.25);
     }
@@ -194,7 +195,7 @@ export class Game {
       position: this.player.position, forward: this.player.forward, up: this.player.up, boosting: this.player.boosting,
     }, targets.length, this.selected?.position);
     this.hud.aim(this.input.mouseX, this.input.mouseY);
-    this.hud.update(dt, this.player, this.progression, this.targets, this.selected, this.scene, this.plasmaCooldown, this.burstCooldown, this.boss?.objective);
+    this.hud.update(dt, this.player, this.progression, targets, this.selected, this.scene, this.plasmaCooldown, this.burstCooldown, this.boss?.objective);
     this.debugTimer -= dt;
     if (this.debugTimer < 0) {
       this.debugTimer = 0.3;
