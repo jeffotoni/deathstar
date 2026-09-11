@@ -143,19 +143,13 @@ export class Game {
     this.audio.lock();
   }
   private fire(kind: Exclude<WeaponKind, 'enemy'>) {
-    let target = this.selected;
     const forward = this.player.forward;
-    const cosine = kind === 'laser' ? 0.977 : kind === 'plasma' ? 0.96 : 0.5;
-    const eligible = (t: Target) => t.health > 0 && Vector3.Distance(t.position, this.player.position) < CONFIG.weapons.targetRange && Vector3.Dot(t.position.subtract(this.player.position).normalize(), forward) > cosine;
-    if (!target || !eligible(target)) target = this.targets.filter(eligible).sort((a, b) => Vector3.DistanceSquared(a.position, this.player.position) - Vector3.DistanceSquared(b.position, this.player.position))[0];
     const speed = kind === 'laser' ? CONFIG.weapons.laserSpeed : kind === 'plasma' ? CONFIG.weapons.plasmaSpeed : 430;
     const damage = kind === 'laser' ? CONFIG.weapons.laserDamage : kind === 'plasma' ? CONFIG.weapons.plasmaDamage : CONFIG.weapons.burstDamage;
-    let aim = this.player.position.add(forward.scale(900));
-    if (target) {
-      aim = target.position.clone();
-      const enemy = this.enemies.enemies.find(e => e.id === target!.id);
-      if (enemy) aim.addInPlace(enemy.root.getDirection(Vector3.Forward()).scale((enemy.kind === 'scout' ? 36 : enemy.kind === 'assault' ? 30 : 44) * Math.min(1.35, Vector3.Distance(this.player.position, enemy.position) / speed)));
-    }
+    // Weapons follow the player's reticle axis. Target selection remains a
+    // visual/navigation aid, but it must never turn the projectile into a
+    // homing shot or pull it away from where the pilot is aiming.
+    const aim = this.player.position.add(forward.scale(900));
     const emitterX = this.player.variant === 'lego' ? 3.15 : 2.75;
     for (const side of kind === 'laser' ? [-1, 1] : [0]) {
       const origin = this.player.position.add(this.player.right.scale(side * emitterX)).add(forward.scale(3));

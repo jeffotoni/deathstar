@@ -57,18 +57,41 @@ footer { font-size: 9px; }
 .target-marker[data-kind="elite"].selected, .target-marker[data-kind="boss"].selected { border-color: #f0c6ff; box-shadow: 0 0 20px #d6a3ff99; }
 .locale-toggle,
 .locale-toggle button { font-size: 10px; }
-.ship-picker { max-width: 650px; margin-top: 22px; }
-.ship-picker-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
-.ship-picker-heading > span:last-child { color: #b9e7d8; font-size: 8px; letter-spacing: 1.6px; }
-.ship-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
-.ship-option { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; min-height: 92px; padding: 12px 13px; border: 1px solid #a9d9d52b; background: #071725b8; color: #cfe5e2; text-align: left; transition: border-color .2s, background .2s, box-shadow .2s; }
-.ship-option:hover { border-color: #a7e8dc88; background: #0a2030d9; }
-.ship-option.active { border-color: #a8ebdd; background: linear-gradient(135deg, #0c2c3be6, #123047c7); box-shadow: 0 0 24px #69dcca1c, inset 0 0 0 1px #9eeadd22; }
-.ship-option strong { font-size: 10px; letter-spacing: 1.3px; font-weight: 600; color: #f0faf5; }
-.ship-option span { font-size: 9px; letter-spacing: .5px; color: #9fc3c2; }
-.ship-option small { margin-top: auto; font-size: 7px; letter-spacing: .8px; color: #85aaa9; }
+.menu { top: 10%; max-width: 780px; }
+.menu h1 { margin-top: 20px; margin-bottom: 16px; }
+.menu .lead { margin-bottom: 22px; }
+.ship-picker { position: relative; max-width: 760px; margin-top: 13px; padding: 14px; border: 1px solid #a9d9d538; background: linear-gradient(135deg, #071827d9, #06111de6 60%, #0a1825d1); box-shadow: 0 0 45px #06131f99, inset 0 0 34px #6ce4d00b; backdrop-filter: blur(8px); }
+.ship-picker:before { content: ''; position: absolute; inset: 7px; border: 1px solid #a9d9d512; pointer-events: none; }
+.ship-picker-heading { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 0 3px 13px; border-bottom: 1px solid #a9d9d51c; }
+.ship-picker-heading > span:last-child { padding: 5px 9px; border: 1px solid #b9e7d84c; color: #d7fff1; background: #8ee7d00e; font-size: 8px; letter-spacing: 1.6px; box-shadow: 0 0 14px #69dcca18; }
+.ship-options { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; margin-top: 14px; }
+.ship-option { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-height: 118px; padding: 14px; overflow: hidden; border: 1px solid #a9d9d54a; background: linear-gradient(145deg, #0b2435d9, #071522e8 62%, #0d1e2bd9); color: #cfe5e2; text-align: left; transition: transform .2s ease, border-color .2s, background .2s, box-shadow .2s; }
+.ship-option:before { content: ''; position: absolute; width: 150px; height: 150px; right: -58px; top: -55px; border-radius: 50%; background: var(--ship-glow, #69dcca); opacity: .1; filter: blur(18px); transition: opacity .2s, transform .2s; }
+.ship-option:after { content: ''; position: absolute; inset: 6px; border: 1px solid transparent; pointer-events: none; transition: border-color .2s; }
+.ship-option[data-ship="lego"] { --ship-glow: #35c9ff; }
+.ship-option[data-ship="classic"] { --ship-glow: #a4deda; }
+.ship-option:hover { transform: translateY(-3px); border-color: #a7e8dcbb; background: linear-gradient(145deg, #10354ad9, #091c2ce8 62%, #102b3bd9); box-shadow: 0 10px 30px #020a1499, 0 0 25px #69dcca22; }
+.ship-option:hover:before, .ship-option.active:before { opacity: .25; transform: scale(1.25); }
+.ship-option:focus-visible { outline: 2px solid #c1ffec; outline-offset: 4px; }
+.ship-option.active { transform: translateY(-4px); border-color: #c3fff0; background: linear-gradient(145deg, #123d50ed, #0b2031ee 62%, #12364ade); box-shadow: 0 12px 34px #020a14cc, 0 0 30px #69dcca2e, inset 0 0 0 1px #9eeadd44; }
+.ship-option.active:after { border-color: #c1ffec38; }
+.ship-option strong { position: relative; z-index: 1; font-size: 14px; letter-spacing: 1.7px; font-weight: 600; color: #f5fffb; }
+.ship-option span { position: relative; z-index: 1; font-size: 10px; letter-spacing: .8px; color: #a9d4d0; }
+.ship-option small { position: relative; z-index: 1; display: flex; align-items: center; gap: 7px; margin-top: auto; padding-top: 9px; border-top: 1px solid #a9d9d522; width: 100%; font-size: 8px; letter-spacing: 1px; color: #b6d9d4; }
+.ship-option small:before { content: '◈'; color: var(--ship-glow, #69dcca); text-shadow: 0 0 10px var(--ship-glow, #69dcca); }
+.mission-meta { gap: 7px; margin-top: 11px; }
+.mission-meta span { padding: 7px 9px; border: 1px solid #a9d9d522; background: #081824b3; }
+.mission-meta span+span:before { margin-right: 7px; color: #9bd6ce; }
+.menu .test-option { margin-top: 11px; }
+.menu .primary { position: relative; overflow: hidden; margin-top: 12px; min-width: 310px; box-shadow: 0 0 22px #70dfc52b; transition: transform .2s ease, background .2s, box-shadow .2s; }
+.menu .primary:before { content: ''; position: absolute; inset: 0 auto 0 -120%; width: 80%; background: linear-gradient(105deg, transparent, #ffffffaa, transparent); transform: skewX(-18deg); transition: left .55s ease; }
+.menu .primary:hover { transform: translateY(-3px); background: #e5fff3; box-shadow: 0 12px 35px #051017cc, 0 0 35px #a7e8d366; }
+.menu .primary:hover:before { left: 135%; }
+.menu .primary span { position: relative; z-index: 1; transition: transform .2s ease; }
+.menu .primary:hover span { transform: translate(5px, -2px); }
 
 @media (max-width: 760px) {
+  .menu { top: 7%; left: 5%; max-width: 90vw; }
   .build { font-size: 8px; }
   .brand-sub { font-size: 9px; }
   .lead { font-size: 14px; }
@@ -79,6 +102,13 @@ footer { font-size: 9px; }
   .weapon { font-size: 7px; }
   .mission-block p { font-size: 10px; }
   #target-info { font-size: 8px; }
+  .ship-picker { padding: 12px; }
   .ship-options { grid-template-columns: 1fr; }
-  .ship-option { min-height: 76px; }
+  .ship-option { min-height: 112px; padding: 14px; }
+  .menu .primary { min-width: 250px; width: 100%; }
+}
+
+@media (min-width: 761px) and (max-height: 920px) {
+  .menu { top: 8%; }
+  .menu-foot { display: none; }
 }
