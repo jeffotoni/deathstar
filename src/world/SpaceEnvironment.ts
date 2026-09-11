@@ -1,6 +1,13 @@
-import { Color3, Color4, DynamicTexture, Matrix, Mesh, MeshBuilder, Quaternion, Scene, StandardMaterial, TransformNode, Vector3 } from '@babylonjs/core';
+import { Color3, Color4, Constants, DynamicTexture, Matrix, Mesh, MeshBuilder, Quaternion, Scene, StandardMaterial, TransformNode, Vector3 } from '@babylonjs/core';
 import { AssetManager } from '../core/AssetManager';
 import type { Target } from '../weapons/ProjectileManager';
+
+export const SOLAR_DANGER_RADIUS = 1800;
+const SOLAR_SAFE_DISTANCE = 650;
+
+export function solarHeatAtDistance(distance: number) {
+  return Math.max(0, Math.min(1, (SOLAR_DANGER_RADIUS - distance) / (SOLAR_DANGER_RADIUS - SOLAR_SAFE_DISTANCE)));
+}
 
 class AsteroidTarget implements Target {
   health: number;
@@ -20,6 +27,10 @@ class AsteroidTarget implements Target {
 export class SpaceEnvironment {
   private sky: TransformNode;
   private asteroids: AsteroidTarget[] = [];
+  private star: Mesh;
+  private corona: Mesh;
+  private starTime = 0;
+  readonly solarPosition = new Vector3(-1000, 700, 5200);
   constructor(private scene: Scene, assets: AssetManager) {
     scene.clearColor = new Color4(0.015, 0.024, 0.048, 1);
     this.sky = new TransformNode('distant sky', scene);
@@ -33,6 +44,14 @@ export class SpaceEnvironment {
     }
     star.thinInstanceSetBuffer('matrix', matrices); star.alwaysSelectAsActiveMesh = true;
     this.nebula();
+    this.star = MeshBuilder.CreateSphere('Náris star', { diameter: 520, segments: 24 }, scene);
+    this.star.position.copyFrom(this.solarPosition); this.star.isPickable = false;
+    const starMaterial = assets.material('Náris star light', '#fff0a8', 6);
+    starMaterial.disableLighting = true; starMaterial.diffuseColor = Color3.Black(); starMaterial.specularColor = Color3.Black(); this.star.material = starMaterial;
+    this.corona = MeshBuilder.CreateSphere('Náris star corona', { diameter: 860, segments: 16 }, scene);
+    this.corona.position.copyFrom(this.solarPosition); this.corona.isPickable = false;
+    const coronaMaterial = assets.material('Náris star corona', '#ffb34d', 2);
+    coronaMaterial.disableLighting = true; coronaMaterial.diffuseColor = Color3.Black(); coronaMaterial.specularColor = Color3.Black(); coronaMaterial.alpha = 0.075; coronaMaterial.alphaMode = Constants.ALPHA_ADD; coronaMaterial.backFaceCulling = false; this.corona.material = coronaMaterial;
     const planet = MeshBuilder.CreateSphere('Náris', { diameter: 2000, segments: 48 }, scene);
     planet.parent = this.sky; planet.position.set(2700, 650, 4800);
     const texture = new DynamicTexture('mineral bands', { width: 1024, height: 512 }, scene, false);
@@ -79,6 +98,9 @@ export class SpaceEnvironment {
     const mat = new StandardMaterial('nebula atmosphere', this.scene); mat.emissiveTexture = texture; mat.disableLighting = true; mat.diffuseColor = Color3.Black(); dome.material = mat;
   }
   update(dt: number, position: Vector3) {
+    this.starTime += dt;
+    const pulse = 1 + Math.sin(this.starTime * 2.4) * 0.025;
+    this.corona.scaling.setAll(pulse);
     this.sky.position.copyFrom(position);
     for (const rock of this.asteroids) {
       if (rock.health <= 0) continue;
@@ -94,4 +116,5 @@ export class SpaceEnvironment {
     return null;
   }
   get targets(): Target[] { return this.asteroids.filter(rock => rock.health > 0); }
+  solarHeat(position: Vector3) { return solarHeatAtDistance(Vector3.Distance(position, this.solarPosition)); }
 }

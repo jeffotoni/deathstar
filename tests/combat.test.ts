@@ -12,6 +12,7 @@ const { PlayerShip } = await import('../src/player/PlayerShip.ts');
 const { Effects } = await import('../src/effects/Effects.ts');
 const { Subsystem } = await import('../src/boss/CapitalShip.ts');
 const { Enemy, EnemyManager } = await import('../src/enemies/EnemyManager.ts');
+const { SOLAR_DANGER_RADIUS, solarHeatAtDistance } = await import('../src/world/SpaceEnvironment.ts');
 
 test('enemy +Z nose faces its target, approaches, and can fire during attack', () => {
   const engine = new NullEngine(); const scene = new Scene(engine); const assets = new AssetManager(scene);
@@ -151,4 +152,11 @@ test('capital ship gates subsystems and completes only after destruction sequenc
   assert.equal(boss.complete, true);
   assert.ok(finaleBursts > 1); assert.equal(finalExplosion, 1);
   engine.dispose();
+});
+
+test('solar heat stays safe at distance and reaches maximum inside the exclusion zone', () => {
+  assert.equal(solarHeatAtDistance(SOLAR_DANGER_RADIUS + 1), 0);
+  assert.ok(solarHeatAtDistance(SOLAR_DANGER_RADIUS - 500) > 0);
+  assert.equal(solarHeatAtDistance(650), 1);
+  assert.equal(solarHeatAtDistance(0), 1);
 });

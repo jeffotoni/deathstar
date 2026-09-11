@@ -41,6 +41,9 @@ footer { font-size: 9px; }
 #threat-warning { position: absolute; left: 50%; top: 37%; transform: translateX(-50%); color: #ffb19a; opacity: 0; letter-spacing: 2px; text-shadow: 0 0 14px #ff574c; pointer-events: none; transition: opacity .1s; }
 #threat-warning.visible { opacity: 1; animation: threat-pulse .25s ease-in-out infinite alternate; }
 @keyframes threat-pulse { from { transform: translateX(-50%) scale(.96); } to { transform: translateX(-50%) scale(1.04); } }
+#solar-warning { position: absolute; left: 50%; top: 43%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; color: #ffd68d; opacity: 0; letter-spacing: 2px; text-shadow: 0 0 16px #ff9f38; pointer-events: none; transition: opacity .15s; }
+#solar-warning.visible { opacity: 1; }
+#solar-warning i { display: block; width: 120px; height: 2px; background: linear-gradient(90deg, #ff8a2b, #fff1a8); transform-origin: left; transform: scaleX(var(--solar-heat, 0)); box-shadow: 0 0 12px #ffad4c; }
 #hitmarker { transition: opacity .06s, transform .06s; }
 #hitmarker.heavy { color: #ffe3a8; transform: translate(-50%, -50%) scale(1.18); }
 #speed { transition: color .12s, text-shadow .12s; }

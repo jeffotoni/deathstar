@@ -86,7 +86,7 @@ Retorne o mouse ao centro para seguir em frente. As setas controlam o giro e a i
 5. Silêncio no Abismo Estelar: os reforços diminuem enquanto a nave capital se aproxima.
 6. Obelisco: destruir torres de defesa, geradores de escudo, motores de íons e o reator. Uma reação em cadeia antecede a conclusão da missão.
 
-O escudo regenera após cinco segundos sem receber dano. Destruir um caça recupera sete pontos de escudo; a integridade não regenera. Asteroides e a nave capital causam dano de colisão sem morte instantânea.
+O escudo regenera após cinco segundos sem receber dano. Destruir um caça recupera sete pontos de escudo; a integridade não regenera. Asteroides e a nave capital causam dano de colisão sem morte instantânea. Os asteroides também podem ser destruídos com vários disparos de laser ou um disparo de plasma. A estrela brilhante Náris é um marco distante com uma zona de exclusão solar: aproximar-se drena progressivamente o escudo e o casco.
 
 ## Estrutura do projeto
 
@@ -107,7 +107,7 @@ node scripts/browser-smoke.mjs
 
 O smoke test requer o servidor local e o Chrome. Ele verifica inicialização, aceleração, boost, direção enquanto dispara, abates reais, pausa, retomada, reinício e erros do navegador. As capturas são salvas em `/private/tmp/veu-menu.png` e `/private/tmp/veu-flight.png`.
 
-A validação atual possui seis testes de lógica passando, incluindo orientação `+Z`, aproximação e ataque dos inimigos. A validação em Chrome/WebGL2 confirmou disparos, direção enquanto dispara, três abates com pontuação, pausa, retomada, reinício e ausência de erros de execução no navegador. O build de produção passou. WebGPU e uma partida completa da batalha contra a nave capital ainda não foram validados neste ambiente.
+A validação atual possui dez testes de lógica passando, incluindo orientação `+Z`, aproximação, ataques, obstáculos destrutíveis e limites do perigo solar. A validação em Chrome/WebGL2 confirmou disparos, direção enquanto dispara, três abates com pontuação, pausa, retomada, reinício e ausência de erros de execução no navegador. O build de produção passou. WebGPU e uma partida completa da batalha contra a nave capital ainda não foram validados neste ambiente.
 
 Para servir o build de produção:
 

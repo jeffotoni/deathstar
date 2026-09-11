@@ -86,7 +86,7 @@ Return the mouse to the center to fly straight. Arrow keys turn and pitch the sh
 5. Silence in the Stellar Abyss: reinforcements thin out as the capital ship approaches.
 6. Obelisk: destroy defense turrets, shield generators, ion engines, and the reactor. A chain reaction precedes mission completion.
 
-The shield regenerates after five seconds without damage. Destroying a fighter restores seven shield points; hull integrity does not regenerate. Asteroids and the capital ship deal collision damage without instant kills.
+The shield regenerates after five seconds without damage. Destroying a fighter restores seven shield points; hull integrity does not regenerate. Asteroids and the capital ship deal collision damage without instant kills. Asteroids can also be cleared with repeated laser fire or a plasma hit. The bright Náris star is a distant landmark with a solar exclusion zone: approaching it drains the shield and hull progressively.
 
 ## Project structure
 
@@ -107,7 +107,7 @@ node scripts/browser-smoke.mjs
 
 The smoke test requires the local server and Chrome. It checks startup, acceleration, boost, steering while firing, real kills, pause, resume, restart, and browser errors. Screenshots are written to `/private/tmp/veu-menu.png` and `/private/tmp/veu-flight.png`.
 
-Current validation: six logic tests pass, including enemy `+Z` orientation, approach, and attacks. Chrome/WebGL2 validation confirmed firing, steering while firing, three kills with score, pause, resume, restart, and no browser runtime errors. The production build passes. WebGPU and a complete browser playthrough of the capital-ship battle have not been validated in this environment.
+Current validation: ten logic tests pass, including enemy `+Z` orientation, approach, attacks, destructible obstacles, and solar hazard thresholds. Chrome/WebGL2 validation confirmed firing, steering while firing, three kills with score, pause, resume, restart, and no browser runtime errors. The production build passes. WebGPU and a complete browser playthrough of the capital-ship battle have not been validated in this environment.
 
 To serve the production build:
 

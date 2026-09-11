@@ -33,6 +33,7 @@ export class Game {
   private plasmaCooldown = 0;
   private burstCooldown = 0;
   private collisionCooldown = 0;
+  private solarDamageCooldown = 0;
   private introTime = 0;
   private menuTime = 0;
   private debugTimer = 0;
@@ -95,7 +96,7 @@ export class Game {
     this.player.root.dispose(); this.player = new PlayerShip(this.assets, this.selectedShip);
     this.progression = new ProgressionManager(); this.progression.fast = fast;
     this.progression.onStage = stage => this.enterStage(stage);
-    this.laserCooldown = this.plasmaCooldown = this.burstCooldown = this.collisionCooldown = 0;
+    this.laserCooldown = this.plasmaCooldown = this.burstCooldown = this.collisionCooldown = this.solarDamageCooldown = 0;
     this.actualTime = 0; this.introTime = 0; this.state = 'intro'; this.hud.shieldVisibility(this.player.shieldVisible); this.hud.show('intro'); this.input.setEnabled(false); this.audio.start();
     this.camera.position.set(0, 7, -25); this.camera.upVector = Vector3.Up(); this.camera.setTarget(new Vector3(0, 0, 100));
   }
@@ -192,6 +193,12 @@ export class Game {
     this.enemies.update(dt, this.player);
     this.boss?.update(dt, this.player, this.projectiles, this.effects);
     this.projectiles.update(dt, targets, this.player.position, this.world.targets);
+    const solarHeat = this.world.solarHeat(this.player.position);
+    this.solarDamageCooldown -= dt;
+    if (solarHeat > 0 && this.solarDamageCooldown <= 0) {
+      this.damage(5 + solarHeat * 18, this.player.position, this.player.position.subtract(this.world.solarPosition).normalize());
+      this.solarDamageCooldown = 0.35;
+    }
     const rockNormal = this.world.collide(this.player.position);
     const bossCollision = this.boss?.collides(this.player.position);
     if ((rockNormal || bossCollision) && this.collisionCooldown <= 0) {
@@ -204,6 +211,7 @@ export class Game {
       position: this.player.position, forward: this.player.forward, up: this.player.up, boosting: this.player.boosting,
     }, targets.length, this.selected?.position);
     this.hud.aim(this.input.mouseX, this.input.mouseY);
+    this.hud.solarWarning(solarHeat);
     this.hud.update(dt, this.player, this.progression, targets, this.selected, this.scene, this.plasmaCooldown, this.burstCooldown, this.boss?.objective);
     this.debugTimer -= dt;
     if (this.debugTimer < 0) {

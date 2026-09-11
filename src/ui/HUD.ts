@@ -62,7 +62,7 @@ export class HUD {
         <div class="mission-block"><div class="eyebrow">${t('hud.operation')} <span id="mission-time">00:00</span></div><h3 id="stage-title">${stageTitle(0)}</h3><p id="objective">${stageObjective(0)}</p><div class="stage-track">${STAGES.map((_, i) => `<i data-stage="${i}"></i>`).join('')}</div></div>
         <div class="combat-stats"><span class="tiny-label">${t('hud.kills')}</span><strong id="kills">00</strong><span class="tiny-label">${t('hud.score')} <b id="score">00000</b></span></div>
         <div id="boss-info" class="hidden"><span class="eyebrow">${t('hud.capital-ship')}</span><strong id="boss-objective"></strong></div>
-        <div id="crosshair"><span></span><i></i><b></b></div><div id="aim-cursor"></div><div id="hitmarker">×</div><div id="threat-warning"><span>${t('hud.incoming')}</span></div><div id="markers"></div><div id="target-arrow" class="hidden">△<span>${t('hud.target')}</span></div>
+        <div id="crosshair"><span></span><i></i><b></b></div><div id="aim-cursor"></div><div id="hitmarker">×</div><div id="threat-warning"><span>${t('hud.incoming')}</span></div><div id="solar-warning"><span>${t('hud.solar-hazard')}</span><i></i></div><div id="markers"></div><div id="target-arrow" class="hidden">△<span>${t('hud.target')}</span></div>
         <div id="toast"><span class="tiny-label">${t('hud.communication')}</span><p id="toast-text"></p></div>
         <div class="bottom-hud">
           <div class="ship-status"><div class="panel-heading"><span class="ship-symbol">⋀</span><div><strong id="hud-ship-name">${t(this.selectedShip === 'lego' ? 'menu.lego-name' : 'menu.classic-name')}</strong><span>${t('hud.ship-status')}</span></div></div><div class="meter-row"><label>${t('hud.shield')}</label><div class="meter"><i id="shield-bar"></i></div><b id="shield-value">120</b></div><div class="meter-row hull"><label>${t('hud.hull')}</label><div class="meter"><i id="hull-bar"></i></div><b id="hull-value">100</b></div><div class="shield-toggle"><kbd>V</kbd><span id="shield-visibility">${t(this.shieldVisible ? 'hud.shield-visible' : 'hud.shield-hidden')}</span></div></div>
@@ -134,6 +134,7 @@ export class HUD {
   toast(message: string) { this.toastMessage = message; this.elements['toast-text'].textContent = message; this.toastTime = 6; }
   hit(heavy = false) { this.hitTime = heavy ? 0.2 : 0.13; this.impactTime = Math.max(this.impactTime, heavy ? 0.2 : 0.1); this.elements.hitmarker.classList.toggle('heavy', heavy); }
   threat() { this.threatTime = Math.max(this.threatTime, 0.5); }
+  solarWarning(heat: number) { const warning = this.elements['solar-warning']; warning.classList.toggle('visible', heat > 0); warning.style.setProperty('--solar-heat', heat.toFixed(3)); }
   shieldVisibility(visible: boolean) { this.shieldVisible = visible; this.elements['shield-visibility'].textContent = t(visible ? 'hud.shield-visible' : 'hud.shield-hidden'); }
   damage() { this.damageTime = 0.35; }
 
