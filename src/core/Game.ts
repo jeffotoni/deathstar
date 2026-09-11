@@ -191,7 +191,7 @@ export class Game {
     }
     this.enemies.update(dt, this.player);
     this.boss?.update(dt, this.player, this.projectiles, this.effects);
-    this.projectiles.update(dt, targets, this.player.position);
+    this.projectiles.update(dt, targets, this.player.position, this.world.targets);
     const rockNormal = this.world.collide(this.player.position);
     const bossCollision = this.boss?.collides(this.player.position);
     if ((rockNormal || bossCollision) && this.collisionCooldown <= 0) {

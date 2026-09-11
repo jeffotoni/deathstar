@@ -1,9 +1,25 @@
 import { Color3, Color4, DynamicTexture, Matrix, Mesh, MeshBuilder, Quaternion, Scene, StandardMaterial, TransformNode, Vector3 } from '@babylonjs/core';
 import { AssetManager } from '../core/AssetManager';
+import type { Target } from '../weapons/ProjectileManager';
+
+class AsteroidTarget implements Target {
+  health: number;
+  readonly maxHealth: number;
+  readonly name = 'ASTEROID';
+  constructor(public readonly id: number, public readonly mesh: Mesh, public readonly radius: number) {
+    this.maxHealth = Math.max(30, Math.round(radius * 3.4));
+    this.health = this.maxHealth;
+  }
+  get position() { return this.mesh.position; }
+  hit(damage: number) {
+    this.health = Math.max(0, this.health - damage);
+    if (this.health === 0) this.mesh.setEnabled(false);
+  }
+}
 
 export class SpaceEnvironment {
   private sky: TransformNode;
-  private asteroids: { mesh: Mesh; radius: number }[] = [];
+  private asteroids: AsteroidTarget[] = [];
   constructor(private scene: Scene, assets: AssetManager) {
     scene.clearColor = new Color4(0.015, 0.024, 0.048, 1);
     this.sky = new TransformNode('distant sky', scene);
@@ -43,7 +59,7 @@ export class SpaceEnvironment {
       mesh.position.set((Math.random() - 0.5) * 2200, (Math.random() - 0.5) * 1300, 200 + Math.random() * 2400);
       mesh.rotation.set(Math.random() * 6, Math.random() * 6, Math.random() * 6);
       mesh.scaling.set(0.8 + Math.random() * 0.5, 0.7 + Math.random() * 0.5, 0.8 + Math.random() * 0.4);
-      mesh.material = rockMat; mesh.isPickable = false; this.asteroids.push({ mesh, radius });
+      mesh.material = rockMat; mesh.isPickable = false; this.asteroids.push(new AsteroidTarget(20000 + i, mesh, radius));
     }
   }
   private nebula() {
@@ -65,6 +81,7 @@ export class SpaceEnvironment {
   update(dt: number, position: Vector3) {
     this.sky.position.copyFrom(position);
     for (const rock of this.asteroids) {
+      if (rock.health <= 0) continue;
       rock.mesh.rotation.y += dt * 0.018;
       if (Vector3.DistanceSquared(rock.mesh.position, position) > 3400 ** 2) {
         const dir = new Vector3(Math.random() - 0.5, (Math.random() - 0.5) * 0.6, Math.random() - 0.5).normalize();
@@ -73,7 +90,8 @@ export class SpaceEnvironment {
     }
   }
   collide(position: Vector3): Vector3 | null {
-    for (const rock of this.asteroids) if (Vector3.DistanceSquared(position, rock.mesh.position) < (rock.radius + 2) ** 2) return position.subtract(rock.mesh.position).normalize();
+    for (const rock of this.asteroids) if (rock.health > 0 && Vector3.DistanceSquared(position, rock.mesh.position) < (rock.radius + 2) ** 2) return position.subtract(rock.mesh.position).normalize();
     return null;
   }
+  get targets(): Target[] { return this.asteroids.filter(rock => rock.health > 0); }
 }

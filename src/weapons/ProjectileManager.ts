@@ -36,22 +36,29 @@ export class ProjectileManager {
     p.mesh.scaling.set(kind === 'laser' ? 0.68 : kind === 'enemy' ? 0.5 : 2, kind === 'laser' ? 0.68 : kind === 'enemy' ? 0.5 : 2, kind === 'laser' ? 14 : kind === 'burst' ? 8 : kind === 'plasma' ? 4 : 8);
     p.mesh.lookAt(position.add(direction)); p.mesh.setEnabled(true);
   }
-  update(dt: number, targets: Target[], player: Vector3) {
+  update(dt: number, targets: Target[], player: Vector3, obstacles: Target[] = []) {
     for (const p of this.pool) {
       if (p.life <= 0) continue;
       p.life -= dt; p.previous.copyFrom(p.mesh.position); p.mesh.position.addInPlace(p.velocity.scale(dt));
       if (p.kind === 'enemy') {
         if (segmentDistanceSquared(p.previous, p.mesh.position, player) < 3.6 ** 2) { this.onPlayerHit(p.damage, player.clone(), p.velocity.normalizeToNew().scaleInPlace(-1)); p.life = 0; }
       } else {
-        for (const target of targets) {
-          if (target.health <= 0) continue;
-          if (segmentDistanceSquared(p.previous, p.mesh.position, target.position) < (target.radius + (p.kind === 'laser' ? 1.6 : 4)) ** 2) {
-            const impact = target.position.clone(); target.hit(p.damage); this.onHit(target, impact, p.kind); p.life = 0;
-            if (p.kind === 'plasma' || p.kind === 'burst') {
-              const radius = p.kind === 'burst' ? 75 : 25;
-              for (const other of targets) if (other !== target && other.health > 0 && Vector3.Distance(other.position, impact) < radius) other.hit(p.damage * 0.6);
-            }
-            break;
+        let hitTarget: Target | undefined;
+        let hitT = Number.POSITIVE_INFINITY;
+        const consider = (target: Target) => {
+          if (target.health <= 0) return;
+          if (p.kind !== 'laser' && p.kind !== 'plasma' && obstacles.includes(target)) return;
+          const segment = p.mesh.position.subtract(p.previous);
+          const t = Math.max(0, Math.min(1, Vector3.Dot(target.position.subtract(p.previous), segment) / Math.max(0.0001, segment.lengthSquared())));
+          if (t < hitT && segmentDistanceSquared(p.previous, p.mesh.position, target.position) < (target.radius + (p.kind === 'laser' ? 1.6 : 4)) ** 2) { hitTarget = target; hitT = t; }
+        };
+        for (const target of targets) consider(target);
+        if (p.kind === 'laser' || p.kind === 'plasma') for (const obstacle of obstacles) consider(obstacle);
+        if (hitTarget) {
+          const impact = hitTarget.position.clone(); hitTarget.hit(p.damage); this.onHit(hitTarget, impact, p.kind); p.life = 0;
+          if (p.kind === 'plasma' || p.kind === 'burst') {
+            const radius = p.kind === 'burst' ? 75 : 25;
+            for (const other of targets) if (other !== hitTarget && other.health > 0 && Vector3.Distance(other.position, impact) < radius) other.hit(p.damage * 0.6);
           }
         }
       }

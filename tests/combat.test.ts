@@ -114,6 +114,23 @@ test('real projectile pool applies impact, splash, and enemy damage without tunn
   engine.dispose();
 });
 
+test('lasers and plasma can destroy environment obstacles without changing player collision rules', () => {
+  const engine = new NullEngine(); const scene = new Scene(engine); const assets = new AssetManager(scene);
+  try {
+    const shots = new ProjectileManager(assets); const asteroid = {
+      id: 20000, position: new Vector3(0, 0, 50), radius: 12, health: 125, name: 'ASTEROID',
+      hit(damage: number) { this.health = Math.max(0, this.health - damage); },
+    };
+    const initialHealth = asteroid.health;
+    shots.fire(Vector3.Zero(), Vector3.Forward(), 'laser', 20, 1000);
+    shots.update(0.1, [], new Vector3(0, 500, 0), [asteroid]);
+    assert.equal(asteroid.health, initialHealth - 20, 'laser damages but does not necessarily destroy a large asteroid');
+    shots.fire(Vector3.Zero(), Vector3.Forward(), 'plasma', 105, 1000);
+    shots.update(0.1, [], new Vector3(0, 500, 0), [asteroid]);
+    assert.equal(asteroid.health, 0, 'plasma can finish the asteroid');
+  } finally { engine.dispose(); }
+});
+
 test('capital ship gates subsystems and completes only after destruction sequence', () => {
   const engine = new NullEngine(); const scene = new Scene(engine); const assets = new AssetManager(scene);
   const player = new PlayerShip(assets); const boss = new CapitalShip(assets, player);
