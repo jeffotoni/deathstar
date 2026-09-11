@@ -54,14 +54,14 @@ export class SpaceEnvironment {
     }
     star.thinInstanceSetBuffer('matrix', matrices); star.alwaysSelectAsActiveMesh = true;
     this.nebula();
-    this.star = MeshBuilder.CreateSphere('Náris star', { diameter: 520, segments: 24 }, scene);
+    this.star = MeshBuilder.CreateSphere('Náris star', { diameter: 240, segments: 24 }, scene);
     this.star.position.copyFrom(this.solarPosition); this.star.isPickable = false;
-    const starMaterial = assets.material('Náris star light', '#fff0a8', 6);
+    const starMaterial = assets.material('Náris star light', '#fff0a8', 8);
     starMaterial.disableLighting = true; starMaterial.diffuseColor = Color3.Black(); starMaterial.specularColor = Color3.Black(); this.star.material = starMaterial;
-    this.corona = MeshBuilder.CreateSphere('Náris star corona', { diameter: 860, segments: 16 }, scene);
+    this.corona = MeshBuilder.CreateSphere('Náris star corona', { diameter: 440, segments: 16 }, scene);
     this.corona.position.copyFrom(this.solarPosition); this.corona.isPickable = false;
     const coronaMaterial = assets.material('Náris star corona', '#ffb34d', 2);
-    coronaMaterial.disableLighting = true; coronaMaterial.diffuseColor = Color3.Black(); coronaMaterial.specularColor = Color3.Black(); coronaMaterial.alpha = 0.075; coronaMaterial.alphaMode = Constants.ALPHA_ADD; coronaMaterial.backFaceCulling = false; this.corona.material = coronaMaterial;
+    coronaMaterial.disableLighting = true; coronaMaterial.diffuseColor = Color3.Black(); coronaMaterial.specularColor = Color3.Black(); coronaMaterial.alpha = 0.055; coronaMaterial.alphaMode = Constants.ALPHA_ADD; coronaMaterial.backFaceCulling = false; this.corona.material = coronaMaterial;
     const boundaryMaterial = this.solarBoundaryMaterial = assets.material('Náris solar exclusion boundary', '#ffbf67', 2);
     boundaryMaterial.disableLighting = true; boundaryMaterial.diffuseColor = Color3.Black(); boundaryMaterial.specularColor = Color3.Black(); boundaryMaterial.alpha = 0.11; boundaryMaterial.alphaMode = Constants.ALPHA_ADD; boundaryMaterial.backFaceCulling = false; boundaryMaterial.forceDepthWrite = false;
     for (const [name, rotation] of [
