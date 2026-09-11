@@ -4,6 +4,7 @@ import type { Target } from '../weapons/ProjectileManager';
 
 export const SOLAR_DANGER_RADIUS = 1800;
 const SOLAR_SAFE_DISTANCE = 650;
+const SOLAR_BOUNDARY_VISIBLE_DISTANCE = 5200;
 
 export function solarHeatAtDistance(distance: number) {
   return Math.max(0, Math.min(1, (SOLAR_DANGER_RADIUS - distance) / (SOLAR_DANGER_RADIUS - SOLAR_SAFE_DISTANCE)));
@@ -36,8 +37,10 @@ export class SpaceEnvironment {
   private meteoritePool: AsteroidTarget[] = [];
   private star: Mesh;
   private corona: Mesh;
+  private solarBoundary: Mesh[] = [];
+  private solarBoundaryMaterial: StandardMaterial;
   private starTime = 0;
-  readonly solarPosition = new Vector3(-1000, 700, 5200);
+  readonly solarPosition = new Vector3(-1800, 1200, 14000);
   constructor(private scene: Scene, assets: AssetManager) {
     scene.clearColor = new Color4(0.015, 0.024, 0.048, 1);
     this.sky = new TransformNode('distant sky', scene);
@@ -59,8 +62,20 @@ export class SpaceEnvironment {
     this.corona.position.copyFrom(this.solarPosition); this.corona.isPickable = false;
     const coronaMaterial = assets.material('Náris star corona', '#ffb34d', 2);
     coronaMaterial.disableLighting = true; coronaMaterial.diffuseColor = Color3.Black(); coronaMaterial.specularColor = Color3.Black(); coronaMaterial.alpha = 0.075; coronaMaterial.alphaMode = Constants.ALPHA_ADD; coronaMaterial.backFaceCulling = false; this.corona.material = coronaMaterial;
+    const boundaryMaterial = this.solarBoundaryMaterial = assets.material('Náris solar exclusion boundary', '#ffbf67', 2);
+    boundaryMaterial.disableLighting = true; boundaryMaterial.diffuseColor = Color3.Black(); boundaryMaterial.specularColor = Color3.Black(); boundaryMaterial.alpha = 0.11; boundaryMaterial.alphaMode = Constants.ALPHA_ADD; boundaryMaterial.backFaceCulling = false; boundaryMaterial.forceDepthWrite = false;
+    for (const [name, rotation] of [
+      ['horizontal', Vector3.Zero()],
+      ['vertical', new Vector3(Math.PI / 2, 0, 0)],
+      ['cross', new Vector3(0, 0, Math.PI / 2)],
+    ] as [string, Vector3][]) {
+      const ring = MeshBuilder.CreateTorus(`solar exclusion ring ${name}`, { diameter: SOLAR_DANGER_RADIUS * 2, thickness: 7, tessellation: 128 }, scene);
+      ring.position.copyFrom(this.solarPosition); ring.rotation.copyFrom(rotation); ring.isPickable = false; ring.material = boundaryMaterial;
+      this.solarBoundary.push(ring);
+    }
     const planet = MeshBuilder.CreateSphere('Náris', { diameter: 2000, segments: 48 }, scene);
-    planet.parent = this.sky; planet.position.set(2700, 650, 4800);
+    // Landmarks stay in world space so the pilot can pass them and leave them behind.
+    planet.position.set(2700, 650, 4800);
     const texture = new DynamicTexture('mineral bands', { width: 1024, height: 512 }, scene, false);
     const ctx = texture.getContext() as CanvasRenderingContext2D;
     ctx.fillStyle = '#5a777e'; ctx.fillRect(0, 0, 1024, 512);
@@ -74,10 +89,10 @@ export class SpaceEnvironment {
     const planetMat = new StandardMaterial('planet surface', scene); planetMat.diffuseTexture = texture; planetMat.specularColor = Color3.Black(); planetMat.emissiveColor = new Color3(0.025, 0.05, 0.06); planet.material = planetMat;
     planet.rotation.z = -0.4;
     const ring = MeshBuilder.CreateTorus('planet rings', { diameter: 2900, thickness: 210, tessellation: 100 }, scene);
-    ring.parent = this.sky; ring.position.copyFrom(planet.position); ring.rotation.set(0.38, 0, -0.43); ring.scaling.y = 0.045;
+    ring.position.copyFrom(planet.position); ring.rotation.set(0.38, 0, -0.43); ring.scaling.y = 0.045;
     ring.material = assets.material('ring dust', '#6b7d82', 0.13);
     const moon = MeshBuilder.CreateSphere('moon', { diameter: 260, segments: 20 }, scene);
-    moon.parent = this.sky; moon.position.set(-1900, -600, 4800); moon.material = assets.material('moon rock', '#768294', 0.04);
+    moon.position.set(-1900, -600, 4800); moon.material = assets.material('moon rock', '#768294', 0.04);
     const rockMat = assets.material('asteroid rock', '#465362');
     for (let i = 0; i < 65; i++) {
       const radius = 4 + Math.random() ** 2 * 32;
@@ -118,6 +133,9 @@ export class SpaceEnvironment {
     this.starTime += dt;
     const pulse = 1 + Math.sin(this.starTime * 2.4) * 0.025;
     this.corona.scaling.setAll(pulse);
+    const solarDistance = Vector3.Distance(position, this.solarPosition);
+    const boundaryVisibility = Math.max(0, Math.min(1, (SOLAR_BOUNDARY_VISIBLE_DISTANCE - solarDistance) / (SOLAR_BOUNDARY_VISIBLE_DISTANCE - SOLAR_DANGER_RADIUS)));
+    this.solarBoundaryMaterial.alpha = boundaryVisibility * (0.045 + (Math.sin(this.starTime * 1.8) * 0.5 + 0.5) * 0.025);
     this.sky.position.copyFrom(position);
     for (const rock of this.asteroids) {
       if (rock.health <= 0) continue;
