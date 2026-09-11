@@ -11,22 +11,29 @@ export function solarHeatAtDistance(distance: number) {
 
 class AsteroidTarget implements Target {
   health: number;
-  readonly maxHealth: number;
+  maxHealth: number;
+  readonly velocity = Vector3.Zero();
+  fragmentTime = 0;
   readonly name = 'ASTEROID';
-  constructor(public readonly id: number, public readonly mesh: Mesh, public readonly radius: number) {
-    this.maxHealth = Math.max(30, Math.round(radius * 3.4));
+  constructor(public readonly id: number, public readonly mesh: Mesh, public radius: number, public readonly isMeteorite = false, private readonly onDestroyed?: (asteroid: AsteroidTarget) => void) {
+    this.maxHealth = Math.max(isMeteorite ? 18 : 55, Math.round(radius * (isMeteorite ? 3.4 : 5.8)));
     this.health = this.maxHealth;
   }
   get position() { return this.mesh.position; }
   hit(damage: number) {
     this.health = Math.max(0, this.health - damage);
-    if (this.health === 0) this.mesh.setEnabled(false);
+    if (this.health === 0) { this.mesh.setEnabled(false); this.onDestroyed?.(this); }
+  }
+  activate(position: Vector3, radius: number, velocity: Vector3, duration: number) {
+    this.radius = radius; this.maxHealth = Math.max(18, Math.round(radius * 3.4)); this.health = this.maxHealth; this.fragmentTime = duration;
+    this.position.copyFrom(position); this.velocity.copyFrom(velocity); this.mesh.scaling.setAll(radius); this.mesh.setEnabled(true);
   }
 }
 
 export class SpaceEnvironment {
   private sky: TransformNode;
   private asteroids: AsteroidTarget[] = [];
+  private meteoritePool: AsteroidTarget[] = [];
   private star: Mesh;
   private corona: Mesh;
   private starTime = 0;
@@ -78,8 +85,18 @@ export class SpaceEnvironment {
       mesh.position.set((Math.random() - 0.5) * 2200, (Math.random() - 0.5) * 1300, 200 + Math.random() * 2400);
       mesh.rotation.set(Math.random() * 6, Math.random() * 6, Math.random() * 6);
       mesh.scaling.set(0.8 + Math.random() * 0.5, 0.7 + Math.random() * 0.5, 0.8 + Math.random() * 0.4);
-      mesh.material = rockMat; mesh.isPickable = false; this.asteroids.push(new AsteroidTarget(20000 + i, mesh, radius));
+      mesh.material = rockMat; mesh.isPickable = false; this.asteroids.push(new AsteroidTarget(20000 + i, mesh, radius, false, asteroid => this.spawnMeteorites(asteroid)));
     }
+    const meteoriteSource = MeshBuilder.CreateIcoSphere('meteorite source', { radius: 1, subdivisions: 1, flat: true }, scene);
+    meteoriteSource.material = rockMat; meteoriteSource.setEnabled(false);
+    for (let i = 0; i < 96; i++) {
+      const mesh = meteoriteSource.clone('meteorite');
+      if (!mesh) continue;
+      mesh.material = rockMat; mesh.isPickable = false; mesh.setEnabled(false);
+      const meteorite = new AsteroidTarget(21000 + i, mesh, 1, true);
+      this.asteroids.push(meteorite); this.meteoritePool.push(meteorite);
+    }
+    meteoriteSource.dispose();
   }
   private nebula() {
     const texture = new DynamicTexture('procedural nebula', { width: 1024, height: 512 }, this.scene, false);
@@ -105,6 +122,12 @@ export class SpaceEnvironment {
     for (const rock of this.asteroids) {
       if (rock.health <= 0) continue;
       rock.mesh.rotation.y += dt * 0.018;
+      if (rock.isMeteorite) {
+        rock.fragmentTime -= dt;
+        rock.position.addInPlace(rock.velocity.scale(dt)); rock.velocity.scaleInPlace(Math.exp(-dt * 0.22));
+        if (rock.fragmentTime <= 0) { rock.health = 0; rock.mesh.setEnabled(false); }
+        continue;
+      }
       if (Vector3.DistanceSquared(rock.mesh.position, position) > 3400 ** 2) {
         const dir = new Vector3(Math.random() - 0.5, (Math.random() - 0.5) * 0.6, Math.random() - 0.5).normalize();
         rock.mesh.position.copyFrom(position.add(dir.scale(1700 + Math.random() * 600)));
@@ -115,6 +138,15 @@ export class SpaceEnvironment {
     for (const rock of this.asteroids) if (rock.health > 0 && Vector3.DistanceSquared(position, rock.mesh.position) < (rock.radius + 2) ** 2) return position.subtract(rock.mesh.position).normalize();
     return null;
   }
-  get targets(): Target[] { return this.asteroids.filter(rock => rock.health > 0); }
+  get targets(): Target[] { return this.asteroids; }
   solarHeat(position: Vector3) { return solarHeatAtDistance(Vector3.Distance(position, this.solarPosition)); }
+  private spawnMeteorites(asteroid: AsteroidTarget) {
+    const available = this.meteoritePool.filter(meteorite => meteorite.health <= 0);
+    const count = Math.min(3, available.length);
+    for (let i = 0; i < count; i++) {
+      const meteorite = available[i];
+      const direction = new Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
+      meteorite.activate(asteroid.position.add(direction.scale(Math.max(3, asteroid.radius * 0.35))), Math.max(2.4, Math.min(7.5, asteroid.radius * (0.18 + Math.random() * 0.08))), direction.scale(22 + Math.random() * 30), 9 + Math.random() * 5);
+    }
+  }
 }

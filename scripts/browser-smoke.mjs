@@ -7,12 +7,13 @@ const browser = await chromium.launch({
   args: ['--no-first-run', '--enable-webgl', '--ignore-gpu-blocklist'],
 });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+const baseUrl = process.env.SMOKE_URL ?? 'http://127.0.0.1:5173';
 const errors = [];
 let initialAudioStorage;
 page.on('pageerror', error => errors.push(error.message));
 page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
 try {
-  await page.goto('http://127.0.0.1:5173/?renderer=webgl&debug', { waitUntil: 'networkidle' });
+  await page.goto(`${baseUrl}/?renderer=webgl&debug`, { waitUntil: 'networkidle' });
   initialAudioStorage = await page.evaluate(() => localStorage.getItem('veu-audio-settings'));
   await page.getByRole('button', { name: 'START MISSION' }).waitFor({ timeout: 60000 });
   assert.match(await page.locator('.wordmark').textContent(), /STELLAR ABYSS/, 'English brand is visible');

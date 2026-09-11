@@ -77,8 +77,13 @@ export class Game {
     this.enemies.onTelegraph = enemy => { this.audio.enemyCharge(enemy.position, enemy.kind); this.hud.threat(); };
     this.enemies.onFire = enemy => this.audio.enemyFire(enemy.position, enemy.kind);
     this.projectiles.onHit = (_target, position, kind) => {
-      const heavy = kind !== 'laser';
-      this.hud.hit(heavy); this.audio.hit(position, heavy); this.effects.explosion(position, kind === 'laser' ? 0.25 : 1.2);
+      const asteroid = _target.name === 'ASTEROID';
+      const destroyedAsteroid = asteroid && _target.health <= 0;
+      const heavy = kind !== 'laser' || destroyedAsteroid;
+      this.hud.hit(heavy);
+      if (destroyedAsteroid) this.audio.asteroidExplosion(position, kind === 'plasma' ? 1.5 : 1);
+      else this.audio.hit(position, heavy);
+      this.effects.explosion(position, destroyedAsteroid ? (kind === 'plasma' ? 2.2 : 1.35) : kind === 'laser' ? 0.25 : 1.2);
       this.effects.shake = Math.max(this.effects.shake, heavy ? 0.16 : 0.055);
     };
     this.projectiles.onPlayerHit = (damage, position, normal) => this.damage(damage, position, normal);

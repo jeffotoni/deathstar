@@ -86,7 +86,7 @@ Retorne o mouse ao centro para seguir em frente. As setas controlam o giro e a i
 5. Silêncio no Abismo Estelar: os reforços diminuem enquanto a nave capital se aproxima.
 6. Obelisco: destruir torres de defesa, geradores de escudo, motores de íons e o reator. Uma reação em cadeia antecede a conclusão da missão.
 
-O escudo regenera após cinco segundos sem receber dano. Destruir um caça recupera sete pontos de escudo; a integridade não regenera. Asteroides e a nave capital causam dano de colisão sem morte instantânea. Os asteroides também podem ser destruídos com vários disparos de laser ou um disparo de plasma. A estrela brilhante Náris é um marco distante com uma zona de exclusão solar: aproximar-se drena progressivamente o escudo e o casco.
+O escudo regenera após cinco segundos sem receber dano. Destruir um caça recupera sete pontos de escudo; a integridade não regenera. Asteroides e a nave capital causam dano de colisão sem morte instantânea. Os asteroides também podem ser destruídos com vários disparos de laser ou um disparo de plasma; asteroides grandes destruídos espalham alguns meteoritos temporários. A estrela brilhante Náris é um marco distante com uma zona de exclusão solar: aproximar-se drena progressivamente o escudo e o casco.
 
 ## Estrutura do projeto
 

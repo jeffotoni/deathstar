@@ -86,7 +86,7 @@ Return the mouse to the center to fly straight. Arrow keys turn and pitch the sh
 5. Silence in the Stellar Abyss: reinforcements thin out as the capital ship approaches.
 6. Obelisk: destroy defense turrets, shield generators, ion engines, and the reactor. A chain reaction precedes mission completion.
 
-The shield regenerates after five seconds without damage. Destroying a fighter restores seven shield points; hull integrity does not regenerate. Asteroids and the capital ship deal collision damage without instant kills. Asteroids can also be cleared with repeated laser fire or a plasma hit. The bright Náris star is a distant landmark with a solar exclusion zone: approaching it drains the shield and hull progressively.
+The shield regenerates after five seconds without damage. Destroying a fighter restores seven shield points; hull integrity does not regenerate. Asteroids and the capital ship deal collision damage without instant kills. Asteroids can also be cleared with repeated laser fire or a plasma hit; destroyed large asteroids scatter a few short-lived meteorites. The bright Náris star is a distant landmark with a solar exclusion zone: approaching it drains the shield and hull progressively.
 
 ## Project structure
 

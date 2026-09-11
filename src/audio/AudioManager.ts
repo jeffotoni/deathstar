@@ -141,6 +141,13 @@ export class AudioManager {
     this.noise(0.78, 0.16, 950 * pitch, false, position);
     this.noise(0.20, 0.08, 3800 * pitch, false, position);
   }
+  asteroidExplosion(position?: AudioPosition, size = 1) {
+    const pitch = this.randomPitch(0.07); this.duckMusic(0.62);
+    this.tone(92 * pitch, 24 * pitch, 0.62, 0.18 * Math.min(1.4, size), 'sawtooth', false, position);
+    this.tone(360 * pitch, 68 * pitch, 0.28, 0.07, 'square', false, position);
+    this.noise(0.42, 0.095 * Math.min(1.4, size), 1450 * pitch, false, position);
+    this.noise(0.12, 0.045, 5200 * pitch, false, position);
+  }
   damage(position?: AudioPosition) {
     this.duckMusic(0.45);
     this.tone(170, 90, 0.32, 0.12, 'sawtooth', false, position);
