@@ -11,7 +11,7 @@ export class InputManager {
   constructor(private canvas: HTMLCanvasElement) {
     window.addEventListener('keydown', (e) => {
       if (e.target instanceof HTMLInputElement) return;
-      if (['Tab', 'Space', 'ArrowUp', 'ArrowDown'].includes(e.code)) e.preventDefault();
+      if (['Tab', 'Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) e.preventDefault();
       if (e.code === 'Escape' && !e.repeat) this.onPause();
       if (!this.enabled) return;
       if (!this.keys.has(e.code)) this.pressed.add(e.code);

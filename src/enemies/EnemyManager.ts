@@ -21,6 +21,7 @@ export class Enemy implements Target {
   id = ++Enemy.serial;
   root: TransformNode;
   private muzzleFlash: Mesh;
+  private thrusters: Mesh[] = [];
   radius: number;
   health: number;
   maxHealth: number;
@@ -35,6 +36,7 @@ export class Enemy implements Target {
   readonly combatRange: number;
   constructor(public kind: Kind, assets: AssetManager, position: Vector3, facing: Vector3) {
     this.root = assets.ship(kind); this.root.position.copyFrom(position); this.root.rotationQuaternion = flightRotation(facing);
+    this.thrusters = this.root.getChildMeshes().filter(mesh => mesh.name === 'thruster') as Mesh[];
     this.muzzleFlash = MeshBuilder.CreateSphere('enemy weapon charge', { diameter: 0.9, segments: 8 }, assets.scene);
     this.muzzleFlash.parent = this.root; this.muzzleFlash.position.z = 3.1; this.muzzleFlash.material = assets.material('enemy muzzle flash', '#fff0c4', 7); this.muzzleFlash.setEnabled(false); this.muzzleFlash.isPickable = false;
     this.health = this.maxHealth = kind === 'scout' ? 60 : kind === 'assault' ? 150 : 110;
@@ -55,6 +57,10 @@ export class Enemy implements Target {
     }
     if (this.shotFlashTime > 0) { this.shotFlashTime = Math.max(0, this.shotFlashTime - dt); if (this.shotFlashTime === 0) this.muzzleFlash.setEnabled(false); }
     else if (this.chargeTime === 0) this.muzzleFlash.setEnabled(false);
+  }
+  updateVisual(maneuvering: boolean) {
+    const pulse = Math.sin(this.age * 10 + this.maneuverPhase) * 0.16;
+    for (const mesh of this.thrusters) mesh.scaling.y = (maneuvering ? 1.55 : 0.95) + pulse;
   }
 }
 export class EnemyManager {
@@ -95,6 +101,7 @@ export class EnemyManager {
       const forwardDistance = Vector3.Dot(relative, player.forward);
       const tooClose = distance < 150;
       const behindPlayer = forwardDistance < -50;
+      const maneuvering = tooClose || behindPlayer || e.state === 'EVADE';
       let goal = distance > e.combatRange && !behindPlayer
         ? player.position.add(player.forward.scale(e.combatRange)).add(player.velocity.scale(0.55))
         : combatPoint;
@@ -112,6 +119,7 @@ export class EnemyManager {
       e.root.rotationQuaternion = Quaternion.Slerp(e.root.rotationQuaternion!, rotation, 1 - Math.exp(-dt * (e.kind === 'elite' ? 1.7 : 1.05)));
       const speed = e.kind === 'scout' ? 75 : e.kind === 'assault' ? 58 : 94;
       e.position.addInPlace(motionDirection.scale(speed * dt));
+      e.updateVisual(maneuvering || e.state === 'REPOSITION');
       if (e.state !== 'ATTACK' && e.chargeTime > 0) e.cancelCharge();
       if (e.state === 'ATTACK') {
         const aim = player.position.add(player.velocity.scale(distance / 265 * 0.65)).subtract(e.position).normalize();

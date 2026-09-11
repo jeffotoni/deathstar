@@ -148,12 +148,14 @@ export class Game {
     if (target) {
       aim = target.position.clone();
       const enemy = this.enemies.enemies.find(e => e.id === target!.id);
-      if (enemy) aim.addInPlace(enemy.root.getDirection(Vector3.Forward()).scale((enemy.kind === 'scout' ? 75 : enemy.kind === 'assault' ? 58 : 94) * Vector3.Distance(this.player.position, enemy.position) / speed));
+      if (enemy) aim.addInPlace(enemy.root.getDirection(Vector3.Forward()).scale((enemy.kind === 'scout' ? 36 : enemy.kind === 'assault' ? 30 : 44) * Math.min(1.35, Vector3.Distance(this.player.position, enemy.position) / speed)));
     }
+    const emitterX = this.player.variant === 'lego' ? 3.15 : 2.75;
     for (const side of kind === 'laser' ? [-1, 1] : [0]) {
-      const origin = this.player.position.add(this.player.right.scale(side * 2.75)).add(forward.scale(3));
+      const origin = this.player.position.add(this.player.right.scale(side * emitterX)).add(forward.scale(3));
       this.projectiles.fire(origin, aim.subtract(origin).normalize(), kind, damage, speed + this.player.speed * 0.3);
     }
+    this.player.weaponFlash(kind === 'laser' ? 1 : kind === 'plasma' ? 1.5 : 2);
     if (kind === 'laser') { this.laserCooldown = CONFIG.weapons.laserInterval; this.audio.laser(this.player.position); this.effects.shake = Math.max(this.effects.shake, 0.025); }
     if (kind === 'plasma') { this.plasmaCooldown = CONFIG.weapons.plasmaInterval; this.audio.plasma(this.player.position); this.effects.shake = 0.13; }
     if (kind === 'burst') { this.burstCooldown = CONFIG.weapons.burstInterval; this.audio.burst(this.player.position); this.effects.shake = 0.25; }

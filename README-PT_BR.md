@@ -59,7 +59,8 @@ Substitua `99922` pelo PID retornado pelo comando `lsof`.
 
 | Controle | Ação |
 | --- | --- |
-| Mouse | Direção; a distância do centro controla a intensidade da curva |
+| Mouse | Pilotar em qualquer direção; a distância do centro controla a intensidade da curva |
+| Setas | Girar para os lados e inclinar para cima/baixo |
 | W / S | Aumentar / reduzir a velocidade de cruzeiro |
 | A / D | Rolagem |
 | Q / E | Deslocamento lateral |
@@ -74,7 +75,7 @@ Substitua `99922` pelo PID retornado pelo comando `lsof`.
 | M | Silenciar / reativar áudio |
 | F3 | Mostrar / ocultar diagnóstico |
 
-Retorne o mouse ao centro para seguir em frente. O jogo não usa pointer lock. A missão pausa quando a janela perde o foco. O plasma causa dano em área; a ruptura energética é um torpedo rápido de grande impacto, com recarga de 8 segundos.
+Retorne o mouse ao centro para seguir em frente. As setas controlam o giro e a inclinação da nave. O jogo não usa pointer lock. A missão pausa quando a janela perde o foco. O plasma causa dano em área; a ruptura energética é um torpedo rápido de grande impacto, com recarga de 8 segundos.
 
 ## Missão
 

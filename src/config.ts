@@ -1,6 +1,6 @@
 export const CONFIG = {
   player: { hull: 100, shield: 120, minSpeed: 24, cruiseSpeed: 62, maxSpeed: 115, boostSpeed: 225, turnRate: 1.35, shieldDelay: 5, shieldRegen: 10 },
-  weapons: { laserDamage: 20, laserInterval: 0.13, laserSpeed: 640, laserLife: 4, targetRange: 1750, plasmaDamage: 105, plasmaInterval: 0.9, plasmaSpeed: 340, burstDamage: 240, burstInterval: 8 },
+  weapons: { laserDamage: 20, laserInterval: 0.13, laserSpeed: 640, laserLife: 5, targetRange: 1750, plasmaDamage: 105, plasmaInterval: 0.9, plasmaSpeed: 340, burstDamage: 240, burstInterval: 8 },
   enemies: { spawnDistance: 600, spawnSpread: 160, fireCharge: 0.42, projectileSpeed: 240, scoutDamage: 8, assaultDamage: 12, eliteDamage: 14 },
   maxEnemies: 18,
   maxProjectiles: 220,

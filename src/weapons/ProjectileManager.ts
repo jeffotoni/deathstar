@@ -16,7 +16,7 @@ export class ProjectileManager {
   onPlayerHit: (damage: number, position: Vector3, normal: Vector3) => void = () => {};
   constructor(assets: AssetManager) {
     this.materials = {
-      laser: assets.material('laser cyan', '#b9fff8', 4.5),
+      laser: assets.material('laser cyan', '#e1fffb', 6.5),
       plasma: assets.material('plasma violet', '#d09dff', 4),
       burst: assets.material('burst gold', '#fff3b2', 5),
       enemy: assets.material('enemy laser', '#ff715e', 2.8),
@@ -33,7 +33,7 @@ export class ProjectileManager {
     p.mesh.position.copyFrom(position); p.previous.copyFrom(position); p.velocity.copyFrom(direction).scaleInPlace(speed);
     p.kind = kind; p.damage = damage; p.life = kind === 'enemy' ? 5 : kind === 'laser' ? CONFIG.weapons.laserLife : 3;
     p.mesh.material = this.materials[kind];
-    p.mesh.scaling.set(kind === 'laser' ? 0.45 : kind === 'enemy' ? 0.35 : 2, kind === 'laser' ? 0.45 : kind === 'enemy' ? 0.35 : 2, kind === 'laser' ? 8 : kind === 'burst' ? 8 : kind === 'plasma' ? 4 : 6);
+    p.mesh.scaling.set(kind === 'laser' ? 0.68 : kind === 'enemy' ? 0.5 : 2, kind === 'laser' ? 0.68 : kind === 'enemy' ? 0.5 : 2, kind === 'laser' ? 14 : kind === 'burst' ? 8 : kind === 'plasma' ? 4 : 8);
     p.mesh.lookAt(position.add(direction)); p.mesh.setEnabled(true);
   }
   update(dt: number, targets: Target[], player: Vector3) {

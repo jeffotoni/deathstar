@@ -62,7 +62,7 @@ export class HUD {
         <div class="mission-block"><div class="eyebrow">${t('hud.operation')} <span id="mission-time">00:00</span></div><h3 id="stage-title">${stageTitle(0)}</h3><p id="objective">${stageObjective(0)}</p><div class="stage-track">${STAGES.map((_, i) => `<i data-stage="${i}"></i>`).join('')}</div></div>
         <div class="combat-stats"><span class="tiny-label">${t('hud.kills')}</span><strong id="kills">00</strong><span class="tiny-label">${t('hud.score')} <b id="score">00000</b></span></div>
         <div id="boss-info" class="hidden"><span class="eyebrow">${t('hud.capital-ship')}</span><strong id="boss-objective"></strong></div>
-        <div id="crosshair"><span></span><i></i><b></b></div><div id="aim-cursor"></div><div id="hitmarker">×</div><div id="markers"></div><div id="target-arrow" class="hidden">△<span>${t('hud.target')}</span></div>
+        <div id="crosshair"><span></span><i></i><b></b></div><div id="aim-cursor"></div><div id="hitmarker">×</div><div id="threat-warning"><span>${t('hud.incoming')}</span></div><div id="markers"></div><div id="target-arrow" class="hidden">△<span>${t('hud.target')}</span></div>
         <div id="toast"><span class="tiny-label">${t('hud.communication')}</span><p id="toast-text"></p></div>
         <div class="bottom-hud">
           <div class="ship-status"><div class="panel-heading"><span class="ship-symbol">⋀</span><div><strong id="hud-ship-name">${t(this.selectedShip === 'lego' ? 'menu.lego-name' : 'menu.classic-name')}</strong><span>${t('hud.ship-status')}</span></div></div><div class="meter-row"><label>${t('hud.shield')}</label><div class="meter"><i id="shield-bar"></i></div><b id="shield-value">120</b></div><div class="meter-row hull"><label>${t('hud.hull')}</label><div class="meter"><i id="hull-bar"></i></div><b id="hull-value">100</b></div><div class="shield-toggle"><kbd>V</kbd><span id="shield-visibility">${t(this.shieldVisible ? 'hud.shield-visible' : 'hud.shield-hidden')}</span></div></div>
@@ -70,7 +70,7 @@ export class HUD {
           <div class="weapons"><span class="tiny-label">${t('hud.weapons')}</span><div class="weapon active"><kbd>LMB</kbd><span>${t('hud.laser')}</span><i>●</i></div><div id="plasma-weapon" class="weapon locked"><kbd>RMB</kbd><span>${t('hud.plasma')}</span><i id="plasma-status">◇</i></div><div id="burst-weapon" class="weapon locked"><kbd>R</kbd><span>${t('hud.burst')}</span><i id="burst-status">◇</i></div></div>
           <div class="radar-panel"><canvas id="radar" width="140" height="140" aria-label="${t('hud.contacts')}"></canvas><span id="contacts">${t('hud.contacts', { count: 0 })}</span></div>
         </div>
-        <div class="control-strip"><span><kbd>MOUSE</kbd> ${t('hud.direction')}</span><span><kbd>W S</kbd> ${t('hud.throttle')}</span><span><kbd>A D</kbd> ${t('hud.roll')}</span><span><kbd>Q E</kbd> ${t('hud.lateral')}</span><span><kbd>ESPAÇO</kbd> ${t('hud.dodge')}</span><span><kbd>F / TAB</kbd> ${t('hud.lock-target')}</span><span><kbd>ESC</kbd> ${t('hud.pause')}</span></div>
+        <div class="control-strip"><span><kbd>MOUSE</kbd> ${t('hud.direction')}</span><span><kbd>ARROWS</kbd> ${t('hud.turn-pitch')}</span><span><kbd>W S</kbd> ${t('hud.throttle')}</span><span><kbd>A D</kbd> ${t('hud.roll')}</span><span><kbd>Q E</kbd> ${t('hud.lateral')}</span><span><kbd>ESPAÇO</kbd> ${t('hud.dodge')}</span><span><kbd>F / TAB</kbd> ${t('hud.lock-target')}</span><span><kbd>ESC</kbd> ${t('hud.pause')}</span></div>
         <div id="target-info">${t('hud.no-target')} <span>· ${t('hud.lock')}</span></div><pre id="debug" class="hidden"></pre>
       </section>
       <section id="pause" class="screen centered hidden"><div class="eyebrow">${t('pause.eyebrow')}</div><h2>${t('pause.title')}</h2><p>${t('pause.text')}</p><button id="resume" class="primary">${t('pause.resume')} <span>↗</span></button><div class="locale-toggle pause-locale" aria-label="${t('locale.select')}">${this.localeButtons()}</div><div class="audio-settings">${(['master', 'music', 'sfx'] as const).map(bus => `<label>${t(`audio.${bus}`)}<input data-audio="${bus}" type="range" min="0" max="1" step="0.01" value="${audioValues.get(bus) ?? audioPreferences[bus]}"></label>`).join('')}</div><button id="restart-pause" class="text-button">${t('pause.restart')}</button></section>
@@ -133,7 +133,7 @@ export class HUD {
   countdown(value: string) { this.countdownValue = value; this.elements.countdown.textContent = value; }
   toast(message: string) { this.toastMessage = message; this.elements['toast-text'].textContent = message; this.toastTime = 6; }
   hit(heavy = false) { this.hitTime = heavy ? 0.2 : 0.13; this.impactTime = Math.max(this.impactTime, heavy ? 0.2 : 0.1); this.elements.hitmarker.classList.toggle('heavy', heavy); }
-  threat() { this.threatTime = Math.max(this.threatTime, 0.24); }
+  threat() { this.threatTime = Math.max(this.threatTime, 0.5); }
   shieldVisibility(visible: boolean) { this.shieldVisible = visible; this.elements['shield-visibility'].textContent = t(visible ? 'hud.shield-visible' : 'hud.shield-hidden'); }
   damage() { this.damageTime = 0.35; }
 
@@ -156,6 +156,7 @@ export class HUD {
     text('mission-time', `${Math.floor(progression.elapsed / 60).toString().padStart(2, '0')}:${Math.floor(progression.elapsed % 60).toString().padStart(2, '0')}${progression.fast ? ' · 4×' : ''}`);
     text('kills', progression.kills.toString().padStart(2, '0')); text('score', progression.score.toString().padStart(5, '0'));
     text('speed', Math.round(player.speed).toString().padStart(3, '0')); text('shield-value', Math.ceil(player.health.shield).toString()); text('hull-value', Math.ceil(player.health.hull).toString());
+    e.speed.classList.toggle('boosting', player.boosting); e.speed.classList.toggle('accelerating', !player.boosting && player.speedTrend > 2.5); e.speed.classList.toggle('braking', !player.boosting && player.speedTrend < -2.5);
     e['shield-bar'].style.width = `${player.health.shield / CONFIG.player.shield * 100}%`; e['hull-bar'].style.width = `${player.health.hull}%`; e['boost-bar'].style.width = `${player.boost}%`;
     text('dodge-status', player.dodgeCooldown > 0 ? t('hud.dodge-cooldown', { seconds: player.dodgeCooldown.toFixed(1) }) : t('hud.dodge-ready'));
     e['plasma-weapon'].classList.toggle('locked', progression.weaponLevel < 2); e['burst-weapon'].classList.toggle('locked', progression.weaponLevel < 3);
@@ -164,7 +165,7 @@ export class HUD {
     e['boss-info'].classList.toggle('hidden', !bossObjective); text('boss-objective', bossObjective ?? '');
     text('target-info', selected ? `${selected.name.toUpperCase()}  /  ${Math.round(Vector3.Distance(player.position, selected.position))} m` : `${t('hud.no-target')} · ${t('hud.lock')}`);
     this.toastTime -= dt; this.hitTime -= dt; this.impactTime -= dt; this.threatTime -= dt; this.damageTime -= dt;
-    e.toast.classList.toggle('visible', this.toastTime > 0); e.hitmarker.style.opacity = this.hitTime > 0 ? '1' : '0'; e['impact-flash'].style.opacity = this.impactTime > 0 ? `${Math.min(0.3, this.impactTime * 1.8)}` : '0'; e['threat-flash'].style.opacity = this.threatTime > 0 ? `${Math.min(0.55, this.threatTime * 2.2)}` : '0'; e['damage-flash'].style.opacity = this.damageTime > 0 ? '1' : '0';
+    e.toast.classList.toggle('visible', this.toastTime > 0); e.hitmarker.style.opacity = this.hitTime > 0 ? '1' : '0'; e['impact-flash'].style.opacity = this.impactTime > 0 ? `${Math.min(0.3, this.impactTime * 1.8)}` : '0'; e['threat-flash'].style.opacity = this.threatTime > 0 ? `${Math.min(0.55, this.threatTime * 2.2)}` : '0'; e['threat-warning'].classList.toggle('visible', this.threatTime > 0); e['damage-flash'].style.opacity = this.damageTime > 0 ? '1' : '0';
     this.drawRadar(player, targets); text('contacts', t('hud.contacts', { count: targets.length })); this.drawMarkers(scene, player, targets, selected);
   }
 
@@ -178,6 +179,9 @@ export class HUD {
       const point = Vector3.Project(target.position, Matrix.IdentityReadOnly, scene.getTransformMatrix(), camera.viewport.toGlobal(width, height)); const x = point.x / width * 100, y = point.y / height * 100;
       if (x < 2 || x > 98 || y < 8 || y > 88) continue; const active = target.id === selected?.id; if (active) selectedVisible = true;
       const marker = this.markerViews[index] ?? this.createMarker(); index++;
+      const targetName = target.name.toLowerCase();
+      const kind = target.id >= 10000 ? 'boss' : targetName.includes('elite') ? 'elite' : targetName.includes('assault') || targetName.includes('assalto') ? 'assault' : 'scout';
+      marker.root.dataset.kind = kind;
       marker.root.classList.toggle('selected', active); marker.root.style.left = `${x}%`; marker.root.style.top = `${y}%`; marker.root.hidden = false;
       marker.label.textContent = active ? `${Math.round(Vector3.Distance(player.position, target.position))} m` : ''; marker.label.hidden = !active;
     }
@@ -197,6 +201,6 @@ export class HUD {
     const ctx = this.radar; ctx.clearRect(0, 0, 140, 140); ctx.strokeStyle = '#6da7aa44'; ctx.lineWidth = 1;
     for (const radius of [28, 57]) { ctx.beginPath(); ctx.arc(70, 70, radius, 0, Math.PI * 2); ctx.stroke(); }
     ctx.beginPath(); ctx.moveTo(70, 10); ctx.lineTo(70, 130); ctx.moveTo(10, 70); ctx.lineTo(130, 70); ctx.stroke(); ctx.fillStyle = '#bcefed'; ctx.beginPath(); ctx.moveTo(70, 64); ctx.lineTo(66, 74); ctx.lineTo(74, 74); ctx.fill();
-    for (const target of targets) { const d = target.position.subtract(player.position); const x = Vector3.Dot(d, player.right) / 14, y = -Vector3.Dot(d, player.forward) / 14; const factor = Math.min(1, 55 / Math.max(1, Math.hypot(x, y))); ctx.fillStyle = target.id >= 10000 ? '#d6a3ff' : '#f09d84'; ctx.fillRect(68 + x * factor, 68 + y * factor, 4, 4); }
+    for (const target of targets) { const d = target.position.subtract(player.position); const x = Vector3.Dot(d, player.right) / 14, y = -Vector3.Dot(d, player.forward) / 14; const factor = Math.min(1, 55 / Math.max(1, Math.hypot(x, y))); const name = target.name.toLowerCase(); ctx.fillStyle = target.id >= 10000 ? '#d6a3ff' : name.includes('elite') ? '#ffd37d' : name.includes('assault') || name.includes('assalto') ? '#ffb078' : '#f09d84'; ctx.fillRect(68 + x * factor, 68 + y * factor, 4, 4); }
   }
 }

@@ -55,6 +55,24 @@ test('rear enemies recover toward the combat volume without firing from behind',
   } finally { engine.dispose(); }
 });
 
+test('arrow controls map to opposite horizontal and vertical directions', () => {
+  const engine = new NullEngine(); const scene = new Scene(engine); const assets = new AssetManager(scene);
+  try {
+    const makeInput = (active: string) => ({ mouseX: 0, mouseY: 0, down: (code: string) => code === active, consume: () => false });
+    const left = new PlayerShip(assets); const leftInput = makeInput('ArrowLeft');
+    const right = new PlayerShip(assets); const rightInput = makeInput('ArrowRight');
+    const up = new PlayerShip(assets); const upInput = makeInput('ArrowUp');
+    const down = new PlayerShip(assets); const downInput = makeInput('ArrowDown');
+    for (let i = 0; i < 30; i++) {
+      left.update(1 / 60, leftInput as never); right.update(1 / 60, rightInput as never);
+      up.update(1 / 60, upInput as never); down.update(1 / 60, downInput as never);
+      left.root.computeWorldMatrix(true); right.root.computeWorldMatrix(true); up.root.computeWorldMatrix(true); down.root.computeWorldMatrix(true);
+    }
+    assert.ok(left.forward.x > 0.4 && right.forward.x < -0.4, 'left and right arrows must turn in opposite directions');
+    assert.ok(up.forward.y < -0.4 && down.forward.y > 0.4, 'up and down arrows must pitch in opposite directions');
+  } finally { engine.dispose(); }
+});
+
 test('damage consumes shields first, spills into hull, and respects regeneration delay', () => {
   const health = new PlayerHealth();
   health.hit(140); assert.equal(health.shield, 0); assert.equal(health.hull, 80);

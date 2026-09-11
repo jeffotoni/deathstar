@@ -59,7 +59,8 @@ Replace `99922` with the PID returned by `lsof`.
 
 | Control | Action |
 | --- | --- |
-| Mouse | Steer; distance from center controls turn intensity |
+| Mouse | Steer in any direction; distance from center controls turn intensity |
+| Arrow keys | Turn left/right and pitch up/down |
 | W / S | Increase / reduce cruise speed |
 | A / D | Roll |
 | Q / E | Strafe |
@@ -74,7 +75,7 @@ Replace `99922` with the PID returned by `lsof`.
 | M | Mute / unmute audio |
 | F3 | Show / hide diagnostics |
 
-Return the mouse to the center to fly straight. Pointer lock is not used. The mission pauses when the window loses focus. Plasma deals area damage; energy rupture is a fast, high-impact torpedo with an 8-second cooldown.
+Return the mouse to the center to fly straight. Arrow keys turn and pitch the ship. Pointer lock is not used. The mission pauses when the window loses focus. Plasma deals area damage; energy rupture is a fast, high-impact torpedo with an 8-second cooldown.
 
 ## Mission
 

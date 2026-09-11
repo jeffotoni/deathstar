@@ -73,7 +73,7 @@ try {
   // Steer using the same visible target marker presented to a player.
   for (let i = 0; i < 100; i++) {
     if (await page.locator('#result').isVisible()) break;
-    const marker = page.locator('.target-marker.selected');
+    const marker = page.locator('.target-marker.selected:visible');
     if (await marker.count()) {
       const box = await marker.boundingBox();
       if (box) await page.mouse.move(Math.max(40, Math.min(1400, 720 + (box.x + box.width / 2 - 720) * 2)), Math.max(90, Math.min(800, 450 + (box.y + box.height / 2 - 450) * 2)));
