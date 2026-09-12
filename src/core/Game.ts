@@ -228,7 +228,13 @@ export class Game {
       this.menuTime += dt;
       this.player.position.set(0, 0, 0); this.player.root.rotationQuaternion = Quaternion.RotationYawPitchRoll(-0.35 + Math.sin(this.menuTime * 0.13) * 0.1, 0.07, -0.15);
       this.player.visual.rotation.z = Math.sin(this.menuTime * 0.5) * 0.025;
-      this.camera.position.set(-15, 9, -23); this.camera.upVector = Vector3.Up(); this.camera.setTarget(new Vector3(-10, 1.2, 3));
+      const menuAspect = this.engine.getRenderWidth() / Math.max(1, this.engine.getRenderHeight());
+      if (menuAspect < 0.85) {
+        this.camera.position.set(-7, 7, -30); this.camera.setTarget(new Vector3(-1.5, 1.1, 0));
+      } else {
+        this.camera.position.set(-15, 9, -23); this.camera.setTarget(new Vector3(-10, 1.2, 3));
+      }
+      this.camera.upVector = Vector3.Up();
       this.world.update(dt, Vector3.Zero());
     } else if (this.state === 'intro') {
       this.introTime += dt;

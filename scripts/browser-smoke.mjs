@@ -35,7 +35,22 @@ try {
   const startBox = await page.locator('#start').boundingBox();
   assert.ok(pickerBox && startBox && pickerBox.y < startBox.y, 'ship selection appears before launch button');
   await page.screenshot({ path: '/private/tmp/veu-menu.png' });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForTimeout(350);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, 'mobile menu has no horizontal overflow');
+  const mobileCards = await page.locator('.ship-option').evaluateAll(cards => cards.map(card => {
+    const rect = card.getBoundingClientRect(); return { left: rect.left, right: rect.right, width: rect.width };
+  }));
+  assert.ok(mobileCards.every(card => card.left >= 0 && card.right <= 390 && card.width > 120), 'ship cards fit the mobile viewport');
+  await page.screenshot({ path: '/private/tmp/stellar-menu-mobile-top.png' });
+  await page.locator('#start').scrollIntoViewIfNeeded();
+  const mobileStart = await page.locator('#start').boundingBox();
+  assert.ok(mobileStart && mobileStart.x >= 0 && mobileStart.x + mobileStart.width <= 390, 'launch action fits the mobile viewport');
+  await page.screenshot({ path: '/private/tmp/stellar-menu-mobile-launch.png' });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.waitForTimeout(350);
   console.log('MENU', await page.locator('#backend').textContent());
+  await page.locator('.mission-options summary').click();
   await page.locator('#fast').check();
   await page.getByRole('button', { name: 'START MISSION' }).click();
   await page.locator('#hud').waitFor({ state: 'visible', timeout: 20000 });

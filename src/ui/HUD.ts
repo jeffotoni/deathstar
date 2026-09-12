@@ -44,19 +44,32 @@ export class HUD {
     const audioPreferences = getAudioPreferences();
     this.root.innerHTML = `
       <div class="vignette"></div><div id="impact-flash"></div><div id="threat-flash"></div><div id="damage-flash"></div>
-      <header class="topbar"><a class="wordmark" href="/" aria-label="${t('brand.start')}"><span class="brand-icon">∨</span> ${t('brand.name')} <span class="brand-sub">${t('brand.sub')}</span></a><div class="build"><span class="status-dot"></span> ${t('systems.online')} <span class="divider">/</span> <span id="backend">${this.backend}</span></div><div class="locale-toggle" aria-label="${t('locale.select')}">${this.localeButtons()}</div></header>
+      <header class="topbar"><a class="wordmark" href="./" aria-label="${t('brand.start')}"><span class="brand-icon"><i>∨</i></span><span class="brand-name">${t('brand.name')}</span><span class="brand-sub">${t('brand.sub')}</span></a><div class="build"><span class="status-dot"></span> ${t('systems.online')} <span class="divider">/</span> <span id="backend">${this.backend}</span></div><div class="locale-toggle" aria-label="${t('locale.select')}">${this.localeButtons()}</div></header>
       <section id="menu" class="screen menu">
-        <div class="eyebrow"><span class="line"></span> ${t('menu.chapter')}</div><h1>${t('menu.title')}</h1><p class="lead">${t('menu.lead')}</p>
-        <div class="ship-picker"><div class="ship-picker-heading"><span class="tiny-label">${t('menu.choose-ship')}</span><span id="selected-ship-label">${t('menu.ship-selected')}</span></div><div class="ship-options">
-          <button type="button" class="ship-option ${this.selectedShip === 'lego' ? 'active' : ''}" data-ship="lego" aria-pressed="${this.selectedShip === 'lego'}"><strong>${t('menu.lego-name')}</strong><span>${t('menu.lego-role')}</span><small>${t('menu.stat-speed')}: 115 · ${t('menu.stat-shield')}: 120 · ${t('menu.stat-hull')}: 100</small></button>
-          <button type="button" class="ship-option ${this.selectedShip === 'classic' ? 'active' : ''}" data-ship="classic" aria-pressed="${this.selectedShip === 'classic'}"><strong>${t('menu.classic-name')}</strong><span>${t('menu.classic-role')}</span><small>${t('menu.stat-speed')}: 115 · ${t('menu.stat-shield')}: 120 · ${t('menu.stat-hull')}: 100</small></button>
-        </div></div>
-        <div class="mission-meta"><span>${t('menu.mission')}</span><span>${t('menu.open-space')}</span><span>${t('menu.duration')}</span></div>
-        <label class="test-option"><input id="fast" type="checkbox"> ${t('menu.test-flight')}</label>
-        <button id="start" class="primary">${t('menu.start')} <span>↗</span></button>
-        <div class="menu-foot"><span class="tiny-label">${t('menu.your-ship')}</span><strong id="selected-ship-name">${t(this.selectedShip === 'lego' ? 'menu.lego-name' : 'menu.classic-name')}</strong><span id="selected-ship-role">${t(this.selectedShip === 'lego' ? 'menu.lego-role' : 'menu.classic-role')}</span></div>
+        <div class="menu-hero">
+          <div class="menu-copy"><div class="eyebrow"><span class="line"></span> ${t('menu.chapter')}</div><h1>${t('menu.title')}</h1><p class="lead">${t('menu.lead')}</p></div>
+          <aside class="ship-preview" aria-label="${t('menu.preview')}">
+            <div class="preview-frame"><i></i><i></i><i></i><i></i><span class="preview-axis axis-x"></span><span class="preview-axis axis-y"></span></div>
+            <div class="preview-head"><span><i class="status-dot"></i>${t('menu.preview')}</span><b>${t('menu.sector')}</b></div>
+            <div class="preview-signal"><span>${t('menu.unknown-signal')}</span><i></i></div>
+            <div class="preview-ship-data"><span id="selected-ship-label">${t('menu.ship-selected')}</span><strong id="selected-ship-name">${t(this.selectedShip === 'lego' ? 'menu.lego-name' : 'menu.classic-name')}</strong><small id="selected-ship-role">${t(this.selectedShip === 'lego' ? 'menu.lego-role' : 'menu.classic-role')}</small></div>
+            <div class="preview-orbit">${t('menu.orbit')}</div>
+          </aside>
+        </div>
+        <div class="launch-console">
+          <div class="ship-picker"><div class="ship-picker-heading"><span class="tiny-label">${t('menu.choose-ship')}</span><span>${t('menu.select-instruction')}</span></div><div class="ship-options">
+            ${this.shipOption('lego', '01', 'menu.lego-name', 'menu.lego-role')}
+            ${this.shipOption('classic', '02', 'menu.classic-name', 'menu.classic-role')}
+          </div></div>
+          <div class="launch-panel">
+            <div class="launch-ready"><i class="status-dot"></i><span>${t('menu.ready')}</span></div>
+            <div class="mission-meta"><span>${t('menu.mission')}</span><span>${t('menu.open-space')}</span><span>${t('menu.duration')}</span></div>
+            <details class="mission-options"><summary>${t('menu.advanced')}</summary><label class="test-option"><input id="fast" type="checkbox"><span><b>${t('menu.test-flight')}</b><small>${t('menu.test-flight-description')}</small></span></label></details>
+            <button id="start" class="primary launch-primary"><span class="launch-copy">${t('menu.start')}</span><span class="launch-arrow">↗</span></button>
+          </div>
+          <div class="console-footer"><span>${t('menu.footer-story')}</span><span>${t('menu.footer-prototype')} <b>0.1</b></span></div>
+        </div>
       </section>
-      <aside id="menu-aside"><div class="coordinate">${t('menu.sector')}<br><span>${t('menu.orbit')}</span></div><div class="orbital-label"><span class="status-dot"></span> ${t('menu.unknown-signal')}<span class="orbital-line"></span></div><div class="pilot-note">${t('menu.pilot-note')}</div></aside>
       <section id="intro" class="screen centered hidden"><div class="eyebrow">${t('intro.recovered')}</div><h2>${t('intro.title')}</h2><p>${t('intro.text')}</p><div id="countdown">${this.countdownValue}</div><span class="tiny-label">${t('intro.launch-sequence')}</span></section>
       <section id="hud" class="hidden">
         <div class="mission-block"><div class="eyebrow">${t('hud.operation')} <span id="mission-time">00:00</span></div><h3 id="stage-title">${stageTitle(0)}</h3><p id="objective">${stageObjective(0)}</p><div class="stage-track">${STAGES.map((_, i) => `<i data-stage="${i}"></i>`).join('')}</div></div>
@@ -75,7 +88,7 @@ export class HUD {
       </section>
       <section id="pause" class="screen centered hidden"><div class="eyebrow">${t('pause.eyebrow')}</div><h2>${t('pause.title')}</h2><p>${t('pause.text')}</p><button id="resume" class="primary">${t('pause.resume')} <span>↗</span></button><div class="locale-toggle pause-locale" aria-label="${t('locale.select')}">${this.localeButtons()}</div><div class="audio-settings">${(['master', 'music', 'sfx'] as const).map(bus => `<label>${t(`audio.${bus}`)}<input data-audio="${bus}" type="range" min="0" max="1" step="0.01" value="${audioValues.get(bus) ?? audioPreferences[bus]}"></label>`).join('')}</div><button id="restart-pause" class="text-button">${t('pause.restart')}</button></section>
       <section id="result" class="screen centered hidden"><div id="result-label" class="eyebrow"></div><h2 id="result-title"></h2><p id="result-text"></p><div id="result-stats"></div><button id="restart" class="primary">${t('result.restart')} <span>↗</span></button></section>
-      <footer id="menu-footer"><span>${t('menu.footer-story')}</span><span>${t('menu.footer-prototype')} <b>0.1</b></span></footer>`;
+      `;
 
     this.elements = {};
     for (const element of this.root.querySelectorAll<HTMLElement>('[id]')) this.elements[element.id] = element;
@@ -102,12 +115,19 @@ export class HUD {
 
   private localeButtons() { return `<button type="button" data-locale="en-US">EN</button><span>/</span><button type="button" data-locale="pt-BR">PT-BR</button>`; }
 
+  private shipOption(variant: PlayerShipVariant, index: string, nameKey: string, roleKey: string) {
+    const active = this.selectedShip === variant;
+    return `<button type="button" class="ship-option ${active ? 'active' : ''}" data-ship="${variant}" aria-pressed="${active}"><span class="ship-option-head"><b>${t('menu.ship-number')} ${index}</b><i>${t(active ? 'menu.ship-selected' : 'menu.ship-available')}</i></span><strong>${t(nameKey)}</strong><span class="ship-role">${t(roleKey)}</span><small><span>${t('menu.stat-speed')} <b>115</b></span><span>${t('menu.stat-shield')} <b>120</b></span><span>${t('menu.stat-hull')} <b>100</b></span></small></button>`;
+  }
+
   private selectShip(variant: PlayerShipVariant) {
     if (variant === this.selectedShip) return;
     this.selectedShip = variant;
     this.root.querySelectorAll<HTMLButtonElement>('[data-ship]').forEach(button => {
       const active = button.dataset.ship === variant;
       button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active));
+      const state = button.querySelector<HTMLElement>('.ship-option-head i');
+      if (state) state.textContent = t(active ? 'menu.ship-selected' : 'menu.ship-available');
     });
     this.elements['selected-ship-name'].textContent = t(variant === 'lego' ? 'menu.lego-name' : 'menu.classic-name');
     this.elements['selected-ship-role'].textContent = t(variant === 'lego' ? 'menu.lego-role' : 'menu.classic-role');
@@ -122,12 +142,12 @@ export class HUD {
 
   show(screen: Screen) {
     this.currentScreen = screen;
-    for (const id of ['menu', 'intro', 'hud', 'pause', 'result', 'menu-aside', 'menu-footer']) this.elements[id].classList.add('hidden');
+    for (const id of ['menu', 'intro', 'hud', 'pause', 'result']) this.elements[id].classList.add('hidden');
     if (screen === 'playing') this.elements.hud.classList.remove('hidden');
     else if (screen === 'victory' || screen === 'defeat') this.elements.result.classList.remove('hidden');
     else this.elements[screen].classList.remove('hidden');
-    if (screen === 'menu') { this.elements['menu-aside'].classList.remove('hidden'); this.elements['menu-footer'].classList.remove('hidden'); }
     this.root.classList.toggle('in-flight', screen === 'playing');
+    this.root.classList.toggle('is-menu', screen === 'menu');
   }
 
   countdown(value: string) { this.countdownValue = value; this.elements.countdown.textContent = value; }
