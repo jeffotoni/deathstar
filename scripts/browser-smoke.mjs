@@ -35,6 +35,13 @@ try {
   const startBox = await page.locator('#start').boundingBox();
   assert.ok(pickerBox && startBox && pickerBox.y < startBox.y, 'ship selection appears before launch button');
   await page.screenshot({ path: '/private/tmp/veu-menu.png' });
+  await page.locator('[data-visual-style="draft"]').click();
+  assert.ok(await page.locator('[data-visual-style="draft"]').evaluate(button => button.classList.contains('active')), 'draft visual style can be selected');
+  assert.ok(await page.locator('#ui').evaluate(ui => ui.classList.contains('draft-visual')), 'draft visual state is reflected in the UI');
+  await page.waitForTimeout(350);
+  await page.screenshot({ path: '/private/tmp/stellar-draft-menu.png' });
+  await page.locator('[data-visual-style="original"]').click();
+  assert.ok(!(await page.locator('#ui').evaluate(ui => ui.classList.contains('draft-visual'))), 'original visual style can be restored');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(350);
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, 'mobile menu has no horizontal overflow');
@@ -50,6 +57,8 @@ try {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.waitForTimeout(350);
   console.log('MENU', await page.locator('#backend').textContent());
+  await page.locator('[data-visual-style="draft"]').click();
+  assert.ok(await page.locator('#ui').evaluate(ui => ui.classList.contains('draft-visual')), 'draft visual style carries into mission launch');
   await page.locator('.mission-options summary').click();
   await page.locator('#fast').check();
   await page.getByRole('button', { name: 'START MISSION' }).click();

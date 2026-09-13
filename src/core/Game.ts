@@ -12,6 +12,7 @@ import { ProgressionManager } from '../progression/ProgressionManager';
 import { CapitalShip } from '../boss/CapitalShip';
 import { HUD, Screen } from '../ui/HUD';
 import { stageTitle, t } from '../localization/i18n';
+import { VisualStyleManager, type VisualStyle } from '../visual/VisualStyle';
 
 export class Game {
   private scene: Scene;
@@ -41,6 +42,7 @@ export class Game {
   private visualTime = 0;
   private actualTime = 0;
   private selectedShip: PlayerShipVariant = 'lego';
+  private visualStyles: VisualStyleManager;
 
   constructor(private engine: AbstractEngine, canvas: HTMLCanvasElement, backend: string) {
     this.scene = new Scene(engine);
@@ -60,10 +62,12 @@ export class Game {
     this.projectiles = new ProjectileManager(this.assets);
     this.enemies = new EnemyManager(this.assets, this.projectiles);
     this.effects = new Effects(this.assets);
+    this.visualStyles = new VisualStyleManager(this.scene);
     this.input = new InputManager(canvas);
     this.hud = new HUD(backend);
     this.hud.onStart = (fast) => this.start(fast);
     this.hud.onShipSelect = variant => this.selectShip(variant);
+    this.hud.onVisualStyle = style => this.selectVisualStyle(style);
     this.hud.onResume = () => this.resume();
     this.hud.onRestart = () => this.start(this.progression.fast);
     this.hud.onVolume = (bus, volume) => this.audio.setVolume(bus, volume);
@@ -94,11 +98,12 @@ export class Game {
   private selectShip(variant: PlayerShipVariant) {
     if (this.state !== 'menu' || variant === this.selectedShip) return;
     this.selectedShip = variant;
-    this.player.root.dispose(); this.player = new PlayerShip(this.assets, variant);
+    this.player.root.dispose(); this.player = new PlayerShip(this.assets, variant); this.visualStyles.refresh();
   }
+  private selectVisualStyle(style: VisualStyle) { this.visualStyles.setStyle(style); }
   private start(fast: boolean) {
     this.enemies.clear(); this.projectiles.clear(); this.boss?.dispose(); this.boss = undefined; this.selected = undefined;
-    this.player.root.dispose(); this.player = new PlayerShip(this.assets, this.selectedShip);
+    this.player.root.dispose(); this.player = new PlayerShip(this.assets, this.selectedShip); this.visualStyles.refresh();
     this.progression = new ProgressionManager(); this.progression.fast = fast;
     this.progression.onStage = stage => this.enterStage(stage);
     this.laserCooldown = this.plasmaCooldown = this.burstCooldown = this.collisionCooldown = this.solarDamageCooldown = 0;
@@ -245,6 +250,7 @@ export class Game {
       let remaining = dt;
       while (remaining > 0 && this.state === 'playing') { const step = Math.min(remaining, 1 / 60); this.update(step); remaining -= step; }
     } else if (this.state === 'victory' || this.state === 'defeat') this.effects.update(dt);
+    this.visualStyles.update();
     this.scene.render();
   }
 }

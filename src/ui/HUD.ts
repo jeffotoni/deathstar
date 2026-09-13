@@ -5,6 +5,7 @@ import { ProgressionManager } from '../progression/ProgressionManager';
 import { Target } from '../weapons/ProjectileManager';
 import { getAudioPreferences } from '../audio/AudioManager';
 import { formatScore, getLocale, setLocale, stageObjective, stageTitle, t, type Locale } from '../localization/i18n';
+import type { VisualStyle } from '../visual/VisualStyle';
 
 export type Screen = 'menu' | 'intro' | 'playing' | 'pause' | 'victory' | 'defeat';
 type MarkerView = { root: HTMLDivElement; label: HTMLSpanElement };
@@ -14,6 +15,7 @@ export class HUD {
   onResume = () => {};
   onRestart = () => {};
   onShipSelect: (variant: PlayerShipVariant) => void = () => {};
+  onVisualStyle: (style: VisualStyle) => void = () => {};
   onVolume: (bus: 'master' | 'music' | 'sfx', value: number) => void = () => {};
   private elements: Record<string, HTMLElement> = {};
   private radar!: CanvasRenderingContext2D;
@@ -31,6 +33,7 @@ export class HUD {
   private markerViews: MarkerView[] = [];
   private shieldVisible = false;
   private selectedShip: PlayerShipVariant = 'lego';
+  private selectedVisualStyle: VisualStyle = 'original';
   debug = CONFIG.debug;
 
   constructor(private backend: string) {
@@ -64,6 +67,10 @@ export class HUD {
           <div class="launch-panel">
             <div class="launch-ready"><i class="status-dot"></i><span>${t('menu.ready')}</span></div>
             <div class="mission-meta"><span>${t('menu.mission')}</span><span>${t('menu.open-space')}</span><span>${t('menu.duration')}</span></div>
+            <div class="visual-style-picker"><div class="visual-style-heading"><span>${t('menu.visual-style')}</span><span>${t('menu.visual-style-count')}</span></div><div class="visual-options">
+              ${this.visualOption('original', 'menu.visual-original', 'menu.visual-original-description')}
+              ${this.visualOption('draft', 'menu.visual-draft', 'menu.visual-draft-description')}
+            </div></div>
             <details class="mission-options"><summary>${t('menu.advanced')}</summary><label class="test-option"><input id="fast" type="checkbox"><span><b>${t('menu.test-flight')}</b><small>${t('menu.test-flight-description')}</small></span></label></details>
             <button id="start" class="primary launch-primary"><span class="launch-copy">${t('menu.start')}</span><span class="launch-arrow">↗</span></button>
           </div>
@@ -101,6 +108,9 @@ export class HUD {
     this.root.querySelectorAll<HTMLButtonElement>('[data-ship]').forEach(button => {
       button.onclick = () => this.selectShip(button.dataset.ship as PlayerShipVariant);
     });
+    this.root.querySelectorAll<HTMLButtonElement>('[data-visual-style]').forEach(button => {
+      button.onclick = () => this.selectVisualStyle(button.dataset.visualStyle as VisualStyle);
+    });
     this.root.querySelectorAll<HTMLInputElement>('[data-audio]').forEach(input => {
       const saved = audioValues.get(input.dataset.audio!); if (saved) input.value = saved;
       input.oninput = () => this.onVolume(input.dataset.audio as 'master' | 'music' | 'sfx', Number(input.value));
@@ -120,6 +130,11 @@ export class HUD {
     return `<button type="button" class="ship-option ${active ? 'active' : ''}" data-ship="${variant}" aria-pressed="${active}"><span class="ship-option-head"><b>${t('menu.ship-number')} ${index}</b><i>${t(active ? 'menu.ship-selected' : 'menu.ship-available')}</i></span><strong>${t(nameKey)}</strong><span class="ship-role">${t(roleKey)}</span><small><span>${t('menu.stat-speed')} <b>115</b></span><span>${t('menu.stat-shield')} <b>120</b></span><span>${t('menu.stat-hull')} <b>100</b></span></small></button>`;
   }
 
+  private visualOption(style: VisualStyle, nameKey: string, descriptionKey: string) {
+    const active = this.selectedVisualStyle === style;
+    return `<button type="button" class="visual-option ${active ? 'active' : ''}" data-visual-style="${style}" aria-pressed="${active}"><span class="ink-swatch ${style}"></span><span><b>${t(nameKey)}</b><small>${t(descriptionKey)}</small></span><i>${active ? '●' : '○'}</i></button>`;
+  }
+
   private selectShip(variant: PlayerShipVariant) {
     if (variant === this.selectedShip) return;
     this.selectedShip = variant;
@@ -135,6 +150,19 @@ export class HUD {
     this.onShipSelect(variant);
   }
 
+  private selectVisualStyle(style: VisualStyle) {
+    if (style === this.selectedVisualStyle) return;
+    this.selectedVisualStyle = style;
+    this.root.querySelectorAll<HTMLButtonElement>('[data-visual-style]').forEach(button => {
+      const active = button.dataset.visualStyle === style;
+      button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active));
+      const marker = button.querySelector<HTMLElement>(':scope > i');
+      if (marker) marker.textContent = active ? '●' : '○';
+    });
+    this.root.classList.toggle('draft-visual', style === 'draft');
+    this.onVisualStyle(style);
+  }
+
   private changeLocale(locale: Locale) {
     if (locale === getLocale()) return;
     setLocale(locale); this.render(); this.show(this.currentScreen);
@@ -148,6 +176,7 @@ export class HUD {
     else this.elements[screen].classList.remove('hidden');
     this.root.classList.toggle('in-flight', screen === 'playing');
     this.root.classList.toggle('is-menu', screen === 'menu');
+    this.root.classList.toggle('draft-visual', this.selectedVisualStyle === 'draft');
   }
 
   countdown(value: string) { this.countdownValue = value; this.elements.countdown.textContent = value; }
