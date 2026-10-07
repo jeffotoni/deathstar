@@ -2341,3 +2341,345 @@ body {
     font-size: 6px;
   }
 }
+
+/* Gameplay audio control and compact mission readout. Audio remains a single
+   gameplay service; these rules only provide a small responsive affordance. */
+#ui.in-flight .audio-toggle {
+  position: fixed;
+  right: calc(max(24px, env(safe-area-inset-right)) + 44px);
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  z-index: 13;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid rgba(178, 225, 220, .42);
+  border-radius: 50%;
+  color: #c9ece4;
+  background: rgba(4, 15, 26, .7);
+  box-shadow: 0 0 20px rgba(96, 213, 200, .12);
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: color .18s ease, border-color .18s ease, background .18s ease, transform .18s ease;
+}
+
+#ui.in-flight .audio-toggle:hover,
+#ui.in-flight .audio-toggle:focus-visible,
+#ui.in-flight .audio-toggle:active {
+  color: #f1fffb;
+  border-color: #b9fff0;
+  background: rgba(21, 67, 75, .86);
+  transform: scale(1.08);
+}
+
+#ui.in-flight.draft-visual .audio-toggle {
+  color: var(--pencil);
+  border-color: var(--pencil-line);
+  background: rgba(255, 255, 255, .72);
+  box-shadow: 0 2px 8px rgba(81, 85, 89, .1);
+}
+
+@media (max-width: 700px) {
+  #ui.in-flight .mission-block {
+    max-width: min(64vw, 240px);
+  }
+
+  #ui.in-flight .mission-block .eyebrow {
+    display: inline-flex;
+    align-items: baseline;
+    margin: 0;
+    font-size: 8px;
+    letter-spacing: .9px;
+    vertical-align: baseline;
+  }
+
+  #ui.in-flight .mission-block h3 {
+    display: inline;
+    margin: 0 0 0 5px;
+    font-size: clamp(15px, 4.5vw, 19px);
+    letter-spacing: .7px;
+    vertical-align: baseline;
+  }
+
+  #ui.in-flight .mission-block p {
+    display: -webkit-box;
+    max-width: min(62vw, 226px);
+    margin-top: 4px;
+    font-size: 9px;
+    line-height: 1.3;
+    -webkit-line-clamp: 2;
+  }
+
+  #ui.in-flight .audio-toggle {
+    top: calc(54px + env(safe-area-inset-top));
+    right: calc(max(14px, env(safe-area-inset-right)) + 40px);
+    bottom: auto;
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  #ui.in-flight .controls-help-toggle {
+    top: calc(54px + env(safe-area-inset-top));
+    right: max(14px, env(safe-area-inset-right));
+  }
+}
+
+@media (max-width: 700px) and (max-height: 620px) {
+  #ui.in-flight .mission-block p { display: none; }
+}
+
+/* Portrait home layout: replace inherited desktop positioning with a real flow. */
+@media (max-width: 700px) {
+  html,
+  body,
+  #ui {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  #game {
+    width: 100%;
+    max-width: 100%;
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  #ui.is-menu {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  #ui.is-menu .topbar {
+    top: max(10px, env(safe-area-inset-top));
+    left: max(16px, env(safe-area-inset-left));
+    right: max(16px, env(safe-area-inset-right));
+    width: auto;
+    padding-bottom: 11px;
+  }
+
+  #ui.is-menu .wordmark {
+    max-width: 100%;
+    gap: 7px;
+    font-size: clamp(12px, 3.4vw, 15px);
+    letter-spacing: clamp(1.4px, .65vw, 2.8px);
+    white-space: nowrap;
+  }
+
+  #ui.is-menu .brand-icon {
+    flex: 0 0 auto;
+    width: 25px;
+    height: 25px;
+    margin-right: 1px;
+    font-size: 24px;
+  }
+
+  #ui.is-menu .menu {
+    inset: calc(62px + env(safe-area-inset-top)) 0 0;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    min-height: 0;
+    height: auto;
+    padding-top: 0;
+    padding-right: max(16px, env(safe-area-inset-right));
+    padding-bottom: calc(28px + env(safe-area-inset-bottom));
+    padding-left: max(16px, env(safe-area-inset-left));
+    transform: none;
+    overflow-x: clip;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+
+  #ui.is-menu .menu-hero {
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  #ui.is-menu .menu-copy {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    flex: 0 0 auto;
+    align-self: stretch;
+    padding: clamp(16px, 4vh, 28px) 0 0;
+    transform: none;
+  }
+
+  #ui.is-menu .menu h1 {
+    width: 100%;
+    max-width: 100%;
+    margin: 10px 0 10px;
+    font-size: clamp(42px, 13vw, 58px);
+    line-height: .94;
+    letter-spacing: -1.3px;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+
+  #ui.is-menu .menu .lead {
+    display: block;
+    width: 100%;
+    max-width: 310px;
+    margin: 0;
+    font-size: clamp(12px, 3.4vw, 14px);
+    line-height: 1.45;
+  }
+
+  #ui.is-menu .menu-stage {
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  #ui.is-menu .ship-preview {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    min-height: 220px;
+    height: clamp(220px, 58vw, 280px);
+    flex: 0 0 auto;
+  }
+
+  #ui.is-menu .launch-console {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #ui.is-menu .ship-picker,
+  #ui.is-menu .launch-panel,
+  #ui.is-menu .ship-options,
+  #ui.is-menu .ship-selector-row {
+    width: 100%;
+    min-width: 0;
+  }
+
+  #ui.is-menu .ship-picker { padding: 12px 0 10px; }
+  #ui.is-menu .ship-picker-heading {
+    justify-content: center;
+    padding: 0 0 8px;
+    font-size: clamp(10px, 2.8vw, 12px);
+    text-align: center;
+  }
+
+  #ui.is-menu .ship-selector-row {
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    gap: 7px;
+    align-items: stretch;
+  }
+
+  #ui.is-menu .ship-cycle {
+    width: 44px;
+    height: 58px;
+    min-width: 44px;
+    min-height: 52px;
+    font-size: 40px;
+  }
+
+  #ui.is-menu .ship-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+    margin-top: 0;
+  }
+
+  #ui.is-menu .ship-option {
+    width: 100%;
+    min-width: 0;
+    min-height: 94px;
+    padding: 10px 7px;
+    align-items: center;
+    text-align: center;
+  }
+
+  #ui.is-menu .ship-option-head { display: none; }
+  #ui.is-menu .ship-option strong {
+    max-width: 100%;
+    font-size: clamp(15px, 4.2vw, 19px);
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+  }
+
+  #ui.is-menu .ship-option:not(.active) strong { font-size: clamp(11px, 3.2vw, 14px); }
+  #ui.is-menu .ship-option .ship-role {
+    display: block;
+    max-width: 100%;
+    font-size: clamp(10px, 2.8vw, 12px);
+    line-height: 1.25;
+  }
+
+  #ui.is-menu .ship-option small { display: none; }
+
+  #ui.is-menu .launch-panel {
+    width: 100%;
+    padding: 14px 0 0;
+    border-top: 1px solid rgba(145, 221, 230, .16);
+    border-left: 0;
+  }
+
+  #ui.is-menu .launch-primary {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    min-height: 60px;
+    padding-inline: 16px;
+    font-size: clamp(14px, 4vw, 17px);
+  }
+
+  #ui.is-menu .mission-config {
+    width: 100%;
+    max-width: 100%;
+    text-align: center;
+  }
+
+  #ui.is-menu .mission-config summary {
+    width: 100%;
+    max-width: 100%;
+    min-height: 46px;
+    font-size: clamp(12px, 3.3vw, 14px);
+  }
+
+  #ui.is-menu .mission-config-body {
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    max-height: min(62dvh, 400px);
+    margin: 8px 0 0;
+    padding: 14px;
+    overflow-y: auto;
+    box-sizing: border-box;
+  }
+
+  #ui.is-menu .mission-config .visual-options { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 370px) {
+  #ui.is-menu .menu {
+    padding-right: max(14px, env(safe-area-inset-right));
+    padding-left: max(14px, env(safe-area-inset-left));
+  }
+  #ui.is-menu .ship-selector-row { grid-template-columns: 40px minmax(0, 1fr) 40px; gap: 5px; }
+  #ui.is-menu .ship-cycle { width: 40px; min-width: 40px; font-size: 36px; }
+  #ui.is-menu .ship-option { min-height: 90px; padding-inline: 5px; }
+  #ui.is-menu .ship-option.active .ship-role { font-size: 10px; }
+}

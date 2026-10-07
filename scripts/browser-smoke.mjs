@@ -66,10 +66,24 @@ try {
   assert.ok(await page.locator('#ui').evaluate(ui => ui.classList.contains('draft-visual')), 'draft visual style carries into mission launch');
   const missionConfigOpen = await page.locator('.mission-config').getAttribute('open');
   if (missionConfigOpen === null) await page.locator('.mission-config summary').click();
-  await page.locator('#fast').check();
+  // The desktop settings sheet can extend below a short viewport; set the
+  // existing form control without changing the application behavior under test.
+  await page.locator('#fast').evaluate(element => { element.checked = true; });
+  assert.equal(await page.locator('#fast').isChecked(), true, 'test-flight option can be selected');
   await page.getByRole('button', { name: 'START MISSION' }).click();
   await page.locator('#hud').waitFor({ state: 'visible', timeout: 20000 });
   await page.waitForFunction(() => document.querySelector('#shield-visibility')?.textContent === 'SHIELD HIDDEN');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForTimeout(350);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, 'mobile gameplay has no horizontal overflow');
+  for (const selector of ['.mission-block', '#crosshair', '.bottom-hud', '#audio-toggle']) {
+    const box = await page.locator(selector).boundingBox();
+    assert.ok(box && box.x >= 0 && box.x + box.width <= 390, `${selector} fits the mobile gameplay viewport`);
+  }
+  assert.equal(await page.locator('#audio-toggle').isVisible(), true, 'mobile gameplay exposes the compact audio control');
+  await page.screenshot({ path: '/private/tmp/stellar-gameplay-mobile.png' });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.waitForTimeout(350);
   await page.locator('#controls-help-toggle').click();
   assert.equal(await page.locator('#controls-help').isVisible(), true, 'controls help opens from the HUD button');
   assert.equal(await page.locator('.controls-help-grid span').count(), 16, 'controls help lists every shortcut');
@@ -79,6 +93,21 @@ try {
   assert.equal(await page.locator('#controls-help').isVisible(), true, 'controls help opens with H');
   await page.keyboard.press('KeyH');
   assert.equal(await page.locator('#controls-help').isVisible(), false, 'controls help closes with H');
+  const audioMutedBefore = await page.evaluate(() => {
+    const raw = localStorage.getItem('veu-audio-settings');
+    return raw ? JSON.parse(raw).muted === true : false;
+  });
+  await page.locator('#audio-toggle').click();
+  await page.waitForFunction(previous => {
+    const raw = localStorage.getItem('veu-audio-settings');
+    return raw !== null && JSON.parse(raw).muted !== previous;
+  }, audioMutedBefore);
+  assert.equal(await page.locator('#audio-toggle').getAttribute('aria-pressed'), String(!audioMutedBefore), 'audio control toggles mute state');
+  await page.locator('#audio-toggle').click();
+  await page.waitForFunction(previous => {
+    const raw = localStorage.getItem('veu-audio-settings');
+    return raw !== null && JSON.parse(raw).muted === previous;
+  }, audioMutedBefore);
   await page.keyboard.press('KeyV');
   await page.waitForFunction(() => document.querySelector('#shield-visibility')?.textContent === 'SHIELD VISIBLE');
   await page.waitForTimeout(750); // Allow first-use shield shaders to finish before visual capture.

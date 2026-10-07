@@ -17,6 +17,7 @@ export class HUD {
   onShipSelect: (variant: PlayerShipVariant) => void = () => {};
   onVisualStyle: (style: VisualStyle) => void = () => {};
   onVolume: (bus: 'master' | 'music' | 'sfx', value: number) => void = () => {};
+  onAudioToggle: () => void = () => {};
   private elements: Record<string, HTMLElement> = {};
   private radar!: CanvasRenderingContext2D;
   private toastTime = 0;
@@ -32,6 +33,7 @@ export class HUD {
   private stageElements: HTMLElement[] = [];
   private markerViews: MarkerView[] = [];
   private shieldVisible = false;
+  private audioMuted = false;
   private selectedShip: PlayerShipVariant = 'lego';
   private selectedVisualStyle: VisualStyle = 'original';
   private helpKeyHandler = (event: KeyboardEvent) => {
@@ -53,6 +55,7 @@ export class HUD {
     const audioValues = new Map<string, string>();
     this.root.querySelectorAll<HTMLInputElement>('[data-audio]').forEach(input => audioValues.set(input.dataset.audio!, input.value));
     const audioPreferences = getAudioPreferences();
+    this.audioMuted = audioPreferences.muted;
     this.root.innerHTML = `
       <div class="vignette"></div><div id="impact-flash"></div><div id="threat-flash"></div><div id="damage-flash"></div>
       <header class="topbar"><a class="wordmark" href="./" aria-label="${t('brand.start')}"><span class="brand-icon"><i>∨</i></span><span class="brand-name">${t('brand.name')}</span><span class="brand-sub">${t('brand.sub')}</span></a><div class="build"><span class="status-dot"></span> ${t('systems.online')} <span class="divider">/</span> <span id="backend">${this.backend}</span></div><div class="locale-toggle" aria-label="${t('locale.select')}">${this.localeButtons()}</div></header>
@@ -104,6 +107,7 @@ export class HUD {
           <div class="radar-panel"><canvas id="radar" width="140" height="140" aria-label="${t('hud.contacts')}"></canvas><span id="contacts">${t('hud.contacts', { count: 0 })}</span></div>
         </div>
         <div class="control-strip"><span><kbd>MOUSE</kbd> ${t('hud.direction')}</span><span><kbd>ARROWS</kbd> ${t('hud.turn-pitch')}</span><span><kbd>W S</kbd> ${t('hud.throttle')}</span><span><kbd>A D</kbd> ${t('hud.roll')}</span><span><kbd>Q E</kbd> ${t('hud.lateral')}</span><span><kbd>ESPAÇO</kbd> ${t('hud.dodge')}</span><span><kbd>F / TAB</kbd> ${t('hud.lock-target')}</span><span><kbd>ESC</kbd> ${t('hud.pause')}</span></div>
+        <button id="audio-toggle" class="audio-toggle" type="button" aria-pressed="${this.audioMuted}" aria-label="${t(this.audioMuted ? 'hud.audio-unmute' : 'hud.audio-mute')}" title="${t(this.audioMuted ? 'hud.audio-unmute' : 'hud.audio-mute')}">${this.audioMuted ? '🔇' : '🔊'}</button>
         <button id="controls-help-toggle" class="controls-help-toggle" type="button" aria-expanded="false" aria-controls="controls-help" aria-label="${t('hud.controls')}" title="${t('hud.controls')}">?</button>
         <div id="controls-help" class="controls-help hidden" role="dialog" aria-labelledby="controls-help-title">
           <div class="controls-help-panel">
@@ -132,6 +136,7 @@ export class HUD {
     this.markerViews = [];
     this.radar = (this.elements.radar as HTMLCanvasElement).getContext('2d')!;
     this.elements.start.onclick = () => this.onStart((this.elements.fast as HTMLInputElement).checked);
+    this.elements['audio-toggle'].onclick = () => this.onAudioToggle();
     this.elements['controls-help-toggle'].onclick = () => this.toggleControlsHelp();
     this.elements['controls-help-close'].onclick = () => this.toggleControlsHelp(false);
     this.elements.resume.onclick = () => this.onResume();
@@ -226,6 +231,14 @@ export class HUD {
   threat() { this.threatTime = Math.max(this.threatTime, 0.5); }
   solarWarning(heat: number) { const warning = this.elements['solar-warning']; warning.classList.toggle('visible', heat > 0); warning.style.setProperty('--solar-heat', heat.toFixed(3)); }
   shieldVisibility(visible: boolean) { this.shieldVisible = visible; this.elements['shield-visibility'].textContent = t(visible ? 'hud.shield-visible' : 'hud.shield-hidden'); }
+  audioMutedState(muted: boolean) {
+    this.audioMuted = muted;
+    const toggle = this.elements['audio-toggle'];
+    toggle.textContent = muted ? '🔇' : '🔊';
+    toggle.setAttribute('aria-pressed', String(muted));
+    toggle.setAttribute('aria-label', t(muted ? 'hud.audio-unmute' : 'hud.audio-mute'));
+    toggle.setAttribute('title', t(muted ? 'hud.audio-unmute' : 'hud.audio-mute'));
+  }
   damage() { this.damageTime = 0.35; }
 
   result(won: boolean, progression: ProgressionManager) {

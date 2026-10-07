@@ -38,7 +38,7 @@ export class Game {
   private introTime = 0;
   private menuTime = 0;
   private debugTimer = 0;
-  private muted = false;
+  private muted = this.audio.isMuted();
   private visualTime = 0;
   private actualTime = 0;
   private selectedShip: PlayerShipVariant = 'lego';
@@ -71,6 +71,7 @@ export class Game {
     this.hud.onResume = () => this.resume();
     this.hud.onRestart = () => this.start(this.progression.fast);
     this.hud.onVolume = (bus, volume) => this.audio.setVolume(bus, volume);
+    this.hud.onAudioToggle = () => this.toggleAudio();
     this.input.onPause = () => { if (this.state === 'playing') this.pause(); else if (this.state === 'pause') this.resume(); };
     this.enemies.onDestroyed = (enemy) => {
       this.effects.explosion(enemy.position, enemy.kind === 'assault' ? 2 : 1.2);
@@ -116,6 +117,12 @@ export class Game {
   }
   private pause() { this.state = 'pause'; this.input.setEnabled(false); this.hud.show('pause'); this.audio.pause(); }
   private resume() { this.state = 'playing'; this.hud.show('playing'); this.input.setEnabled(true); this.audio.start(); }
+  private toggleAudio() {
+    this.muted = !this.muted;
+    this.audio.setMuted(this.muted);
+    this.hud.audioMutedState(this.muted);
+    void this.audio.resume().catch(() => undefined);
+  }
   private finish(won: boolean) {
     this.state = won ? 'victory' : 'defeat'; this.input.setEnabled(false); this.audio.pause(); this.hud.result(won, this.progression);
   }
@@ -184,7 +191,7 @@ export class Game {
     if (this.input.consume('Tab')) this.chooseTarget(true);
     if (this.input.consume('KeyV')) this.hud.shieldVisibility(this.player.toggleShield());
     if (this.input.consume('F3')) this.hud.debug = !this.hud.debug;
-    if (this.input.consume('KeyM')) { this.muted = !this.muted; this.audio.setMuted(this.muted); }
+    if (this.input.consume('KeyM')) this.toggleAudio();
     const targets = this.targets;
     if (this.selected && !targets.includes(this.selected)) this.selected = undefined;
     this.laserCooldown -= dt; this.plasmaCooldown -= dt; this.burstCooldown -= dt; this.collisionCooldown -= dt;

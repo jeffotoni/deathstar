@@ -33,6 +33,7 @@ function saveAudioPreferences(preferences: AudioPreferences) {
 
 export class AudioManager {
   private context?: AudioContext;
+  private resumePromise?: Promise<void>;
   private master?: GainNode;
   private compressor?: DynamicsCompressorNode;
   private sfx?: GainNode;
@@ -50,29 +51,52 @@ export class AudioManager {
   private appliedMusicGain = 0;
   private volume = getAudioPreferences();
   private muted = this.volume.muted;
-  start() {
-    if (!this.context) {
-      const ctx = this.context = new AudioContext();
-      this.master = ctx.createGain(); this.master.gain.value = this.muted ? 0 : this.volume.master;
-      this.compressor = ctx.createDynamicsCompressor();
-      this.compressor.threshold.value = -20; this.compressor.knee.value = 18; this.compressor.ratio.value = 5; this.compressor.attack.value = 0.003; this.compressor.release.value = 0.24;
-      this.master.connect(this.compressor); this.compressor.connect(ctx.destination);
-      this.sfx = ctx.createGain(); this.sfx.gain.value = this.volume.sfx; this.sfx.connect(this.master);
-      this.music = ctx.createGain(); this.music.gain.value = this.volume.music; this.music.connect(this.master);
-      this.noiseBuffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * 1.5), ctx.sampleRate);
-      const noise = this.noiseBuffer.getChannelData(0);
-      for (let i = 0; i < noise.length; i++) noise[i] = Math.random() * 2 - 1;
-      this.engine = ctx.createOscillator(); this.engine.type = 'sawtooth'; this.engine.frequency.value = 38;
-      this.engineGain = ctx.createGain(); this.engineGain.gain.value = 0.012;
-      const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 150;
-      this.engine.connect(filter); filter.connect(this.engineGain); this.engineGain.connect(this.sfx); this.engine.start();
-      this.ambient = ctx.createOscillator(); this.ambient.type = 'triangle'; this.ambient.frequency.value = 62;
-      this.ambientGain = ctx.createGain(); this.ambientGain.gain.value = 0.0025;
-      const ambientFilter = ctx.createBiquadFilter(); ambientFilter.type = 'lowpass'; ambientFilter.frequency.value = 220;
-      this.ambient.connect(ambientFilter); ambientFilter.connect(this.ambientGain); this.ambientGain.connect(this.sfx); this.ambient.start();
-      this.appliedMusicGain = this.volume.music;
+
+  private ensureContext() {
+    if (this.context) return this.context;
+    if (typeof window === 'undefined') return undefined;
+
+    const audioContextConstructor = window.AudioContext
+      ?? (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!audioContextConstructor) return undefined;
+
+    const ctx = this.context = new audioContextConstructor();
+    this.master = ctx.createGain(); this.master.gain.value = this.muted ? 0 : this.volume.master;
+    this.compressor = ctx.createDynamicsCompressor();
+    this.compressor.threshold.value = -20; this.compressor.knee.value = 18; this.compressor.ratio.value = 5; this.compressor.attack.value = 0.003; this.compressor.release.value = 0.24;
+    this.master.connect(this.compressor); this.compressor.connect(ctx.destination);
+    this.sfx = ctx.createGain(); this.sfx.gain.value = this.volume.sfx; this.sfx.connect(this.master);
+    this.music = ctx.createGain(); this.music.gain.value = this.volume.music; this.music.connect(this.master);
+    this.noiseBuffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * 1.5), ctx.sampleRate);
+    const noise = this.noiseBuffer.getChannelData(0);
+    for (let i = 0; i < noise.length; i++) noise[i] = Math.random() * 2 - 1;
+    this.engine = ctx.createOscillator(); this.engine.type = 'sawtooth'; this.engine.frequency.value = 38;
+    this.engineGain = ctx.createGain(); this.engineGain.gain.value = 0.012;
+    const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 150;
+    this.engine.connect(filter); filter.connect(this.engineGain); this.engineGain.connect(this.sfx); this.engine.start();
+    this.ambient = ctx.createOscillator(); this.ambient.type = 'triangle'; this.ambient.frequency.value = 62;
+    this.ambientGain = ctx.createGain(); this.ambientGain.gain.value = 0.0025;
+    const ambientFilter = ctx.createBiquadFilter(); ambientFilter.type = 'lowpass'; ambientFilter.frequency.value = 220;
+    this.ambient.connect(ambientFilter); ambientFilter.connect(this.ambientGain); this.ambientGain.connect(this.sfx); this.ambient.start();
+    this.appliedMusicGain = this.volume.music;
+    return ctx;
+  }
+
+  resume() {
+    const ctx = this.context;
+    if (!ctx || ctx.state === 'running') return Promise.resolve();
+    if (ctx.state === 'closed') return Promise.reject(new Error('AudioContext is closed'));
+    if (!this.resumePromise) {
+      this.resumePromise = ctx.resume().finally(() => { this.resumePromise = undefined; });
     }
-    void this.context.resume();
+    return this.resumePromise;
+  }
+
+  isMuted() { return this.muted; }
+
+  start() {
+    this.ensureContext();
+    void this.resume().catch(() => undefined);
   }
   setVolume(bus: 'master' | 'music' | 'sfx', value: number) {
     this.volume[bus] = clampVolume(value, this.volume[bus]); const node = this[bus];
