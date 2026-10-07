@@ -82,6 +82,15 @@ test('damage consumes shields first, spills into hull, and respects regeneration
   health.hit(200); assert.equal(health.hull, 0);
 });
 
+test('disabled shield sends damage directly to the hull and does not regenerate', () => {
+  const health = new PlayerHealth();
+  health.hit(30, false);
+  assert.equal(health.shield, 120);
+  assert.equal(health.hull, 70);
+  health.update(6, false);
+  assert.equal(health.shield, 120);
+});
+
 test('swept collision catches targets crossed between frames', () => {
   assert.equal(segmentDistanceSquared(new Vector3(0, 0, 0), new Vector3(0, 0, 100), new Vector3(0, 3, 45)), 9);
   assert.equal(segmentDistanceSquared(Vector3.Zero(), Vector3.Zero(), new Vector3(4, 0, 0)), 16);

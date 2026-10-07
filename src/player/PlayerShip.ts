@@ -117,6 +117,6 @@ export class PlayerShip {
     if (this.muzzleFlashTime === 0) this.muzzleFlashStrength = 1;
     this.shieldFlash = Math.max(0, this.shieldFlash - dt);
     if (this.shieldVisible) this.shieldMaterial.alpha = this.shieldAlpha + this.shieldFlash * 0.24;
-    this.health.update(dt);
+    this.health.update(dt, this.shieldVisible);
   }
 }

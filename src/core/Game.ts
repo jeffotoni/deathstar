@@ -136,7 +136,10 @@ export class Game {
   }
   private damage(amount: number, impactPosition = this.player.position, impactNormal = this.player.forward.scale(-1)) {
     if (this.player.dodge > 0 || this.state !== 'playing') return;
-    this.player.health.hit(amount); this.player.shieldImpact(); this.effects.shieldImpact(impactPosition, impactNormal); this.hud.damage(); this.audio.damage(this.player.position); this.effects.shake = 0.5;
+    const shieldActive = this.player.shieldVisible;
+    this.player.health.hit(amount, shieldActive);
+    if (shieldActive) { this.player.shieldImpact(); this.effects.shieldImpact(impactPosition, impactNormal); }
+    this.hud.damage(); this.audio.damage(this.player.position); this.effects.shake = 0.5;
     if (this.player.health.hull <= 0) { this.effects.explosion(this.player.position, 4); this.audio.explosion(this.player.position, 4); this.finish(false); }
   }
   private get targets(): Target[] { return [...this.enemies.enemies.filter(e => e.health > 0), ...(this.boss?.targets ?? [])]; }
@@ -235,17 +238,25 @@ export class Game {
       this.player.visual.rotation.z = Math.sin(this.menuTime * 0.5) * 0.025;
       const menuAspect = this.engine.getRenderWidth() / Math.max(1, this.engine.getRenderHeight());
       if (menuAspect < 0.85) {
-        this.camera.position.set(-7, 7, -30); this.camera.setTarget(new Vector3(-1.5, 1.1, 0));
+        // Menu-only framing: bring the ship forward on narrow screens without
+        // changing the chase camera used by the playable mission.
+        this.camera.position.set(-6, 6.2, -24.5); this.camera.setTarget(new Vector3(-1.5, 1.1, 0));
       } else {
-        this.camera.position.set(-15, 9, -23); this.camera.setTarget(new Vector3(-10, 1.2, 3));
+        // Menu-only framing keeps the 3D ship readable while leaving more
+        // negative space around the title and launch controls.
+        this.camera.position.set(-13, 8, -18.5); this.camera.setTarget(new Vector3(-9, 1.2, 3));
       }
       this.camera.upVector = Vector3.Up();
       this.world.update(dt, Vector3.Zero());
     } else if (this.state === 'intro') {
       this.introTime += dt;
-      this.hud.countdown(this.introTime < 4 ? '…' : this.introTime < 7 ? `${Math.ceil(7 - this.introTime)}` : t('intro.launch'));
+      // Keep the launch transmission readable, but make the countdown feel immediate.
+      const countdownStart = 3;
+      const countdownStep = 0.85;
+      const countdownEnd = countdownStart + countdownStep * 3;
+      this.hud.countdown(this.introTime < countdownStart ? '…' : this.introTime < countdownEnd ? `${Math.ceil((countdownEnd - this.introTime) / countdownStep)}` : t('intro.launch'));
       this.chaseCamera(dt);
-      if (this.introTime > 7.6) this.launch();
+      if (this.introTime > countdownEnd + 0.35) this.launch();
     } else if (this.state === 'playing') {
       let remaining = dt;
       while (remaining > 0 && this.state === 'playing') { const step = Math.min(remaining, 1 / 60); this.update(step); remaining -= step; }

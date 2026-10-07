@@ -952,3 +952,1392 @@
   .mission-block p { font-size: 10px; }
   #target-info { font-size: 8px; }
 }
+
+/*
+ * Launch screen refinement
+ *
+ * The existing menu structure remains intact, but the launch screen now gives
+ * the title, live ship and primary action a clearer visual hierarchy. The
+ * canvas stays untouched; these rules only simplify its presentation layer.
+ */
+#ui.is-menu .menu {
+  left: 50%;
+  right: auto;
+  width: min(1320px, calc(100vw - 80px));
+  transform: translateX(-50%);
+}
+
+#ui.is-menu .menu-hero {
+  grid-template-columns: minmax(320px, .72fr) minmax(500px, 1.28fr);
+  gap: clamp(24px, 4vw, 70px);
+}
+
+#ui.is-menu .menu-copy { padding-left: clamp(4px, 1.6vw, 24px); }
+
+#ui.is-menu .preview-frame {
+  border-color: transparent;
+  background: radial-gradient(circle at 52% 52%, rgba(72, 209, 238, .07), transparent 48%);
+  clip-path: none;
+}
+
+#ui.is-menu .preview-frame > i,
+#ui.is-menu .preview-axis,
+#ui.is-menu .preview-signal,
+#ui.is-menu .preview-orbit { display: none; }
+
+#ui.is-menu .preview-head {
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  opacity: .62;
+}
+
+#ui.is-menu .preview-ship-data {
+  left: 12px;
+  bottom: 12px;
+  opacity: .78;
+}
+
+#ui.is-menu .launch-console {
+  grid-template-columns: minmax(450px, 1.2fr) minmax(280px, .8fr);
+  border-color: rgba(138, 225, 235, .2);
+  background: linear-gradient(112deg, rgba(4, 17, 31, .84), rgba(4, 13, 25, .76) 58%, rgba(5, 18, 30, .82));
+  box-shadow: 0 18px 54px rgba(0, 0, 0, .3), inset 0 1px rgba(226, 255, 255, .04);
+  backdrop-filter: blur(8px);
+}
+
+#ui.is-menu .ship-picker { padding: clamp(14px, 1.7vw, 22px); }
+#ui.is-menu .ship-option { min-height: 104px; }
+#ui.is-menu .launch-panel { padding: clamp(14px, 1.7vw, 22px); }
+
+#ui.is-menu .mission-config {
+  margin: 3px 0 10px;
+  border-top: 1px solid rgba(145, 221, 230, .1);
+  padding-top: 3px;
+}
+
+#ui.is-menu .mission-config summary {
+  color: #9bb7bd;
+  font-size: 8px;
+  letter-spacing: 1.35px;
+}
+
+#ui.is-menu .mission-config-body {
+  margin-top: 7px;
+  padding: 9px;
+  border: 1px solid rgba(145, 221, 230, .1);
+  background: rgba(4, 16, 28, .38);
+}
+
+#ui.is-menu .mission-config .visual-style-picker { margin-bottom: 8px; }
+#ui.is-menu .mission-config .test-option { margin-bottom: 0; }
+
+#ui.is-menu .launch-primary { min-height: 62px; }
+
+@media (max-width: 1024px) and (min-width: 701px) {
+  #ui.is-menu .menu { width: calc(100vw - 40px); }
+  #ui.is-menu .menu-hero { grid-template-columns: minmax(275px, .72fr) minmax(360px, 1.28fr); gap: 22px; }
+  #ui.is-menu .launch-console { grid-template-columns: minmax(350px, 1.15fr) minmax(245px, .85fr); }
+  #ui.is-menu .ship-option { padding-inline: 11px; }
+  #ui.is-menu .ship-option small { gap: 5px; font-size: 6px; }
+}
+
+@media (max-width: 700px) {
+  #ui.is-menu .menu {
+    left: 0;
+    right: 0;
+    width: 100%;
+    transform: none;
+    inset: 61px 0 7px;
+    padding: 0 10px;
+  }
+
+  #ui.is-menu .menu-hero {
+    min-height: 0;
+    grid-template-rows: auto minmax(175px, 28vh);
+    gap: 2px;
+  }
+
+  #ui.is-menu .menu-copy {
+    max-width: 520px;
+    padding: 18px 8px 0;
+  }
+
+  #ui.is-menu .menu h1 {
+    max-width: 470px;
+    margin: 11px 0 9px;
+    font-size: clamp(40px, 12.5vw, 58px);
+  }
+
+  #ui.is-menu .menu .lead {
+    max-width: 390px;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  #ui.is-menu .ship-preview {
+    min-height: 175px;
+  }
+
+  #ui.is-menu .preview-head,
+  #ui.is-menu .preview-ship-data { display: none; }
+
+  #ui.is-menu .launch-console {
+    margin-top: 8px;
+    grid-template-columns: 1fr;
+    border-radius: 0;
+    clip-path: polygon(0 10px, 10px 0, 100% 0, 100% 100%, 0 100%);
+  }
+
+  #ui.is-menu .ship-picker { padding: 11px 10px 10px; }
+  #ui.is-menu .ship-picker-heading { padding-bottom: 7px; }
+  #ui.is-menu .ship-picker-heading > span:last-child { display: none; }
+  #ui.is-menu .ship-options { margin-top: 8px; gap: 6px; }
+  #ui.is-menu .ship-option { min-height: 86px; padding: 9px; }
+  #ui.is-menu .ship-option strong { font-size: 14px; }
+  #ui.is-menu .ship-option .ship-role,
+  #ui.is-menu .ship-option small { display: none; }
+
+  #ui.is-menu .launch-panel {
+    padding: 10px;
+    border-top: 1px solid rgba(145, 221, 230, .12);
+    border-left: 0;
+  }
+
+  #ui.is-menu .launch-ready,
+  #ui.is-menu .launch-panel .mission-meta,
+  #ui.is-menu .console-footer { display: none; }
+
+  #ui.is-menu .mission-config { margin: 0 0 6px; }
+  #ui.is-menu .mission-config-body { padding: 8px; }
+  #ui.is-menu .visual-options { gap: 4px; }
+  #ui.is-menu .visual-option { padding: 6px; }
+  #ui.is-menu .visual-option b { font-size: 6px; }
+  #ui.is-menu .visual-option small { font-size: 5px; }
+  #ui.is-menu .menu .launch-primary { min-height: 56px; margin-top: 4px; }
+}
+
+/* Cinematic home composition: the live scene is the stage, not a dashboard. */
+#ui.is-menu .vignette {
+  background:
+    linear-gradient(90deg, rgba(2, 8, 18, .72), rgba(2, 9, 19, .28) 42%, rgba(2, 8, 17, .02) 78%),
+    linear-gradient(0deg, rgba(1, 6, 14, .48), transparent 42%);
+}
+
+#ui.is-menu .menu {
+  inset: clamp(92px, 12vh, 128px) clamp(28px, 5vw, 80px) clamp(22px, 4vh, 42px);
+  left: 50%;
+  right: auto;
+  width: min(1380px, calc(100vw - 56px));
+  transform: translateX(-50%);
+  display: block;
+  overflow: visible;
+}
+
+#ui.is-menu .menu-hero {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(330px, .76fr) minmax(530px, 1.24fr);
+  grid-template-rows: 1fr;
+  align-items: stretch;
+  gap: clamp(26px, 5vw, 92px);
+}
+
+#ui.is-menu .menu-copy {
+  max-width: 610px;
+  align-self: center;
+  padding: 0 0 5vh clamp(4px, 1.7vw, 28px);
+}
+
+#ui.is-menu .menu h1 {
+  max-width: 560px;
+  margin-block: clamp(18px, 3vh, 32px) clamp(16px, 2vh, 24px);
+  font-size: clamp(58px, 6.2vw, 98px);
+  line-height: .9;
+}
+
+#ui.is-menu .menu .lead {
+  max-width: 360px;
+  color: #c0d1d5;
+  font-size: clamp(14px, 1.15vw, 17px);
+  line-height: 1.65;
+}
+
+#ui.is-menu .menu-stage {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(320px, 1fr) auto;
+  align-items: center;
+  gap: 5px;
+}
+
+#ui.is-menu .ship-preview {
+  min-height: 0;
+  height: 100%;
+  filter: none;
+}
+
+#ui.is-menu .preview-frame,
+#ui.is-menu .preview-head,
+#ui.is-menu .preview-signal,
+#ui.is-menu .preview-ship-data,
+#ui.is-menu .preview-orbit { display: none; }
+
+#ui.is-menu .launch-console {
+  width: min(580px, 100%);
+  justify-self: center;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  clip-path: none;
+  backdrop-filter: none;
+}
+
+#ui.is-menu .ship-picker {
+  padding: 0;
+  background: none;
+}
+
+#ui.is-menu .ship-picker-heading {
+  justify-content: center;
+  padding: 0 0 5px;
+  border: 0;
+  color: rgba(188, 220, 222, .68);
+  font-size: 9px;
+  letter-spacing: 2px;
+}
+
+#ui.is-menu .ship-picker-heading > span:last-child { display: none; }
+
+#ui.is-menu .ship-selector-row {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 34px;
+  align-items: center;
+  gap: 8px;
+}
+
+#ui.is-menu .ship-cycle {
+  width: 34px;
+  height: 50px;
+  padding: 0;
+  border: 0;
+  color: #b8e9e6;
+  background: transparent;
+  font-family: Georgia, serif;
+  font-size: 36px;
+  font-weight: 400;
+  line-height: 1;
+  opacity: .75;
+  transition: color .18s ease, transform .18s ease, opacity .18s ease;
+}
+
+#ui.is-menu .ship-cycle:hover,
+#ui.is-menu .ship-cycle:focus-visible { color: #e2ffff; opacity: 1; transform: scale(1.13); }
+
+#ui.is-menu .ship-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0;
+}
+
+#ui.is-menu .ship-option,
+#ui.is-menu .ship-option:hover,
+#ui.is-menu .ship-option.active {
+  min-height: 0;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 6px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  clip-path: none;
+  transform: none;
+}
+
+#ui.is-menu .ship-option::before,
+#ui.is-menu .ship-option::after,
+#ui.is-menu .ship-option-head { display: none; }
+
+#ui.is-menu .ship-option strong {
+  color: #9ab5bd;
+  font-size: clamp(14px, 1.35vw, 20px);
+  letter-spacing: 1.5px;
+  text-align: center;
+  transition: color .2s ease, font-size .2s ease, text-shadow .2s ease, opacity .2s ease;
+}
+
+#ui.is-menu .ship-option .ship-role,
+#ui.is-menu .ship-option small { display: none; }
+
+#ui.is-menu .ship-option:not(.active) { opacity: .42; }
+#ui.is-menu .ship-option:not(.active) strong { font-size: clamp(11px, 1vw, 15px); }
+#ui.is-menu .ship-option.active { opacity: 1; }
+#ui.is-menu .ship-option.active strong { color: #f2ffff; text-shadow: 0 0 20px rgba(136, 240, 232, .3); }
+#ui.is-menu .ship-option.active .ship-role { display: block; color: #b7ced2; font-size: 12px; line-height: 1.35; text-align: center; }
+
+#ui.is-menu .launch-panel {
+  position: relative;
+  align-items: center;
+  padding: 12px 0 0;
+  border: 0;
+  background: none;
+}
+
+#ui.is-menu .launch-ready {
+  order: 1;
+  margin-bottom: 10px;
+  color: #bfffee;
+  font-size: 10px;
+  letter-spacing: 2.2px;
+}
+
+#ui.is-menu .launch-panel .mission-meta { display: none; }
+
+#ui.is-menu .launch-primary {
+  order: 2;
+  width: min(360px, 100%);
+  min-height: 62px;
+  justify-content: center;
+  gap: 28px;
+  margin-top: 0;
+  font-size: 11px;
+  letter-spacing: 2.2px;
+}
+
+#ui.is-menu .mission-config {
+  order: 3;
+  position: relative;
+  margin: 9px 0 0;
+  border: 0;
+  padding: 0;
+  text-align: center;
+}
+
+#ui.is-menu .mission-config summary {
+  display: inline-block;
+  padding: 7px 4px;
+  color: #a9c4c8;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-decoration: underline;
+  text-decoration-color: rgba(169, 196, 200, .35);
+  text-underline-offset: 4px;
+}
+
+#ui.is-menu .mission-config summary::before { content: ''; }
+#ui.is-menu .mission-config[open] summary::before { content: ''; }
+
+#ui.is-menu .mission-config-body {
+  position: absolute;
+  z-index: 8;
+  right: 0;
+  bottom: calc(100% + 8px);
+  width: min(340px, calc(100vw - 32px));
+  margin: 0;
+  padding: 12px;
+  border: 1px solid rgba(145, 221, 230, .2);
+  background: rgba(4, 16, 28, .95);
+  box-shadow: 0 16px 42px rgba(0, 0, 0, .4);
+  text-align: left;
+}
+
+#ui.is-menu .mission-config .visual-style-heading { font-size: 8px; }
+#ui.is-menu .mission-config .test-option { margin-bottom: 0; }
+#ui.is-menu .console-footer { display: none; }
+
+@media (max-width: 1024px) and (min-width: 901px) {
+  #ui.is-menu .menu { width: calc(100vw - 40px); }
+  #ui.is-menu .menu-hero { grid-template-columns: minmax(285px, .72fr) minmax(430px, 1.28fr); gap: 26px; }
+  #ui.is-menu .menu h1 { font-size: clamp(54px, 6vw, 76px); }
+  #ui.is-menu .menu-stage { grid-template-rows: minmax(280px, 1fr) auto; }
+}
+
+@media (max-width: 900px) and (min-width: 701px) {
+  #ui.is-menu .menu {
+    inset: 82px 16px 16px;
+    width: auto;
+    transform: none;
+    overflow-y: auto;
+  }
+
+  #ui.is-menu .menu-hero {
+    height: auto;
+    min-height: 0;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(270px, 42vh);
+    gap: 8px;
+  }
+
+  #ui.is-menu .menu-copy { padding: 16px 10px 0; }
+  #ui.is-menu .menu h1 { font-size: clamp(52px, 8vw, 72px); }
+  #ui.is-menu .menu-stage { grid-template-rows: 1fr auto; }
+  #ui.is-menu .launch-console { width: min(620px, 100%); }
+}
+
+@media (max-width: 700px) {
+  #ui.is-menu .menu {
+    inset: 61px 0 7px;
+    padding: 0 14px;
+    overflow-y: auto;
+  }
+
+  #ui.is-menu .menu-hero {
+    height: auto;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(155px, 27vh);
+    gap: 4px;
+  }
+
+  #ui.is-menu .menu-copy { padding: 16px 4px 0; }
+  #ui.is-menu .menu h1 { margin: 10px 0 8px; font-size: clamp(42px, 13vw, 58px); }
+  #ui.is-menu .menu .lead { max-width: 310px; font-size: 12px; line-height: 1.4; }
+  #ui.is-menu .menu-stage { grid-template-rows: 1fr auto; gap: 0; }
+  #ui.is-menu .ship-preview { min-height: 155px; }
+  #ui.is-menu .launch-console { width: 100%; }
+  #ui.is-menu .ship-selector-row { grid-template-columns: 29px minmax(0, 1fr) 29px; gap: 4px; }
+  #ui.is-menu .ship-cycle { width: 29px; height: 42px; font-size: 31px; }
+  #ui.is-menu .ship-options { gap: 4px; }
+  #ui.is-menu .ship-option strong { font-size: 15px; }
+  #ui.is-menu .ship-option:not(.active) strong { font-size: 10px; }
+  #ui.is-menu .ship-option.active .ship-role { font-size: 11px; }
+  #ui.is-menu .launch-ready { margin-bottom: 7px; font-size: 9px; letter-spacing: 1.7px; }
+  #ui.is-menu .launch-primary { width: 100%; min-height: 56px; font-size: 10px; }
+  #ui.is-menu .mission-config-body { position: fixed; left: 14px; right: 14px; bottom: 76px; width: auto; }
+}
+
+/* Action block scale pass: stronger controls without reintroducing a panel. */
+#ui.is-menu .launch-console {
+  width: min(500px, 100%);
+}
+
+#ui.is-menu .ship-picker-heading {
+  padding-bottom: 9px;
+  font-size: 11px;
+  letter-spacing: 2.4px;
+}
+
+#ui.is-menu .ship-selector-row {
+  grid-template-columns: 58px minmax(0, 1fr) 58px;
+  gap: 14px;
+}
+
+#ui.is-menu .ship-cycle {
+  width: 58px;
+  height: 68px;
+  border: 1px solid rgba(177, 235, 232, .16);
+  border-radius: 2px;
+  font-size: 52px;
+  opacity: .82;
+}
+
+#ui.is-menu .ship-options { gap: 20px; }
+#ui.is-menu .ship-option { padding: 10px 7px; }
+#ui.is-menu .ship-option strong { font-size: clamp(20px, 2vw, 28px); letter-spacing: 1.8px; }
+#ui.is-menu .ship-option:not(.active) strong { font-size: clamp(13px, 1.2vw, 17px); }
+#ui.is-menu .ship-option.active .ship-role { font-size: 15px; line-height: 1.45; }
+
+#ui.is-menu .launch-panel {
+  row-gap: 12px;
+  padding-top: 22px;
+}
+
+#ui.is-menu .launch-ready {
+  margin-bottom: 0;
+  font-size: 12px;
+  letter-spacing: 2.5px;
+}
+
+#ui.is-menu .launch-primary {
+  width: min(400px, 100%);
+  min-height: 74px;
+  font-size: 18px;
+  letter-spacing: 2.4px;
+}
+
+#ui.is-menu .launch-primary .launch-arrow { font-size: 31px; }
+
+#ui.is-menu .mission-config {
+  margin-top: 0;
+}
+
+#ui.is-menu .mission-config summary {
+  position: relative;
+  overflow: hidden;
+  min-height: 42px;
+  padding: 12px 16px;
+  font-size: 12px;
+  letter-spacing: 1.6px;
+  text-decoration: none;
+  border: 1px solid rgba(139, 224, 228, .28);
+  color: #b9dfe0;
+  background: linear-gradient(105deg, rgba(10, 34, 49, .86), rgba(7, 22, 36, .68));
+  clip-path: polygon(0 7px, 7px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 7px), calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 7px));
+  transition: color .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+#ui.is-menu .mission-config summary:hover,
+#ui.is-menu .mission-config summary:focus-visible {
+  color: #f0ffff;
+  border-color: #c4fffb;
+  background: linear-gradient(105deg, rgba(25, 91, 106, .98), rgba(8, 36, 53, .96));
+  box-shadow: inset 4px 0 #a8fff4, 0 0 20px rgba(83, 218, 224, .62), 0 0 48px rgba(83, 218, 224, .3), 0 10px 26px rgba(0, 0, 0, .34);
+  text-shadow: 0 0 12px rgba(214, 255, 250, .8);
+  transform: translateY(-2px) scale(1.015);
+}
+
+#ui.is-menu .mission-config summary {
+  min-height: 48px;
+  padding: 14px 20px;
+  font-size: 14px;
+  letter-spacing: 1.8px;
+}
+
+#ui.is-menu .mission-config summary::after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  top: -60%;
+  bottom: -60%;
+  left: -28%;
+  width: 16%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .86), transparent);
+  opacity: 0;
+  transform: skewX(-18deg);
+  transition: left .55s ease, opacity .2s ease;
+  pointer-events: none;
+}
+
+#ui.is-menu .mission-config summary:hover::after,
+#ui.is-menu .mission-config summary:focus-visible::after {
+  left: 120%;
+  opacity: 1;
+}
+
+#ui.is-menu.draft-visual .mission-config summary {
+  color: #5f666c;
+  border-color: rgba(120, 125, 132, .36);
+  background: rgba(255, 255, 255, .58);
+  clip-path: none;
+  box-shadow: none;
+}
+
+#ui.is-menu.draft-visual .mission-config summary:hover,
+#ui.is-menu.draft-visual .mission-config summary:focus-visible {
+  color: #263b55;
+  border-color: #2b71b1;
+  background: rgba(238, 245, 250, .92);
+  box-shadow: 3px 3px 0 rgba(21, 92, 168, .2);
+}
+
+#ui.is-menu.draft-visual .mission-config summary::after { display: none; }
+
+#ui.is-menu .mission-config-body {
+  position: static;
+  top: auto;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  transform: none;
+  width: min(540px, calc(100vw - 48px));
+  max-height: min(440px, 46vh);
+  overflow: auto;
+  margin: 4px auto 0;
+  padding: 24px;
+}
+
+#ui.is-menu .mission-config .visual-style-heading { margin-bottom: 10px; font-size: 12px; }
+#ui.is-menu .mission-config .visual-options { gap: 8px; }
+#ui.is-menu .mission-config .visual-option { min-height: 58px; padding: 12px; gap: 11px; }
+#ui.is-menu .mission-config .visual-option b { font-size: 13px; }
+#ui.is-menu .mission-config .visual-option small { font-size: 11px; line-height: 1.3; }
+#ui.is-menu .mission-config .ink-swatch { width: 30px; height: 30px; }
+#ui.is-menu .mission-config .test-option { gap: 12px; padding: 12px; }
+#ui.is-menu .mission-config .test-option b { font-size: 13px; }
+#ui.is-menu .mission-config .test-option small { font-size: 11px; line-height: 1.45; }
+
+@media (max-width: 1024px) and (min-width: 701px) {
+  #ui.is-menu .launch-console { width: min(500px, 100%); }
+  #ui.is-menu .ship-option strong { font-size: 23px; }
+  #ui.is-menu .ship-option:not(.active) strong { font-size: 14px; }
+  #ui.is-menu .launch-primary { min-height: 68px; font-size: 16px; }
+}
+
+@media (max-width: 700px) {
+  #ui.is-menu .ship-picker-heading { padding-bottom: 5px; font-size: 10px; }
+  #ui.is-menu .ship-selector-row { grid-template-columns: 43px minmax(0, 1fr) 43px; gap: 6px; }
+  #ui.is-menu .ship-cycle { width: 43px; height: 55px; font-size: 40px; }
+  #ui.is-menu .ship-options { gap: 5px; }
+  #ui.is-menu .ship-option strong { font-size: 18px; }
+  #ui.is-menu .ship-option:not(.active) strong { font-size: 11px; }
+  #ui.is-menu .ship-option.active .ship-role { font-size: 12px; }
+  #ui.is-menu .launch-panel { padding-top: 16px; row-gap: 8px; }
+  #ui.is-menu .launch-ready { font-size: 10px; letter-spacing: 1.8px; }
+  #ui.is-menu .launch-primary { min-height: 64px; font-size: 15px; }
+  #ui.is-menu .launch-primary .launch-arrow { font-size: 27px; }
+  #ui.is-menu .mission-config summary { min-height: 44px; padding: 12px 16px; font-size: 12px; }
+  #ui.is-menu .mission-config-body { position: static; max-height: 300px; width: 100%; margin-top: 2px; padding: 16px; }
+  #ui.is-menu .mission-config .visual-style-heading { font-size: 11px; }
+  #ui.is-menu .mission-config .visual-options { gap: 6px; }
+  #ui.is-menu .mission-config .visual-option { min-height: 52px; padding: 9px; }
+  #ui.is-menu .mission-config .visual-option b { font-size: 11px; }
+  #ui.is-menu .mission-config .visual-option small { font-size: 10px; }
+  #ui.is-menu .mission-config .ink-swatch { width: 26px; height: 26px; }
+  #ui.is-menu .mission-config .test-option b { font-size: 12px; }
+  #ui.is-menu .mission-config .test-option small { font-size: 10px; }
+}
+
+/* Paper mode: keep the ship selector readable over the bright sketchbook scene. */
+#ui.is-menu.draft-visual .ship-picker-heading {
+  color: #263b55;
+  text-shadow: none;
+}
+
+#ui.is-menu.draft-visual .ship-selector-row {
+  padding: 8px 10px;
+  border: 1px solid rgba(38, 59, 85, .3);
+  background: rgba(247, 250, 252, .86);
+  box-shadow: 2px 3px 0 rgba(38, 59, 85, .12);
+}
+
+#ui.is-menu.draft-visual .ship-cycle {
+  color: #263b55;
+  border-color: rgba(38, 59, 85, .28);
+  text-shadow: none;
+}
+
+#ui.is-menu.draft-visual .ship-cycle:hover,
+#ui.is-menu.draft-visual .ship-cycle:focus-visible {
+  color: #155ca8;
+  border-color: #155ca8;
+  background: rgba(225, 238, 248, .9);
+  box-shadow: 2px 2px 0 rgba(21, 92, 168, .18);
+}
+
+#ui.is-menu.draft-visual .ship-option strong,
+#ui.is-menu.draft-visual .ship-option:not(.active) strong {
+  color: #263b55;
+  text-shadow: none;
+}
+
+#ui.is-menu.draft-visual .ship-option:not(.active) { opacity: .58; }
+#ui.is-menu.draft-visual .ship-option.active strong { color: #102d49; font-weight: 600; }
+#ui.is-menu.draft-visual .ship-option.active .ship-role { color: #405a6c; }
+
+/* Hero alignment: refine only the copy block, leaving the ship and action stage in place. */
+@media (min-width: 901px) {
+  #ui.is-menu .menu-copy {
+    transform: translateY(clamp(-78px, -7vh, -42px));
+  }
+}
+
+@media (min-width: 1500px) {
+  #ui.is-menu .menu-copy {
+    transform: translateX(clamp(-150px, calc(1500px - 100vw), -40px)) translateY(clamp(-78px, -7vh, -42px));
+  }
+}
+
+@media (max-width: 900px) and (min-width: 701px) {
+  #ui.is-menu .menu-copy { transform: translateY(-22px); }
+}
+
+@media (max-width: 700px) {
+  #ui.is-menu .menu-copy { transform: none; }
+}
+
+/* Final readability pass for the mission-settings drawer. */
+#ui.is-menu .mission-config-body {
+  width: min(580px, calc(100vw - 40px));
+  max-height: min(500px, 52vh);
+  padding: 28px;
+  border-color: rgba(145, 231, 235, .34);
+  background: rgba(3, 15, 27, .98);
+  box-shadow: 0 20px 56px rgba(0, 0, 0, .52), 0 0 28px rgba(65, 199, 213, .12), inset 0 1px rgba(218, 255, 255, .08);
+}
+
+#ui.is-menu .mission-config .visual-style-heading { margin-bottom: 12px; font-size: 13px; }
+#ui.is-menu .mission-config .visual-options { gap: 10px; }
+#ui.is-menu .mission-config .visual-option { min-height: 68px; padding: 14px; gap: 13px; }
+#ui.is-menu .mission-config .visual-option b { font-size: 14px; }
+#ui.is-menu .mission-config .visual-option small { font-size: 12px; line-height: 1.35; }
+#ui.is-menu .mission-config .ink-swatch { width: 34px; height: 34px; }
+#ui.is-menu .mission-config .test-option { gap: 13px; padding: 14px; }
+#ui.is-menu .mission-config .test-option b { font-size: 14px; }
+#ui.is-menu .mission-config .test-option small { font-size: 12px; line-height: 1.5; }
+
+#ui.is-menu.draft-visual .mission-config summary {
+  color: #e7f0f4;
+  border-color: rgba(139, 184, 211, .72);
+  background: linear-gradient(105deg, #263b55, #1d2f45);
+  box-shadow: 0 0 16px rgba(43, 113, 177, .22);
+}
+
+#ui.is-menu.draft-visual .mission-config summary:hover,
+#ui.is-menu.draft-visual .mission-config summary:focus-visible {
+  color: #ffffff;
+  border-color: #8bc6ed;
+  background: linear-gradient(105deg, #315d86, #203e5d);
+  box-shadow: 0 0 25px rgba(43, 113, 177, .52), 3px 3px 0 rgba(21, 92, 168, .28);
+  text-shadow: 0 0 10px rgba(220, 242, 255, .72);
+}
+
+#ui.is-menu.draft-visual .mission-config-body {
+  color: #e6edf2;
+  border-color: rgba(139, 184, 211, .5);
+  background: rgba(28, 41, 54, .98);
+  box-shadow: 0 20px 52px rgba(16, 31, 46, .42), 0 0 24px rgba(43, 113, 177, .16), inset 0 1px rgba(238, 247, 252, .12);
+}
+
+#ui.is-menu.draft-visual .mission-config .visual-style-heading,
+#ui.is-menu.draft-visual .mission-config .visual-style-heading span:first-child { color: #dbe8ef; }
+#ui.is-menu.draft-visual .mission-config .visual-style-heading span:last-child { color: #9eb6c7; }
+#ui.is-menu.draft-visual .mission-config .visual-option,
+#ui.is-menu.draft-visual .mission-config .test-option {
+  color: #e7eef2;
+  border-color: rgba(139, 184, 211, .42);
+  background: rgba(53, 70, 84, .92);
+  box-shadow: none;
+}
+
+#ui.is-menu.draft-visual .mission-config .visual-option:hover,
+#ui.is-menu.draft-visual .mission-config .visual-option:focus-visible,
+#ui.is-menu.draft-visual .mission-config .test-option:hover {
+  border-color: #79b7e2;
+  background: rgba(58, 87, 112, .98);
+  box-shadow: inset 3px 0 #68a9d8, 0 0 16px rgba(43, 113, 177, .2);
+}
+
+#ui.is-menu.draft-visual .mission-config .visual-option b,
+#ui.is-menu.draft-visual .mission-config .test-option b { color: #f2f7fa; }
+#ui.is-menu.draft-visual .mission-config .visual-option small,
+#ui.is-menu.draft-visual .mission-config .test-option small { color: #c8d7e0; }
+#ui.is-menu.draft-visual .mission-config .visual-option.active { border-color: #9acdf0; background: rgba(40, 91, 139, .98); box-shadow: inset 4px 0 #8bc6ed, 0 0 18px rgba(43, 113, 177, .28); }
+
+@media (max-width: 700px) {
+  #ui.is-menu .mission-config-body { width: 100%; max-height: 340px; padding: 18px; }
+  #ui.is-menu .mission-config .visual-style-heading { font-size: 11px; }
+  #ui.is-menu .mission-config .visual-option { min-height: 58px; padding: 10px; }
+  #ui.is-menu .mission-config .visual-option b { font-size: 12px; }
+  #ui.is-menu .mission-config .visual-option small { font-size: 10px; }
+  #ui.is-menu .mission-config .ink-swatch { width: 28px; height: 28px; }
+  #ui.is-menu .mission-config .test-option { padding: 10px; }
+  #ui.is-menu .mission-config .test-option b { font-size: 12px; }
+  #ui.is-menu .mission-config .test-option small { font-size: 10px; }
+}
+
+/* Final responsive audit: reduce the interface before reducing the experience. */
+html,
+body {
+  min-height: 100%;
+}
+
+#game {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100%;
+}
+
+#ui {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+#ui.is-menu button,
+#ui.is-menu summary {
+  touch-action: manipulation;
+}
+
+/* Tablet: keep the title, scene and launch actions; remove administration. */
+@media (max-width: 1024px) and (min-width: 701px) {
+  #ui.is-menu .brand-sub,
+  #ui.is-menu .build,
+  #ui.is-menu .locale-toggle,
+  #ui.is-menu .menu-chapter {
+    display: none;
+  }
+
+  #ui.is-menu .menu {
+    max-height: calc(100dvh - 98px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+  }
+
+  #ui.is-menu .menu-copy {
+    padding-top: clamp(12px, 2vh, 24px);
+  }
+
+  #ui.is-menu .menu .lead {
+    max-width: 300px;
+    font-size: clamp(13px, 1.55vw, 15px);
+    line-height: 1.5;
+  }
+
+  #ui.is-menu .mission-config-body {
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    max-height: min(420px, 48dvh);
+    margin-top: 8px;
+    box-sizing: border-box;
+  }
+}
+
+/* Narrow tablet: use the same readable stacked layout as the mobile-first stage. */
+@media (max-width: 900px) and (min-width: 701px) {
+  #ui.is-menu .menu {
+    max-height: calc(100dvh - 98px);
+  }
+
+  #ui.is-menu .menu .lead {
+    display: none;
+  }
+
+  #ui.is-menu .mission-config-body {
+    max-height: min(420px, 44dvh);
+  }
+}
+
+/* Mobile: title, ship, selection and launch are the complete first screen. */
+@media (max-width: 700px) {
+  #ui.is-menu .brand-sub,
+  #ui.is-menu .build,
+  #ui.is-menu .locale-toggle,
+  #ui.is-menu .menu-chapter,
+  #ui.is-menu .menu .lead,
+  #ui.is-menu .launch-ready,
+  #ui.is-menu .mission-meta,
+  #ui.is-menu .console-footer {
+    display: none;
+  }
+
+  #ui.is-menu .menu {
+    max-height: calc(100dvh - 68px);
+    padding-inline: clamp(10px, 3.8vw, 16px);
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+
+  #ui.is-menu .menu-copy {
+    padding-top: clamp(12px, 3.5vh, 24px);
+  }
+
+  #ui.is-menu .menu h1 {
+    margin-top: 8px;
+    margin-bottom: 10px;
+    font-size: clamp(42px, 13vw, 58px);
+    line-height: .94;
+  }
+
+  #ui.is-menu .ship-preview {
+    min-height: clamp(155px, 27vh, 250px);
+  }
+
+  #ui.is-menu .launch-console {
+    margin-top: 8px;
+  }
+
+  #ui.is-menu .ship-cycle,
+  #ui.is-menu .launch-primary,
+  #ui.is-menu .mission-config summary {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #ui.is-menu .ship-cycle:active,
+  #ui.is-menu .launch-primary:active,
+  #ui.is-menu .mission-config summary:active {
+    transform: translateY(1px) scale(.985);
+  }
+
+  #ui.is-menu .ship-cycle:focus-visible,
+  #ui.is-menu .launch-primary:focus-visible,
+  #ui.is-menu .mission-config summary:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 4px;
+  }
+
+  #ui.is-menu .launch-primary {
+    min-height: 60px;
+    font-size: clamp(14px, 4vw, 17px);
+  }
+
+  #ui.is-menu .mission-config summary {
+    min-height: 44px;
+    padding: 12px 16px;
+    font-size: clamp(12px, 3.3vw, 14px);
+  }
+
+  #ui.is-menu .mission-config-body {
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    max-height: min(360px, 42dvh);
+    margin-top: 8px;
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+}
+
+/* Short screens: let the launch surface scroll instead of hiding the CTA. */
+@media (max-height: 760px) {
+  #ui.is-menu .menu {
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+  }
+}
+
+@media (max-height: 760px) and (min-width: 1025px) {
+  #ui.is-menu .menu {
+    top: 78px;
+    bottom: 16px;
+    max-height: calc(100dvh - 94px);
+  }
+
+  #ui.is-menu .menu-copy {
+    padding-bottom: 2vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #ui.is-menu .ship-cycle,
+  #ui.is-menu .launch-primary,
+  #ui.is-menu .mission-config summary {
+    transition: none;
+  }
+}
+
+/* Gameplay HUD cleanup: the scene remains full-screen and the HUD becomes contextual. */
+#ui.in-flight .topbar {
+  display: none;
+}
+
+#ui.in-flight .mission-block {
+  top: clamp(28px, 5vh, 58px);
+  left: max(24px, env(safe-area-inset-left));
+  max-width: min(420px, 42vw);
+}
+
+#ui.in-flight .combat-stats {
+  top: clamp(28px, 5vh, 58px);
+  right: max(24px, env(safe-area-inset-right));
+}
+
+#ui.in-flight .mission-block .mission-label,
+#ui.in-flight .stage-track,
+#ui.in-flight .flight-caption,
+#ui.in-flight .weapon:not(.active),
+#ui.in-flight .control-strip {
+  display: none;
+}
+
+#ui.in-flight .mission-block h3 {
+  margin-top: 8px;
+}
+
+#ui.in-flight .panel-heading div span {
+  display: none;
+}
+
+#ui.in-flight #target-info {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .18s ease, visibility .18s ease;
+}
+
+#ui.in-flight #target-info.has-target {
+  opacity: 1;
+  visibility: visible;
+}
+
+#ui.in-flight .bottom-hud {
+  left: max(24px, env(safe-area-inset-left));
+  right: max(24px, env(safe-area-inset-right));
+  bottom: calc(clamp(34px, 6vh, 76px) + env(safe-area-inset-bottom));
+  grid-template-columns: minmax(210px, 1.05fr) minmax(170px, .9fr) minmax(145px, .72fr) minmax(112px, .55fr);
+  gap: clamp(16px, 2.4vw, 34px);
+}
+
+#ui.in-flight .weapons .weapon.active {
+  margin-top: 0;
+}
+
+#ui.in-flight .controls-help-toggle {
+  position: fixed;
+  right: max(24px, env(safe-area-inset-right));
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  z-index: 13;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid rgba(178, 225, 220, .42);
+  border-radius: 50%;
+  color: #c9ece4;
+  background: rgba(4, 15, 26, .7);
+  box-shadow: 0 0 20px rgba(96, 213, 200, .12);
+  font-size: 16px;
+  line-height: 1;
+  pointer-events: auto;
+  transition: color .18s ease, border-color .18s ease, background .18s ease, transform .18s ease;
+}
+
+#ui.in-flight .controls-help-toggle:hover,
+#ui.in-flight .controls-help-toggle:focus-visible {
+  color: #f1fffb;
+  border-color: #b9fff0;
+  background: rgba(21, 67, 75, .86);
+  transform: scale(1.08);
+}
+
+#ui.in-flight .controls-help {
+  position: fixed;
+  inset: 0;
+  z-index: 12;
+  display: grid;
+  align-items: end;
+  justify-items: end;
+  padding: 24px max(24px, env(safe-area-inset-right)) calc(70px + env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+  background: rgba(1, 8, 15, .24);
+  pointer-events: auto;
+}
+
+#ui.in-flight .controls-help-panel {
+  width: min(490px, calc(100vw - 48px));
+  padding: 18px 20px 20px;
+  border: 1px solid rgba(163, 222, 220, .3);
+  background: rgba(4, 17, 29, .96);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .45), inset 0 1px rgba(224, 255, 250, .08);
+  pointer-events: auto;
+}
+
+#ui.in-flight .controls-help-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(163, 222, 220, .18);
+  color: #d7f5ed;
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+
+#ui.in-flight .controls-help-heading > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+#ui.in-flight .controls-help-heading small {
+  color: #8eadae;
+  font-size: 8px;
+  letter-spacing: 1px;
+}
+
+#ui.in-flight .controls-help-heading button {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  color: #b9d8d4;
+  background: transparent;
+  font-size: 24px;
+  line-height: 1;
+  pointer-events: auto;
+}
+
+#ui.in-flight .controls-help-heading button:hover,
+#ui.in-flight .controls-help-heading button:focus-visible { color: #ffffff; }
+
+#ui.in-flight .controls-help-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px 20px;
+  padding-top: 16px;
+  color: #a9c3c2;
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+
+#ui.in-flight .controls-help-grid span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+#ui.in-flight .controls-help-grid kbd {
+  flex: 0 0 auto;
+  min-width: 48px;
+  border-color: rgba(170, 203, 199, .35);
+}
+
+#ui.in-flight.draft-visual .controls-help-toggle {
+  color: var(--pencil);
+  border-color: var(--pencil-line);
+  background: rgba(255, 255, 255, .72);
+  box-shadow: none;
+}
+
+#ui.in-flight.draft-visual .controls-help {
+  background: rgba(255, 255, 255, .16);
+}
+
+#ui.in-flight.draft-visual .controls-help-panel {
+  border-color: var(--pencil-line);
+  background: rgba(255, 255, 255, .94);
+  box-shadow: 3px 4px 0 rgba(82, 88, 92, .12);
+}
+
+#ui.in-flight.draft-visual .controls-help-heading,
+#ui.in-flight.draft-visual .controls-help-heading button,
+#ui.in-flight.draft-visual .controls-help-grid { color: var(--pencil); }
+
+#ui.in-flight.draft-visual .controls-help-heading { border-color: var(--pencil-line); }
+#ui.in-flight.draft-visual .controls-help-heading small { color: var(--pencil-soft); }
+#ui.in-flight.draft-visual .controls-help-grid kbd { border-color: var(--pencil-line); color: var(--pencil); }
+
+@media (max-width: 1024px) {
+  #ui.in-flight .mission-block {
+    top: calc(20px + env(safe-area-inset-top));
+    left: max(20px, env(safe-area-inset-left));
+    max-width: min(340px, 42vw);
+  }
+
+  #ui.in-flight .combat-stats {
+    top: calc(20px + env(safe-area-inset-top));
+    right: max(20px, env(safe-area-inset-right));
+  }
+
+  #ui.in-flight .mission-block p,
+  #ui.in-flight .stage-track,
+  #ui.in-flight .shield-toggle { display: none; }
+
+  #ui.in-flight .bottom-hud {
+    left: max(20px, env(safe-area-inset-left));
+    right: max(20px, env(safe-area-inset-right));
+    bottom: calc(26px + env(safe-area-inset-bottom));
+    grid-template-columns: minmax(175px, 1.1fr) minmax(145px, .9fr) minmax(135px, .8fr) minmax(92px, .6fr);
+    gap: 16px;
+  }
+
+  #ui.in-flight .radar-panel canvas { width: 88px; height: 88px; }
+  #ui.in-flight .controls-help-toggle { right: max(20px, env(safe-area-inset-right)); }
+}
+
+@media (max-width: 700px) {
+  #ui.in-flight .mission-block {
+    top: calc(12px + env(safe-area-inset-top));
+    left: max(14px, env(safe-area-inset-left));
+    max-width: min(52vw, 220px);
+  }
+
+  #ui.in-flight .mission-block .eyebrow {
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+
+  #ui.in-flight .mission-block h3 {
+    margin: 6px 0 0;
+    font-size: clamp(16px, 4.8vw, 21px);
+  }
+
+  #ui.in-flight .mission-block p {
+    display: -webkit-box;
+    max-width: 190px;
+    margin-top: 5px;
+    overflow: hidden;
+    font-size: 9px;
+    line-height: 1.35;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  #ui.in-flight .combat-stats {
+    top: calc(13px + env(safe-area-inset-top));
+    right: max(14px, env(safe-area-inset-right));
+    flex-direction: row;
+    align-items: baseline;
+    gap: 5px;
+  }
+
+  #ui.in-flight .combat-stats .tiny-label { font-size: 7px; letter-spacing: .8px; }
+  #ui.in-flight .combat-stats strong { font-size: 29px; }
+  #ui.in-flight .combat-stats b { margin-left: 3px; }
+
+  #ui.in-flight .bottom-hud {
+    left: max(12px, env(safe-area-inset-left));
+    right: max(12px, env(safe-area-inset-right));
+    bottom: calc(14px + env(safe-area-inset-bottom));
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 8px;
+    align-items: end;
+  }
+
+  #ui.in-flight .panel-heading,
+  #ui.in-flight .shield-toggle,
+  #ui.in-flight .flight-status .tiny-label,
+  #ui.in-flight .flight-status .boost-track,
+  #ui.in-flight .weapons > .tiny-label,
+  #ui.in-flight .weapons kbd,
+  #ui.in-flight .radar-panel,
+  #ui.in-flight #debug { display: none; }
+
+  #ui.in-flight .controls-help-toggle {
+    top: calc(54px + env(safe-area-inset-top));
+    right: max(14px, env(safe-area-inset-right));
+    bottom: auto;
+    display: grid;
+    width: 32px;
+    height: 32px;
+    font-size: 15px;
+  }
+
+  #ui.in-flight .ship-status { min-width: 0; }
+  #ui.in-flight .meter-row { gap: 5px; margin-top: 6px; }
+  #ui.in-flight .meter-row label { width: auto; font-size: 7px; letter-spacing: .5px; }
+  #ui.in-flight .meter-row b { width: 25px; font-size: 10px; }
+  #ui.in-flight .meter { min-width: 18px; }
+
+  #ui.in-flight .flight-status {
+    min-width: 0;
+    max-width: 86px;
+    padding: 0;
+  }
+
+  #ui.in-flight .flight-status strong { font-size: clamp(32px, 10vw, 42px); }
+  #ui.in-flight .unit { font-size: 9px; }
+
+  #ui.in-flight .weapons {
+    min-width: 0;
+    justify-self: end;
+  }
+
+  #ui.in-flight .weapon.active {
+    gap: 4px;
+    margin-top: 0;
+    font-size: 8px;
+    letter-spacing: .45px;
+    white-space: nowrap;
+  }
+
+  #ui.in-flight #target-info {
+    bottom: calc(92px + env(safe-area-inset-bottom));
+    max-width: calc(100vw - 28px);
+    overflow: hidden;
+    font-size: 7px;
+    letter-spacing: .8px;
+    text-overflow: ellipsis;
+  }
+
+  #ui.in-flight #boss-info {
+    top: calc(88px + env(safe-area-inset-top));
+    max-width: calc(100vw - 28px);
+    padding: 8px 14px;
+  }
+
+  #ui.in-flight .controls-help {
+    align-items: end;
+    justify-items: stretch;
+    padding: 14px max(12px, env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  }
+
+  #ui.in-flight .controls-help-panel {
+    width: 100%;
+    max-height: min(72dvh, 460px);
+    overflow-y: auto;
+    padding: 16px;
+  }
+
+  #ui.in-flight .controls-help-heading small { font-size: 7px; }
+  #ui.in-flight .controls-help-grid { gap: 8px 10px; padding-top: 13px; font-size: 8px; }
+  #ui.in-flight .controls-help-grid span { gap: 5px; }
+  #ui.in-flight .controls-help-grid kbd { min-width: 42px; padding-inline: 3px; font-size: 6px; }
+}
+
+@media (max-height: 620px) and (max-width: 700px) {
+  #ui.in-flight .mission-block p { display: none; }
+  #ui.in-flight .bottom-hud { bottom: calc(10px + env(safe-area-inset-bottom)); }
+  #ui.in-flight #target-info { bottom: calc(78px + env(safe-area-inset-bottom)); }
+}
+
+/* Help panel readability: larger text without sacrificing narrow-screen fit. */
+#ui.in-flight .controls-help-panel {
+  width: min(540px, calc(100vw - 40px));
+}
+
+#ui.in-flight .controls-help-heading {
+  font-size: clamp(12px, 1vw, 14px);
+}
+
+#ui.in-flight .controls-help-heading small {
+  font-size: clamp(9px, .75vw, 10px);
+}
+
+#ui.in-flight .controls-help-grid {
+  gap: 11px 22px;
+  font-size: clamp(10px, .78vw, 11px);
+  line-height: 1.3;
+  letter-spacing: .6px;
+}
+
+#ui.in-flight .controls-help-grid span {
+  gap: 9px;
+  overflow-wrap: anywhere;
+}
+
+#ui.in-flight .controls-help-grid kbd {
+  min-width: 52px;
+  padding: 5px 6px;
+  font-size: clamp(7px, .62vw, 9px);
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  #ui.in-flight .controls-help-panel {
+    width: 100%;
+    max-height: min(78dvh, 480px);
+    padding: 18px;
+  }
+
+  #ui.in-flight .controls-help-heading { font-size: 13px; }
+  #ui.in-flight .controls-help-heading small { font-size: 8px; }
+  #ui.in-flight .controls-help-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 8px;
+    padding-top: 15px;
+    font-size: 10px;
+    line-height: 1.25;
+    letter-spacing: .35px;
+  }
+
+  #ui.in-flight .controls-help-grid span {
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  #ui.in-flight .controls-help-grid kbd {
+    min-width: 44px;
+    padding: 5px 3px;
+    font-size: 7px;
+  }
+}
+
+@media (max-width: 370px) {
+  #ui.in-flight .controls-help-panel { padding: 15px; }
+  #ui.in-flight .controls-help-grid {
+    gap: 9px 6px;
+    font-size: 9px;
+  }
+  #ui.in-flight .controls-help-grid kbd {
+    min-width: 40px;
+    font-size: 6px;
+  }
+}

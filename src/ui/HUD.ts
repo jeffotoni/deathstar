@@ -34,11 +34,19 @@ export class HUD {
   private shieldVisible = false;
   private selectedShip: PlayerShipVariant = 'lego';
   private selectedVisualStyle: VisualStyle = 'original';
+  private helpKeyHandler = (event: KeyboardEvent) => {
+    if (this.currentScreen !== 'playing' || event.repeat || event.target instanceof HTMLInputElement) return;
+    if (event.code === 'KeyH') {
+      event.preventDefault();
+      this.toggleControlsHelp();
+    }
+  };
   debug = CONFIG.debug;
 
   constructor(private backend: string) {
     this.root = document.querySelector('#ui')!;
     this.render();
+    window.addEventListener('keydown', this.helpKeyHandler);
   }
 
   private render() {
@@ -50,36 +58,41 @@ export class HUD {
       <header class="topbar"><a class="wordmark" href="./" aria-label="${t('brand.start')}"><span class="brand-icon"><i>∨</i></span><span class="brand-name">${t('brand.name')}</span><span class="brand-sub">${t('brand.sub')}</span></a><div class="build"><span class="status-dot"></span> ${t('systems.online')} <span class="divider">/</span> <span id="backend">${this.backend}</span></div><div class="locale-toggle" aria-label="${t('locale.select')}">${this.localeButtons()}</div></header>
       <section id="menu" class="screen menu">
         <div class="menu-hero">
-          <div class="menu-copy"><div class="eyebrow"><span class="line"></span> ${t('menu.chapter')}</div><h1>${t('menu.title')}</h1><p class="lead">${t('menu.lead')}</p></div>
-          <aside class="ship-preview" aria-label="${t('menu.preview')}">
-            <div class="preview-frame"><i></i><i></i><i></i><i></i><span class="preview-axis axis-x"></span><span class="preview-axis axis-y"></span></div>
-            <div class="preview-head"><span><i class="status-dot"></i>${t('menu.preview')}</span><b>${t('menu.sector')}</b></div>
-            <div class="preview-signal"><span>${t('menu.unknown-signal')}</span><i></i></div>
-            <div class="preview-ship-data"><span id="selected-ship-label">${t('menu.ship-selected')}</span><strong id="selected-ship-name">${t(this.selectedShip === 'lego' ? 'menu.lego-name' : 'menu.classic-name')}</strong><small id="selected-ship-role">${t(this.selectedShip === 'lego' ? 'menu.lego-role' : 'menu.classic-role')}</small></div>
-            <div class="preview-orbit">${t('menu.orbit')}</div>
-          </aside>
-        </div>
-        <div class="launch-console">
-          <div class="ship-picker"><div class="ship-picker-heading"><span class="tiny-label">${t('menu.choose-ship')}</span><span>${t('menu.select-instruction')}</span></div><div class="ship-options">
-            ${this.shipOption('lego', '01', 'menu.lego-name', 'menu.lego-role')}
-            ${this.shipOption('classic', '02', 'menu.classic-name', 'menu.classic-role')}
-          </div></div>
-          <div class="launch-panel">
-            <div class="launch-ready"><i class="status-dot"></i><span>${t('menu.ready')}</span></div>
-            <div class="mission-meta"><span>${t('menu.mission')}</span><span>${t('menu.open-space')}</span><span>${t('menu.duration')}</span></div>
-            <div class="visual-style-picker"><div class="visual-style-heading"><span>${t('menu.visual-style')}</span><span>${t('menu.visual-style-count')}</span></div><div class="visual-options">
-              ${this.visualOption('original', 'menu.visual-original', 'menu.visual-original-description')}
-              ${this.visualOption('draft', 'menu.visual-draft', 'menu.visual-draft-description')}
-            </div></div>
-            <details class="mission-options"><summary>${t('menu.advanced')}</summary><label class="test-option"><input id="fast" type="checkbox"><span><b>${t('menu.test-flight')}</b><small>${t('menu.test-flight-description')}</small></span></label></details>
-            <button id="start" class="primary launch-primary"><span class="launch-copy">${t('menu.start')}</span><span class="launch-arrow">↗</span></button>
+          <div class="menu-copy"><div class="eyebrow menu-chapter"><span class="line"></span><span>${t('menu.chapter')}</span></div><h1>${t('menu.title')}</h1><p class="lead">${t('menu.lead')}</p></div>
+          <div class="menu-stage">
+            <aside class="ship-preview" aria-label="${t('menu.preview')}">
+              <div class="preview-frame"><i></i><i></i><i></i><i></i><span class="preview-axis axis-x"></span><span class="preview-axis axis-y"></span></div>
+              <div class="preview-head"><span><i class="status-dot"></i>${t('menu.preview')}</span><b>${t('menu.sector')}</b></div>
+              <div class="preview-signal"><span>${t('menu.unknown-signal')}</span><i></i></div>
+              <div class="preview-ship-data"><span id="selected-ship-label">${t('menu.ship-selected')}</span><strong id="selected-ship-name">${t(this.selectedShip === 'lego' ? 'menu.lego-name' : 'menu.classic-name')}</strong><small id="selected-ship-role">${t(this.selectedShip === 'lego' ? 'menu.lego-role' : 'menu.classic-role')}</small></div>
+              <div class="preview-orbit">${t('menu.orbit')}</div>
+            </aside>
+            <div class="launch-console">
+              <div class="ship-picker"><div class="ship-picker-heading"><span class="tiny-label">${t('menu.choose-ship')}</span><span>${t('menu.select-instruction')}</span></div><div class="ship-selector-row">
+                <button type="button" class="ship-cycle" data-ship-cycle="prev" aria-label="${t('menu.previous-ship')}">‹</button>
+                <div class="ship-options">
+                  ${this.shipOption('lego', '01', 'menu.lego-name', 'menu.lego-role')}
+                  ${this.shipOption('classic', '02', 'menu.classic-name', 'menu.classic-role')}
+                </div>
+                <button type="button" class="ship-cycle" data-ship-cycle="next" aria-label="${t('menu.next-ship')}">›</button>
+              </div></div>
+              <div class="launch-panel">
+                <div class="launch-ready"><i class="status-dot"></i><span>${t('menu.ready')}</span></div>
+                <div class="mission-meta"><span>${t('menu.mission')}</span><span>${t('menu.open-space')}</span><span>${t('menu.duration')}</span></div>
+                <details class="mission-options mission-config"><summary>${t('menu.configure')}</summary><div class="mission-config-body"><div class="visual-style-picker"><div class="visual-style-heading"><span>${t('menu.visual-style')}</span><span>${t('menu.visual-style-count')}</span></div><div class="visual-options">
+                  ${this.visualOption('original', 'menu.visual-original', 'menu.visual-original-description')}
+                  ${this.visualOption('draft', 'menu.visual-draft', 'menu.visual-draft-description')}
+                </div></div><label class="test-option"><input id="fast" type="checkbox"><span><b>${t('menu.test-flight')}</b><small>${t('menu.test-flight-description')}</small></span></label></div></details>
+                <button id="start" class="primary launch-primary"><span class="launch-copy">${t('menu.start')}</span><span class="launch-arrow">↗</span></button>
+              </div>
+              <div class="console-footer"><span>${t('menu.footer-story')}</span><span>${t('menu.footer-prototype')} <b>0.1</b></span></div>
+            </div>
           </div>
-          <div class="console-footer"><span>${t('menu.footer-story')}</span><span>${t('menu.footer-prototype')} <b>0.1</b></span></div>
         </div>
       </section>
       <section id="intro" class="screen centered hidden"><div class="eyebrow">${t('intro.recovered')}</div><h2>${t('intro.title')}</h2><p>${t('intro.text')}</p><div id="countdown">${this.countdownValue}</div><span class="tiny-label">${t('intro.launch-sequence')}</span></section>
       <section id="hud" class="hidden">
-        <div class="mission-block"><div class="eyebrow">${t('hud.operation')} <span id="mission-time">00:00</span></div><h3 id="stage-title">${stageTitle(0)}</h3><p id="objective">${stageObjective(0)}</p><div class="stage-track">${STAGES.map((_, i) => `<i data-stage="${i}"></i>`).join('')}</div></div>
+        <div class="mission-block"><div class="eyebrow"><span class="mission-label">${t('hud.operation')}</span><span id="mission-time">00:00</span></div><h3 id="stage-title">${stageTitle(0)}</h3><p id="objective">${stageObjective(0)}</p><div class="stage-track">${STAGES.map((_, i) => `<i data-stage="${i}"></i>`).join('')}</div></div>
         <div class="combat-stats"><span class="tiny-label">${t('hud.kills')}</span><strong id="kills">00</strong><span class="tiny-label">${t('hud.score')} <b id="score">00000</b></span></div>
         <div id="boss-info" class="hidden"><span class="eyebrow">${t('hud.capital-ship')}</span><strong id="boss-objective"></strong></div>
         <div id="crosshair"><span></span><i></i><b></b></div><div id="aim-cursor"></div><div id="hitmarker">×</div><div id="threat-warning"><span>${t('hud.incoming')}</span></div><div id="solar-warning"><span>${t('hud.solar-hazard')}</span><i></i></div><div id="markers"></div><div id="target-arrow" class="hidden">△<span>${t('hud.target')}</span></div>
@@ -91,6 +104,22 @@ export class HUD {
           <div class="radar-panel"><canvas id="radar" width="140" height="140" aria-label="${t('hud.contacts')}"></canvas><span id="contacts">${t('hud.contacts', { count: 0 })}</span></div>
         </div>
         <div class="control-strip"><span><kbd>MOUSE</kbd> ${t('hud.direction')}</span><span><kbd>ARROWS</kbd> ${t('hud.turn-pitch')}</span><span><kbd>W S</kbd> ${t('hud.throttle')}</span><span><kbd>A D</kbd> ${t('hud.roll')}</span><span><kbd>Q E</kbd> ${t('hud.lateral')}</span><span><kbd>ESPAÇO</kbd> ${t('hud.dodge')}</span><span><kbd>F / TAB</kbd> ${t('hud.lock-target')}</span><span><kbd>ESC</kbd> ${t('hud.pause')}</span></div>
+        <button id="controls-help-toggle" class="controls-help-toggle" type="button" aria-expanded="false" aria-controls="controls-help" aria-label="${t('hud.controls')}" title="${t('hud.controls')}">?</button>
+        <div id="controls-help" class="controls-help hidden" role="dialog" aria-labelledby="controls-help-title">
+          <div class="controls-help-panel">
+            <div class="controls-help-heading"><div><span id="controls-help-title">${t('hud.controls')}</span><small>${t('hud.controls-shortcut')}</small></div><button id="controls-help-close" type="button" aria-label="${t('hud.close-controls')}">×</button></div>
+            <div class="controls-help-grid">
+              <span><kbd>MOUSE</kbd>${t('hud.direction')}</span><span><kbd>LMB</kbd>${t('hud.laser')}</span>
+              <span><kbd>RMB</kbd>${t('hud.plasma')}</span><span><kbd>ARROWS</kbd>${t('hud.turn-pitch')}</span>
+              <span><kbd>W S</kbd>${t('hud.throttle')}</span><span><kbd>A D</kbd>${t('hud.roll')}</span>
+              <span><kbd>Q E</kbd>${t('hud.lateral')}</span><span><kbd>SHIFT</kbd>${t('hud.boost-action')}</span>
+              <span><kbd>ESPAÇO</kbd>${t('hud.dodge')}</span><span><kbd>F / TAB</kbd>${t('hud.lock-target')}</span>
+              <span><kbd>V</kbd>${t('hud.shield-toggle')}</span><span><kbd>R</kbd>${t('hud.burst')}</span>
+              <span><kbd>M</kbd>${t('hud.mute')}</span><span><kbd>ESC</kbd>${t('hud.pause')}</span>
+              <span><kbd>H</kbd>${t('hud.help-action')}</span><span><kbd>F3</kbd>${t('hud.debug')}</span>
+            </div>
+          </div>
+        </div>
         <div id="target-info">${t('hud.no-target')} <span>· ${t('hud.lock')}</span></div><pre id="debug" class="hidden"></pre>
       </section>
       <section id="pause" class="screen centered hidden"><div class="eyebrow">${t('pause.eyebrow')}</div><h2>${t('pause.title')}</h2><p>${t('pause.text')}</p><button id="resume" class="primary">${t('pause.resume')} <span>↗</span></button><div class="locale-toggle pause-locale" aria-label="${t('locale.select')}">${this.localeButtons()}</div><div class="audio-settings">${(['master', 'music', 'sfx'] as const).map(bus => `<label>${t(`audio.${bus}`)}<input data-audio="${bus}" type="range" min="0" max="1" step="0.01" value="${audioValues.get(bus) ?? audioPreferences[bus]}"></label>`).join('')}</div><button id="restart-pause" class="text-button">${t('pause.restart')}</button></section>
@@ -103,10 +132,15 @@ export class HUD {
     this.markerViews = [];
     this.radar = (this.elements.radar as HTMLCanvasElement).getContext('2d')!;
     this.elements.start.onclick = () => this.onStart((this.elements.fast as HTMLInputElement).checked);
+    this.elements['controls-help-toggle'].onclick = () => this.toggleControlsHelp();
+    this.elements['controls-help-close'].onclick = () => this.toggleControlsHelp(false);
     this.elements.resume.onclick = () => this.onResume();
     this.elements.restart.onclick = this.elements['restart-pause'].onclick = () => this.onRestart();
     this.root.querySelectorAll<HTMLButtonElement>('[data-ship]').forEach(button => {
       button.onclick = () => this.selectShip(button.dataset.ship as PlayerShipVariant);
+    });
+    this.root.querySelectorAll<HTMLButtonElement>('[data-ship-cycle]').forEach(button => {
+      button.onclick = () => this.cycleShip(button.dataset.shipCycle === 'next' ? 1 : -1);
     });
     this.root.querySelectorAll<HTMLButtonElement>('[data-visual-style]').forEach(button => {
       button.onclick = () => this.selectVisualStyle(button.dataset.visualStyle as VisualStyle);
@@ -150,6 +184,12 @@ export class HUD {
     this.onShipSelect(variant);
   }
 
+  private cycleShip(direction: number) {
+    const variants: PlayerShipVariant[] = ['lego', 'classic'];
+    const current = variants.indexOf(this.selectedShip);
+    this.selectShip(variants[(current + direction + variants.length) % variants.length]);
+  }
+
   private selectVisualStyle(style: VisualStyle) {
     if (style === this.selectedVisualStyle) return;
     this.selectedVisualStyle = style;
@@ -170,6 +210,7 @@ export class HUD {
 
   show(screen: Screen) {
     this.currentScreen = screen;
+    if (screen !== 'playing') this.toggleControlsHelp(false);
     for (const id of ['menu', 'intro', 'hud', 'pause', 'result']) this.elements[id].classList.add('hidden');
     if (screen === 'playing') this.elements.hud.classList.remove('hidden');
     else if (screen === 'victory' || screen === 'defeat') this.elements.result.classList.remove('hidden');
@@ -213,6 +254,8 @@ export class HUD {
     text('plasma-status', progression.weaponLevel < 2 ? '◇' : plasmaCd > 0 ? plasmaCd.toFixed(1) : '●'); text('burst-status', progression.weaponLevel < 3 ? '◇' : burstCd > 0 ? `${Math.ceil(burstCd)}s` : '●');
     for (const el of this.stageElements) el.classList.toggle('active', Number(el.dataset.stage) <= progression.stage);
     e['boss-info'].classList.toggle('hidden', !bossObjective); text('boss-objective', bossObjective ?? '');
+    const hasTarget = Boolean(selected);
+    e['target-info'].classList.toggle('has-target', hasTarget);
     text('target-info', selected ? `${selected.name.toUpperCase()}  /  ${Math.round(Vector3.Distance(player.position, selected.position))} m` : `${t('hud.no-target')} · ${t('hud.lock')}`);
     this.toastTime -= dt; this.hitTime -= dt; this.impactTime -= dt; this.threatTime -= dt; this.damageTime -= dt;
     e.toast.classList.toggle('visible', this.toastTime > 0); e.hitmarker.style.opacity = this.hitTime > 0 ? '1' : '0'; e['impact-flash'].style.opacity = this.impactTime > 0 ? `${Math.min(0.3, this.impactTime * 1.8)}` : '0'; e['threat-flash'].style.opacity = this.threatTime > 0 ? `${Math.min(0.55, this.threatTime * 2.2)}` : '0'; e['threat-warning'].classList.toggle('visible', this.threatTime > 0); e['damage-flash'].style.opacity = this.damageTime > 0 ? '1' : '0';
@@ -221,6 +264,14 @@ export class HUD {
 
   aim(x: number, y: number) { this.elements['aim-cursor'].style.left = `${(x + 1) * 50}%`; this.elements['aim-cursor'].style.top = `${(y + 1) * 50}%`; }
   debugInfo(value: string) { this.elements.debug.classList.toggle('hidden', !this.debug); if (this.debug) this.elements.debug.textContent = value; }
+
+  private toggleControlsHelp(open?: boolean) {
+    const panel = this.elements['controls-help'];
+    const toggle = this.elements['controls-help-toggle'];
+    const isOpen = open ?? panel.classList.contains('hidden');
+    panel.classList.toggle('hidden', !isOpen);
+    toggle.setAttribute('aria-expanded', String(isOpen));
+  }
 
   private drawMarkers(scene: Scene, player: PlayerShip, targets: Target[], selected?: Target) {
     const engine = scene.getEngine(), camera = scene.activeCamera!; const width = engine.getRenderWidth(), height = engine.getRenderHeight(); let index = 0; let selectedVisible = false;

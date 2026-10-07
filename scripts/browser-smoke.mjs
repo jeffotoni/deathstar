@@ -26,6 +26,10 @@ try {
   await page.locator('.topbar .locale-toggle').getByRole('button', { name: 'EN' }).click();
   await page.getByRole('button', { name: 'START MISSION' }).waitFor({ timeout: 60000 });
   assert.match(await page.locator('.wordmark').textContent(), /STELLAR ABYSS/, 'English brand restores');
+  await page.locator('[data-ship-cycle="next"]').click();
+  assert.ok(await page.locator('[data-ship="classic"]').evaluate(button => button.classList.contains('active')), 'next arrow selects the next ship');
+  await page.locator('[data-ship-cycle="prev"]').click();
+  assert.ok(await page.locator('[data-ship="lego"]').evaluate(button => button.classList.contains('active')), 'previous arrow selects the previous ship');
   await page.locator('[data-ship="classic"]').click();
   assert.ok(await page.locator('[data-ship="classic"]').evaluate(button => button.classList.contains('active')), 'classic ship can be selected');
   assert.match(await page.locator('#selected-ship-name').textContent(), /GAEL RAY/, 'classic ship details update');
@@ -35,6 +39,7 @@ try {
   const startBox = await page.locator('#start').boundingBox();
   assert.ok(pickerBox && startBox && pickerBox.y < startBox.y, 'ship selection appears before launch button');
   await page.screenshot({ path: '/private/tmp/veu-menu.png' });
+  await page.locator('.mission-config summary').click();
   await page.locator('[data-visual-style="draft"]').click();
   assert.ok(await page.locator('[data-visual-style="draft"]').evaluate(button => button.classList.contains('active')), 'draft visual style can be selected');
   assert.ok(await page.locator('#ui').evaluate(ui => ui.classList.contains('draft-visual')), 'draft visual state is reflected in the UI');
@@ -59,11 +64,21 @@ try {
   console.log('MENU', await page.locator('#backend').textContent());
   await page.locator('[data-visual-style="draft"]').click();
   assert.ok(await page.locator('#ui').evaluate(ui => ui.classList.contains('draft-visual')), 'draft visual style carries into mission launch');
-  await page.locator('.mission-options summary').click();
+  const missionConfigOpen = await page.locator('.mission-config').getAttribute('open');
+  if (missionConfigOpen === null) await page.locator('.mission-config summary').click();
   await page.locator('#fast').check();
   await page.getByRole('button', { name: 'START MISSION' }).click();
   await page.locator('#hud').waitFor({ state: 'visible', timeout: 20000 });
   await page.waitForFunction(() => document.querySelector('#shield-visibility')?.textContent === 'SHIELD HIDDEN');
+  await page.locator('#controls-help-toggle').click();
+  assert.equal(await page.locator('#controls-help').isVisible(), true, 'controls help opens from the HUD button');
+  assert.equal(await page.locator('.controls-help-grid span').count(), 16, 'controls help lists every shortcut');
+  await page.locator('#controls-help-close').click();
+  assert.equal(await page.locator('#controls-help').isVisible(), false, 'controls help closes from its close button');
+  await page.keyboard.press('KeyH');
+  assert.equal(await page.locator('#controls-help').isVisible(), true, 'controls help opens with H');
+  await page.keyboard.press('KeyH');
+  assert.equal(await page.locator('#controls-help').isVisible(), false, 'controls help closes with H');
   await page.keyboard.press('KeyV');
   await page.waitForFunction(() => document.querySelector('#shield-visibility')?.textContent === 'SHIELD VISIBLE');
   await page.waitForTimeout(750); // Allow first-use shield shaders to finish before visual capture.
